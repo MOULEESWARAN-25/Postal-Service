@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Office Locator</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<h3>Locate Post Offices in Sub-District</h3>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=[REDACTED_GOOGLE_MAPS_KEY]&libraries=places"></script> 
+
+<script>
+// Leaflet map and Google Places service
+let map, service;
+
+// Initialize the Leaflet map
+function initMap() {
+    // Initial center location (Bengaluru, Karnataka)
+    const initialLocation = [12.9716, 77.5946]; 
+
+    // Create the Leaflet map
+    map = L.map('map').setView(initialLocation, 13);
+
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+}
+
+// Geocode sub-district and search for post offices
+function locatePostOffices(subDistrictName) {
+    const geocoder = new google.maps.Geocoder();
+
+    geocoder.geocode({ 'address': subDistrictName }, function(results, status) {
+        if (status === google.maps.GeocoderStatus.OK) {
+            const location = results[0].geometry.location;
+
+            // Convert Google Maps LatLng to Leaflet LatLng
+            const leafletLocation = [location.lat(), location.lng()];
+            map.setView(leafletLocation, 13);
+
+            // Search for post offices using Google Places API
+            searchForPostOffices(location);
+        } else {
+            alert("Geocode was not successful for the following reason: " + status);
+        }
+    });
+}
+
+// Search for post offices using Google Places API
+function searchForPostOffices(location) {
+    const request = {
+        location: location,
+        radius: 5000, // 5km radius
+        type: ['post_office'],
+    };
+
+    service = new google.maps.places.PlacesService(document.createElement('div')); // Virtual element
+    service.nearbySearch(request, function(results, status) {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+            results.forEach(postOffice => {
+                const { lat, lng } = postOffice.geometry.location;
+
+                // Add marker to Leaflet map
+                L.marker([lat(), lng()])
+                    .addTo(map)
+                    .bindPopup(`<strong>${postOffice.name}</strong><br>${postOffice.vicinity}`);
+            });
+        } else {
+            alert("No post offices found in the area.");
+        }
+    });
+}
+
+// Initialize the map and call locatePostOffices with a sample sub-district name
+window.onload = function() {
+    initMap();
+    locatePostOffices("Dindigul, Tamil Nadu"); // Example sub-district
+};
+</script>
+
+</body>
+</html>
