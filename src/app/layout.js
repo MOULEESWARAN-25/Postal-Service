@@ -23,7 +23,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className={inter.className}>
-        <main className="flex h-screen bg-gray-900 text-gray-100 overflow-hidden">
+        <main className="flex h-screen bg-white text-gray-100 overflow-hidden">
           <div className="flex flex-col flex-1 h-full overflow-y-auto">
             <ClientHeader />
             {children}

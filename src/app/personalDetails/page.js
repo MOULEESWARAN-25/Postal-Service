@@ -250,7 +250,7 @@ export default function PersonDashboard() {
               <motion.div
                 key={index}
                 variants={itemVariants}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300 }}
                 className="bg-white shadow-md rounded-lg w-[335px] min-h-[80px] my-2 p-4 flex items-center h-full"
               >
@@ -290,7 +290,7 @@ export default function PersonDashboard() {
                   key={index}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   className="bg-white shadow-md rounded-lg w-[335px] m-h-[200px] h-full my-2 p-4"
                 >
@@ -313,7 +313,7 @@ export default function PersonDashboard() {
                   key={index}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 300, damping: 20 }}
                   className="bg-white shadow-md rounded-lg w-[335px] min-h-[80px] h-full my-2 p-4 flex items-center"
                 >
@@ -346,7 +346,7 @@ export default function PersonDashboard() {
             <div className="flex flex-col">
               <motion.div
                 variants={itemVariants}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300 }}
                 className="bg-white shadow-md rounded-lg w-[317px] min-h-[80px] my-2 p-4 flex items-center"
               >
@@ -360,7 +360,7 @@ export default function PersonDashboard() {
 
               <motion.div
                 variants={itemVariants}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300 }}
                 className="bg-white shadow-md rounded-lg w-[317px] min-h-[80px] h-full my-2 flex justify-center items-center"
               >
@@ -371,7 +371,7 @@ export default function PersonDashboard() {
             <div className="flex flex-col">
               <motion.div
                 variants={itemVariants}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300 }}
                 className="bg-white shadow-md rounded-lg w-[317px] min-h-[80px] my-2 p-4 flex items-center"
               >
@@ -383,7 +383,7 @@ export default function PersonDashboard() {
 
               <motion.div
                 variants={itemVariants}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300 }}
                 className="bg-white shadow-md rounded-lg w-[317px] min-h-[80px] h-full my-2 p-4 flex items-center"
               >
@@ -398,7 +398,7 @@ export default function PersonDashboard() {
 
               <motion.div
                 variants={itemVariants}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300 }}
                 className="bg-white shadow-md rounded-lg w-[317px] min-h-[80px] my-2 h-full"
               ></motion.div>
@@ -408,7 +408,7 @@ export default function PersonDashboard() {
               <div className="flex flex-row space-x-4">
                 <motion.div
                   variants={itemVariants}
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 300 }}
                   className="bg-white shadow-md rounded-lg w-full min-h-[80px] my-2 p-4 flex items-center"
                 >
@@ -420,13 +420,13 @@ export default function PersonDashboard() {
 
                 <motion.div
                   variants={itemVariants}
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 300 }}
                   className="flex flex-col"
                 >
                   <motion.div
                     variants={itemVariants}
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.02 }}
                     transition={{ type: "spring", stiffness: 300 }}
                     className="bg-white shadow-md rounded-lg w-[335px] min-h-[80px] h-full my-2 p-4 flex items-center"
                   >
@@ -440,12 +440,12 @@ export default function PersonDashboard() {
 
               <motion.div
                 variants={itemVariants}
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300 }}
                 className="flex flex-row space-x-4"
               >
                 <motion.div
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 300 }}
                   className="bg-white shadow-md rounded-lg w-[335px] min-h-[80px] my-2 p-4"
                 >
@@ -476,7 +476,7 @@ export default function PersonDashboard() {
                 </motion.div>
 
                 <motion.div
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.02 }}
                   transition={{ type: "spring", stiffness: 300 }}
                   className="bg-white shadow-md rounded-lg w-full min-h-[80px] my-2 p-4"
                 >
@@ -506,7 +506,7 @@ export default function PersonDashboard() {
           {/* Loan Details */}
           <motion.div
             variants={itemVariants}
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.02 }}
             transition={{ type: "spring", stiffness: 300 }}
             className="flex flex-col w-full"
           >
@@ -537,7 +537,7 @@ export default function PersonDashboard() {
           {/* Post Office Details */}
           <motion.div
             variants={itemVariants}
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.02 }}
             transition={{ type: "spring", stiffness: 300 }}
             className="flex flex-col"
           >
@@ -562,7 +562,7 @@ export default function PersonDashboard() {
           {/* Scheme Recommendations */}
           <motion.div
             variants={itemVariants}
-            whileHover={{ scale: 1.05 }}
+            whileHover={{ scale: 1.002 }}
             transition={{ type: "spring", stiffness: 300 }}
             className="flex flex-col"
           >
@@ -576,7 +576,7 @@ export default function PersonDashboard() {
                   <motion.div
                     key={index}
                     variants={itemVariants}
-                    whileHover={{ scale: 1.05 }}
+                    whileHover={{ scale: 1.02 }}
                     transition={{ type: "spring", stiffness: 300 }}
                     className="flex justify-between items-center"
                   >
@@ -618,7 +618,7 @@ export default function PersonDashboard() {
       onClick={(e) => e.stopPropagation()}
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 1 }}
     >
       <div className="text-center mb-4">
         <h2 className="text-3xl font-semibold text-gray-800">Recommended Schemes</h2>

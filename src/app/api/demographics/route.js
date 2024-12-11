@@ -4,7 +4,7 @@ import Village from "../../../models/Village";
 
 export async function POST(req) {
   await connectToDatabase(); // Ensure database connection is established
-
+console.log("hello");
   try {
     const body = await req.json(); // Parse the request body
     const { address } = body;
@@ -26,6 +26,7 @@ export async function POST(req) {
       const regex = new RegExp(`\\b${address.name}\\b`, "i");
       const villages = await Village.find({ name: { $regex: regex } });
 
+      console.log(villages);
       // Remove duplicates based on the 'tru' field
       const uniqueVillages = Array.from(
         new Map(villages.map((village) => [village.tru, village])).values()

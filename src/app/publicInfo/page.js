@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
-import { ArrowLeft, ArrowRight, Search, Proportions } from "lucide-react";
+import { ArrowLeft, ArrowRight, Search, Proportions, Download } from "lucide-react";
 import useDashboardStore from "@/store/dashboardStore";
 import { useRouter } from "next/navigation";
 
@@ -22,6 +22,78 @@ const PublicInfo = () => {
   const [schemesVisible, setSchemesVisible] = useState(false);
   const itemsPerPage = 10;
 
+
+
+
+  const downloadCSV = async () => {
+    try {
+      setLoading(true);
+      // Fetch all data without pagination
+      const response = await axios.get(`/api/publicInfo`, {
+        params: {
+          page: 1,
+          limit: 100000, // Large number to fetch all records
+          search: searchQuery,
+          villages: selectedVillages.join(","),
+          schemes: selectedSchemes.join(","),
+        },
+      });
+  
+      const dataToDownload = response.data.data;
+  
+      const keys = [
+        "aadharId", 
+        "name", 
+        "area", 
+        "recommendedScheme1", 
+        "scheme1", 
+        "recommendedScheme2", 
+        "scheme2", 
+        "recommendedScheme3", 
+        "scheme3"
+      ];
+  
+      const header = keys.join(",");
+      const rows = dataToDownload.map((obj) => 
+        keys
+          .map((key) => {
+            let value = obj[key];
+            // Convert boolean to Yes/No
+            if (typeof value === 'boolean') {
+              value = value ? 'Yes' : 'No';
+            }
+            // Escape commas and quotes
+            return value !== null && value !== undefined 
+              ? `"${String(value).replace(/"/g, '""')}"` 
+              : '""';
+          })
+          .join(",")
+      );
+  
+      const csv = [header, ...rows].join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+  
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", "public_information.csv");
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+  
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Error downloading CSV:", error);
+      // Optionally show an error message to the user
+      setError("Unable to download data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  console.log(data)
   const schemes = [
     "Post Office Savings Account",
     "Recurring Deposit Scheme (RD)",
@@ -119,7 +191,7 @@ const PublicInfo = () => {
 
   return (
     <div className="bg-gray-50  ">
-      <div className="w-full border bg-white shadow-lg rounded-lg p-6">
+      <div className="w-full border bg-white  rounded-lg p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-extrabold text-gray-900">
             Public Information Portal
@@ -137,7 +209,7 @@ const PublicInfo = () => {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-white p-6 rounded-lg shadow-md mb-6"
+            className="bg-white p-6 rounded-lg  mb-6"
           >
             {/* Header with Close and Clear Buttons */}
             <div className="flex justify-between items-center mb-4">
@@ -161,7 +233,7 @@ const PublicInfo = () => {
                   setSearchQuery(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full bg-transparent pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
 
@@ -180,7 +252,7 @@ const PublicInfo = () => {
                 </button>
               </div>
               {schemesVisible && (
-                <div className="grid grid-cols-2 gap-2 mt-3 max-h-32 overflow-y-auto">
+                <div className="grid grid-cols-4 gap-2 mt-3 max-h-36 overflow-y-auto">
                   {schemes.map((scheme) => (
                     <button
                       key={scheme}
@@ -200,29 +272,44 @@ const PublicInfo = () => {
           </motion.div>
         )}
         {/* Pagination */}
-        <div className="flex justify-between items-center my-3 bg-gray-100 p-4 rounded-lg">
+        <div className="flex justify-between items-center my-3 bg-gray-100 p-2 rounded-lg">
           <button
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
-            className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-md disabled:opacity-50 hover:bg-blue-700 transition"
+            className="flex items-center space-x-1 bg-blue-600 text-white px-2 py-2 rounded-md disabled:opacity-50 hover:bg-blue-700 transition"
           >
-            <ArrowLeft className="h-5 w-5" />
-            <span>Previous</span>
+            <ArrowLeft className="h-4 w-4" />
+            <span className="text-xs">Previous</span>
           </button>
 
           <span className="text-gray-700">
             Page {currentPage} of {totalPages}
           </span>
 
+
+          
+
+
+
+<button
+  className="flex items-center space-x-1 bg-blue-600 text-white px-2 py-2 rounded-md hover:bg-blue-700 transition"
+  onClick={downloadCSV}
+  disabled={loading}
+>
+  <Download className="h-4 w-4" />
+  <span className="text-xs">
+    {loading ? "Downloading..." : "Download CSV"}
+  </span>
+</button>
           <button
             onClick={() =>
               setCurrentPage((prev) => Math.min(prev + 1, totalPages))
             }
             disabled={currentPage === totalPages}
-            className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-md disabled:opacity-50 hover:bg-blue-700 transition"
+            className="flex items-center space-x-1 bg-blue-600 text-white px-2 py-2 rounded-md disabled:opacity-50 hover:bg-blue-700 transition"
           >
-            <span>Next</span>
-            <ArrowRight className="h-5 w-5" />
+            <span className="text-xs">Next</span>
+            <ArrowRight className="h-4 w-4" />
           </button>
         </div>
 
@@ -245,7 +332,7 @@ const PublicInfo = () => {
             transition={{ duration: 0.5 }}
           >
             <div className="overflow-x-auto">
-              <table className="w-full border-collapse bg-white shadow-sm rounded-lg overflow-hidden">
+              <table className="w-full border-collapse bg-white  rounded-lg overflow-hidden">
                 <thead className="bg-gray-100 border-b">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">

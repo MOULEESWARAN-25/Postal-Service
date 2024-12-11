@@ -192,9 +192,9 @@ const Header = () => {
               >
                 Visualize
               </Link>
-              <Link href="/publicInfo" className="hover:text-black">
+              {/* <Link href="/publicInfo" className="hover:text-black">
                 Public Info
-              </Link>
+              </Link> */}
             </motion.nav>
           )}
         </AnimatePresence>
@@ -422,10 +422,10 @@ const Header = () => {
                 <Link href={"/calender"} className="p-2 text-black">
                   Event Calender
                 </Link>
-                <div className="divider lg:divider-horizontal m-0 py-2"></div>
-                <Link href={"/publicInfo"} className="p-2 text-black">
+                {/* <div className="divider lg:divider-horizontal m-0 py-2"></div> */}
+                {/* <Link href={"/publicInfo"} className="p-2 text-black">
                   Public Info
-                </Link>
+                </Link> */}
                 <div className="divider lg:divider-horizontal m-0 py-2"></div>
                 <a
                   href="/visualize"

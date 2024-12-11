@@ -137,87 +137,147 @@ const extractJson = (responseText) => {
 };
 
 const generateSQLQuery = async (prompt) => {
-  const system_prompt = {
-    database_structure: {
-      tamilnadustatistics: {
-        description: "Comprehensive demographic statistics for Tamil Nadu",
-        key_columns: [
-          "name", "district", 
-          "totP", "totM", "totF", "noHh","p06","m06",
-          "f06","pLit","mLit","fLit","pIll","mIll","fIll",
-          "totWorkP","totWorkM","totWorkF","mainworkP",
-          "mainworkM","mainworkF","mainClP","mainClM",
-          "margAlP", "margAlM", "margAlF",
-          "margHhP", "margHhM", "margHhF",
-          "margOtP", "margOtM", "margOtF",
-          "margwork36P", "margwork36M", "margwork36F",
-          "margCl36P", "margCl36M", "margCl36F",
-          "margAl36P", "margAl36M", "margAl36F",
-          "margHh36P", "margHh36M", "margHh36F",
-          "margOt36P", "margOt36M", "margOt36F",
-          "margwork03P", "margwork03M", "margwork03F",
-          "margCl03P", "margCl03M", "margCl03F",
-          "margAl03P", "margAl03M", "margAl03F",
-          "margHh03P", "margHh03M", "margHh03F",
-          "margOt03P", "margOt03M", "margOt03F",
-          "nonWorkP", "nonWorkM", "nonWorkF",
-          "population2540", "population4060", "population60Plus"
-        ]
-      }
-    },
-    persona: "You are an SQL query generator for Tamil Nadu demographic data analysis.",
-    objective: "Generate precise SQL queries to extract demographic insights based on user requirements.",
-    instructions: [
-      "Return only valid JSON with message and query fields",
-      "Analyze the user's request to understand specific demographic information needs",
-      "Use appropriate WHERE, GROUP BY, and aggregation functions",
-      "Provide meaningful insights through SQL queries"
-    ],
-    response_format: {
-      message: "Brief explanation of the query",
-      query: "The SQL query"
-    }
-  };
-
   try {
     const response = await generateText({
       model: google("gemini-1.5-flash-latest"),
-      prompt: `Given the following request: "${prompt}", generate an SQL query to extract demographic statistics. Return your response as a JSON object with 'message' and 'query' fields. ${JSON.stringify(system_prompt)}`,
-      maxSteps: 5,
+      prompt: `Generate an SQL query to select ALL columns for the location mentioned in the user's request.
+
+User Request: "${prompt}"
+
+REQUIREMENTS:
+1. Use a SELECT * query to fetch ALL columns
+2. Use the  name in the WHERE clause if possible
+3. Ensure the query can be executed on the tamilnadustatistics table
+
+Example Format:
+{
+  "message": "Query to fetch all demographic data for [LOCATION]",
+  "query": "SELECT * FROM tamilnadustatistics WHERE name = '[LOCATION]';"
+}`,
+      maxSteps: 3,
     });
 
     const result = extractJson(response.text);
     
     if (!result.query) {
-      throw new Error(`Invalid query generated: ${JSON.stringify(result)}`);
+      result.query = `SELECT * FROM tamilnadustatistics WHERE name LIKE '%${prompt.split(' ')[0]}%';`;
+      result.message = `Fallback query to fetch all columns for locations similar to ${prompt.split(' ')[0]}`;
     }
     
     return result;
   } catch (error) {
     console.error("Error generating SQL query:", error);
-    throw new Error(`Failed to generate SQL query: ${error.message}`);
+    return {
+      query: "SELECT * FROM tamilnadustatistics;",
+      message: "Fallback query to fetch all data due to query generation error"
+    };
   }
 };
 
+// Update the generateResultInterpretation function to include marketing strategies
 const generateResultInterpretation = async (prompt, statistics) => {
   try {
     const response = await generateText({
       model: google("gemini-1.5-flash-latest"),
-      prompt: `Provide a detailed, insightful interpretation of the demographic statistics for the query: "${prompt}". 
-      Statistics data: ${JSON.stringify(statistics)}
-      
-      Guidelines:
-      - Provide a comprehensive analysis
-      - Highlight key demographic insights
-      - Use clear, concise language
-      - Focus on meaningful interpretations of the data`,
+      prompt: `You are a marketing strategist for India Post. Provide a comprehensive marketing strategy for promoting post office schemes based on the demographic data.
+
+Query: "${prompt}"
+Statistics data: ${JSON.stringify(statistics)}
+
+MARKETING STRATEGY GUIDELINES:
+1. Analyze demographic data to identify target audiences
+2. Suggest specific marketing channels and approaches
+3. Create tailored messaging for different demographic segments
+4. Recommend local community engagement strategies
+5. Propose digital and traditional marketing methods
+6. Consider cultural and economic nuances of the region
+
+REQUIRED OUTPUT FORMAT:
+{
+  "targetAudiences": [
+    {
+      "segment": "Young Professionals (25-40)",
+      "schemes": ["Recurring Deposit", "PPF"],
+      "marketingApproaches": [
+        "Social media targeted ads",
+        "LinkedIn campaign",
+        "Campus and corporate workshops"
+      ]
+    }
+  ],
+  "communicationStrategy": {
+    "keyMessages": [
+      "Secure your financial future",
+      "Government-backed investments"
+    ],
+    "communicationChannels": [
+      "Local language newspapers",
+      "Community radio",
+      "Digital platforms"
+    ]
+  },
+  "communityEngagementTips": [
+    "Partner with local banks for awareness camps",
+    "Conduct financial literacy workshops"
+  ]
+}`,
       maxSteps: 5,
     });
 
     return response.text;
   } catch (error) {
-    console.error("Error generating result interpretation:", error);
-    return "Unable to generate detailed interpretation of the statistics.";
+    console.error("Error generating marketing strategy:", error);
+    return JSON.stringify({
+      error: "Unable to generate marketing strategy",
+      fallbackTips: [
+        "Conduct local awareness campaigns",
+        "Use multiple communication channels",
+        "Highlight scheme benefits and government backing"
+      ]
+    });
+  }
+};
+
+// Optionally, extend the access_db function to include marketing strategies
+const access_db = async (message) => {
+  try {
+    const queryResult = await generateSQLQuery(message);
+    if (!queryResult.query) {
+      throw new Error("Failed to generate SQL query");
+    }
+    
+    const connection = await getConnection();
+    const [rows] = await connection.execute(queryResult.query);
+    await connection.end();
+    
+    if (!Array.isArray(rows)) {
+      throw new Error("Invalid database response format");
+    }
+    
+    const normalizedData = normalizeStatisticsData(rows);
+    const interpretation = await generateResultInterpretation(message, normalizedData);
+    const suggestedSchemes = suggestPostOfficeSchemes(normalizedData);
+    
+    // Parse marketing strategy if it's a JSON string
+    let marketingStrategy;
+    try {
+      marketingStrategy = JSON.parse(interpretation);
+    } catch {
+      marketingStrategy = interpretation;
+    }
+    
+    return { 
+      success: true, 
+      statistics: normalizedData,
+      query: queryResult.query,
+      queryMessage: queryResult.message,
+      interpretation: interpretation,
+      suggestedSchemes: suggestedSchemes,
+      marketingStrategy: marketingStrategy
+    };
+  } catch (error) {
+    console.error("Error in accessing Database:", error);
+    return { success: false, error: error.message };
   }
 };
 
@@ -338,38 +398,38 @@ const suggestPostOfficeSchemes = (statistics) => {
   return uniqueSchemes;
 };
 
-const access_db = async (message) => {
-  try {
-    const queryResult = await generateSQLQuery(message);
-    if (!queryResult.query) {
-      throw new Error("Failed to generate SQL query");
-    }
+// const access_db = async (message) => {
+//   try {
+//     const queryResult = await generateSQLQuery(message);
+//     if (!queryResult.query) {
+//       throw new Error("Failed to generate SQL query");
+//     }
     
-    const connection = await getConnection();
-    const [rows] = await connection.execute(queryResult.query);
-    await connection.end();
+//     const connection = await getConnection();
+//     const [rows] = await connection.execute(queryResult.query);
+//     await connection.end();
     
-    if (!Array.isArray(rows)) {
-      throw new Error("Invalid database response format");
-    }
+//     if (!Array.isArray(rows)) {
+//       throw new Error("Invalid database response format");
+//     }
     
-    const normalizedData = normalizeStatisticsData(rows);
-    const interpretation = await generateResultInterpretation(message, normalizedData);
-    const suggestedSchemes = suggestPostOfficeSchemes(normalizedData);
+//     const normalizedData = normalizeStatisticsData(rows);
+//     const interpretation = await generateResultInterpretation(message, normalizedData);
+//     const suggestedSchemes = suggestPostOfficeSchemes(normalizedData);
     
-    return { 
-      success: true, 
-      statistics: normalizedData,
-      query: queryResult.query,
-      queryMessage: queryResult.message,
-      interpretation: interpretation,
-      suggestedSchemes: suggestedSchemes
-    };
-  } catch (error) {
-    console.error("Error in accessing Database:", error);
-    return { success: false, error: error.message };
-  }
-};
+//     return { 
+//       success: true, 
+//       statistics: normalizedData,
+//       query: queryResult.query,
+//       queryMessage: queryResult.message,
+//       interpretation: interpretation,
+//       suggestedSchemes: suggestedSchemes
+//     };
+//   } catch (error) {
+//     console.error("Error in accessing Database:", error);
+//     return { success: false, error: error.message };
+//   }
+// };
 
 export async function POST(req) {
   try {

@@ -1,5 +1,5 @@
 "use client";
-import { DollarSign, Landmark, MapPin, NotebookTabs, Pin, Users } from "lucide-react";
+import { DollarSign, Landmark, MapPin, NotebookTabs, Pin, Target, TrendingUp, Users } from "lucide-react";
 import { Loader } from "lucide-react"; // Loading icon from lucide-react
 import PopulationSpike from "../Charts/PopulationSpike";
 import LiteracyPieChart from "../Charts/LiteracyPieChart";
@@ -236,13 +236,28 @@ function Dashboard() {
                 </div>
               ))}
             </form>
+            
+            
+            
             </div>
-
+<div className="flex gap-5 ">
             {SchemePerformanceVisible &&
-            <Link href="/Schemetime" className="underline text-blue-500">
-            View Scheme Performance
+            <Link href="/Schemetime" className=" border-t border-b border-blue-300 py-2 text-blue-500 hover:underline">
+              <div className="flex items-center space-x-2">
+                <TrendingUp className="h-5 w-5" />
+                <span>View Scheme Performance</span>
+              </div>
             </Link>
-            }
+             } 
+            {SchemePerformanceVisible &&
+            <Link href="/publicInfo" className=" border-t border-b border-blue-300 py-2 text-blue-500 hover:underline">
+              <div className="flex items-center space-x-2">
+                <Target className="h-5 w-5" />
+                <span>View publicInfo</span>
+              </div>
+            </Link>
+             } 
+            </div>
             
           </div>
         )}

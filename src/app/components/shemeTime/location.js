@@ -4,11 +4,13 @@ import React, { useState } from "react";
 export default function Location({ timingData, scheme, areaType }) {
   // console.log("scheme = ",scheme);
   // const [month, setMonth] = useState([scheme?.ruralAvailability]);
-  const month = [
-    areaType === "Rural"
-      ? scheme?.ruralAvailability
-      : scheme?.urbanAvailability,
-  ];
+  // const month = [
+  //   areaType === "Rural"
+  //     ? scheme?.ruralAvailability
+  //     : scheme?.urbanAvailability,
+  // ];
+
+  const month = [scheme?.ruralAvailability]
 
   console.log("month = ", month);
 

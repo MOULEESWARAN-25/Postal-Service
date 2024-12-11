@@ -18,12 +18,12 @@ export default function PopulationSpike() {
     const spike2030 = 6;
 
     // Calculate the population for each year using the formula
-    const formula2025 = totalPopulation * Math.pow(1.012, 13 + spike2025);
-    const formula2026 = totalPopulation * Math.pow(1.012, 13 + spike2026);
-    const formula2027 = totalPopulation * Math.pow(1.012, 13 + spike2027);
-    const formula2028 = totalPopulation * Math.pow(1.012, 13 + spike2028);
-    const formula2029 = totalPopulation * Math.pow(1.012, 13 + spike2029);
-    const formula2030 = totalPopulation * Math.pow(1.012, 13 + spike2030);
+    const formula2025 = Math.round(totalPopulation * Math.pow(1.012, 13 + spike2025));
+    const formula2026 = Math.round(totalPopulation * Math.pow(1.012, 13 + spike2026));
+    const formula2027 = Math.round(totalPopulation * Math.pow(1.012, 13 + spike2027));
+    const formula2028 = Math.round(totalPopulation * Math.pow(1.012, 13 + spike2028));
+    const formula2029 = Math.round(totalPopulation * Math.pow(1.012, 13 + spike2029));
+    const formula2030 = Math.round(totalPopulation * Math.pow(1.012, 13 + spike2030));
 
     // Prepare the years and population data
     const years = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() + i);

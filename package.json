@@ -24,6 +24,7 @@
     "fs": "^0.0.1-security",
     "gapi-script": "^1.2.0",
     "immer": "^10.1.1",
+    "js-cookie": "^3.0.5",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.460.0",
     "markdown-to-jsx": "^7.7.0",
