@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { debounce } from "lodash";
 import useDashboardStore from "@/store/dashboardStore";
+import useheaddata from "@/store/headpostdata";
 
 const RegionSearch = () => {
   // Initial states with default images (for local states)
@@ -13,7 +14,6 @@ const RegionSearch = () => {
     { name: "Kerala", image: "./states/kerala.png" },
     { name: "Telangana", image: "./states/telengana.png" },
   ];
-
   // State variables
   const [searchTerm, setSearchTerm] = useState("");
   const [displayStates, setDisplayStates] = useState(INITIAL_STATES);
@@ -110,17 +110,22 @@ const RegionSearch = () => {
 
 
   const{ setState,setDistrict,setActiveTab} = useDashboardStore();
+  const{setDis,setSta}=useheaddata()
+
   const handleStateClick = (stateName) => {
     console.log(stateName);
     setState(stateName);
     setDistrict("")
+
+    setSta(stateName)
+    setDis("")
     setActiveTab('district');
 }
 
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="absolute top-full right--1/3 w-96 mt-2 bg-white border rounded-lg shadow-lg p-4 z-10"
+      className="absolute top-full -right-1/4 w-96 mt-2 bg-white border rounded-lg shadow-lg p-4 z-10"
     >
       <h5 className="text-md font-semibold mb-4 flex gap-2">
         Search by region{" "}

@@ -3,7 +3,6 @@ import { lazy, useEffect, useState } from "react";
 import useMapStore from "../../../store/useMapStore";
 import { Search, X, AlignJustify, XCircle } from "lucide-react";
 import useDemographicsStore from "@/store/demographicsStore";
-const Dashboard = lazy(() => import("./dashboard")); // Lazy load the component
 const ModernCalendar = lazy(() => import("./calender")); // Lazy load the component
 
 const PopupContent = () => {
@@ -19,8 +18,7 @@ const PopupContent = () => {
             className="overflow-y-auto h-[calc(100vh-2px)]  
           pb-24 border"
           >
-            <Dashboard />
-          </div>
+car          </div>
         );
       case 2:
         return (

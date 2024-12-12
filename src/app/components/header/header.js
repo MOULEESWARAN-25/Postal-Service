@@ -1,5 +1,18 @@
 "use client";
-import { LandPlot, Map, MapPinHouse, MapPinned, Signpost } from "lucide-react";
+import {
+  BarChart2,
+  BarChartBig,
+  FileText,
+  LandPlot,
+  Lock,
+  Map,
+  MapPinHouse,
+  MapPinned,
+  Signpost,
+  SlidersHorizontal,
+  Trophy,
+  User,
+} from "lucide-react";
 import Link from "next/link";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -465,21 +478,93 @@ const Header = () => {
 
       {/* Right Menu Section */}
       <div className="flex items-center space-x-4 ">
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full"
-        >
-          🌐
-        </motion.button>
+        <div className="dropdown dropdown-end">
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            tabIndex={0}
+            className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full"
+          >
+            🌐
+          </motion.button>
+          <ul
+            tabIndex={0}
+            className="dropdown-content menu p-2 shadow text-black bg-white rounded-box w-52"
+          >
+            <li>
+              <a>
+                <FileText className="w-5 h-5 mr-2" /> Forms
+              </a>
+            </li>
+            <li>
+              <Link href="/gamification" legacyBehavior>
+                <a>
+                  <MapPinned className="w-5 h-5 mr-2" /> Task Asign
+                </a>
+              </Link>
+            </li>
+            <li>
+              <Link href="/farm" legacyBehavior>
+                <a>
+                  <Trophy className="w-5 h-5 mr-2" /> Agricultural
+                </a>
+              </Link>
+            </li>
+            <li>
+              <Link href="/melafeedBack" legacyBehavior>
+                <a>
+                  <SlidersHorizontal className="w-5 h-5 mr-2" /> mela feed Back
+                </a>
+              </Link>
+            </li>
 
-        <motion.div
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full"
-        >
-          <span className="text-sm font-semibold">👤</span>
-        </motion.div>
+            <li>
+              <Link href="/postalHeadData" legacyBehavior>
+                <a>
+                  <BarChart2 className="w-5 h-5 mr-2" /> Data 
+                </a>
+              </Link>
+            </li>
+            <li>
+              <Link href="/rank" legacyBehavior>
+                <a>
+                  <BarChartBig className="w-5 h-5 mr-2" /> Leaderboard
+                </a>
+              </Link>
+            </li>
+          </ul>
+        </div>
+        <div className="dropdown dropdown-end">
+          <motion.div
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full"
+          >
+            <span className="text-sm font-semibold">👤</span>
+          </motion.div>
+          <ul
+            tabIndex={0}
+            className="dropdown-content menu p-2 shadow text-black bg-white rounded-box w-52"
+          >
+            <li>
+              <a>
+                <User className="w-5 h-5 mr-2" /> Profile
+              </a>
+            </li>
+            <li>
+              <Link href="/register" legacyBehavior>
+                <a>
+                  <User className="w-5 h-5 mr-2" /> Create User
+                </a>
+              </Link>
+            </li>
+            <li>
+              <a className="text-red-600">
+                <Lock className="w-5 h-5 mr-2" /> Logout
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
     </header>
   );

@@ -355,6 +355,7 @@ export default function ModernCalendar() {
                           <span className="font-medium">{event.summary}</span>
                           {event.description && (
                             <p className="text-sm text-gray-600 mt-1">
+                             
                               {event.description}
                             </p>
                           )}

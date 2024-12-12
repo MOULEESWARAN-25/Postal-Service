@@ -2,6 +2,7 @@ import "./globals.css";
 import { Inter } from "next/font/google";
 import FloatingChatbot from "./query-resolver/page";
 import ClientHeader from "./clientHeader";
+import PostOfficeSchemesBotUI from "./rag/page";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,10 +28,12 @@ export default function RootLayout({ children }) {
           <div className="flex flex-col flex-1 h-full overflow-y-auto">
             <ClientHeader />
             {children}
-            <FloatingChatbot />
+            <PostOfficeSchemesBotUI />
           </div>
         </main>
       </body>
     </html>
   );
 }
+
+

@@ -1,18 +1,30 @@
 "use client";
-import { DollarSign, Landmark, MapPin, NotebookTabs, Pin, Target, TrendingUp, Users } from "lucide-react";
+import {
+  DollarSign,
+  Landmark,
+  MapPin,
+  NotebookTabs,
+  Pin,
+  Target,
+  TrendingUp,
+  Users,
+} from "lucide-react";
 import { Loader } from "lucide-react"; // Loading icon from lucide-react
-import PopulationSpike from "../Charts/PopulationSpike";
-import LiteracyPieChart from "../Charts/LiteracyPieChart";
-import Occupation from "../Charts/Occupation";
-import WorkerClassification from "../Charts/WorkerClassification";
-import GenderAge from "../Charts/GenderAge";
+import PopulationSpike from "../components/Charts/PopulationSpike";
+import LiteracyPieChart from "../components/Charts/LiteracyPieChart";
+import Occupation from "../components/Charts/Occupation";
+import WorkerClassification from "../components/Charts/WorkerClassification";
+import GenderAge from "../components/Charts/GenderAge";
 import { useEffect, useState } from "react";
 import useDashboardStore from "@/store/dashboardStore";
-import IncomeDistribution from "../Charts/IncomeDistribution";
+import IncomeDistribution from "../components/Charts/IncomeDistribution";
 import axios from "axios";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 function Dashboard() {
+  const router = useRouter();
+
   const {
     demographicData,
     totalDemographicData,
@@ -26,13 +38,21 @@ function Dashboard() {
     village,
     subpostoffice,
     postoffice,
-    SchemePerformanceVisible
+    SchemePerformanceVisible,
   } = useDashboardStore();
 
   const [postOfficesCount, setPostOfficesCount] = useState(null);
   const [postofficesCount, setPostofficesCount] = useState(null);
   const [error, setError] = useState(null);
-  // name is not correct 
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      router.push("/login"); // Redirect to dashboard if already logged in
+    }
+  }, [router]);
+
+  // name is not correct
   const fetchVillages = async () => {
     if (!District) return;
 
@@ -42,7 +62,10 @@ function Dashboard() {
       );
 
       if (response.data[0]?.Status === "Success") {
-        const count = response.data[0].PostOffice.filter(office => office.BranchType !== "Head Post Office") || [];
+        const count =
+          response.data[0].PostOffice.filter(
+            (office) => office.BranchType !== "Head Post Office"
+          ) || [];
         console.log("count", count);
         setPostOfficesCount(count); // Update state
       } else {
@@ -54,26 +77,26 @@ function Dashboard() {
     }
   };
   const fetchPostOffices = async () => {
-    if(!subpostoffice) return
+    if (!subpostoffice) return;
 
     try {
       // If no specific pincode is provided, use a default or derive from subpostoffice
-      const searchPincode = subpostoffice ? subpostoffice.pincode : 624001; 
+      const searchPincode = subpostoffice ? subpostoffice.pincode : 624001;
 
-      const response = await axios.get(`https://api.postalpincode.in/pincode/${searchPincode}`);
-      
+      const response = await axios.get(
+        `https://api.postalpincode.in/pincode/${searchPincode}`
+      );
+
       if (response.data[0]?.Status === "Success") {
         const postOffices = response.data[0].PostOffice || [];
         setPostofficesCount(postOffices); // Update state
-      ;
-
       } else {
         setError("No post offices found");
       }
     } catch (error) {
       console.error("Error fetching post offices:", error);
       setError("Failed to fetch post offices");
-    } 
+    }
   };
   // Fetch villages when District changes
   useEffect(() => {
@@ -83,8 +106,6 @@ function Dashboard() {
   useEffect(() => {
     fetchPostOffices();
   }, [subpostoffice]);
-
-
 
   const renderInfo = () => {
     if (!State && !District && !subpostoffice && !postoffice && !village) {
@@ -137,9 +158,7 @@ function Dashboard() {
           <p className="text-sm font-medium text-blue-800">
             Branch post offices
           </p>
-          <h2 className="text-[18px] font-bold text-blue-800">
-            {postoffice}
-          </h2>
+          <h2 className="text-[18px] font-bold text-blue-800">{postoffice}</h2>
         </>
       );
     }
@@ -149,15 +168,12 @@ function Dashboard() {
           <p className="text-sm font-medium text-blue-800">
             Branch post offices
           </p>
-          <h2 className="text-[18px] font-bold text-blue-800">
-          {postoffice}
-          </h2>
+          <h2 className="text-[18px] font-bold text-blue-800">{postoffice}</h2>
         </>
       );
     }
     return "Invalid data";
   };
-
 
   useEffect(() => {
     const getDemographics = async () => {
@@ -207,58 +223,60 @@ function Dashboard() {
         {totalDemographicData && Array.isArray(totalDemographicData) && (
           <div className="bg-white flex justify-between gap-3 items-center  p-4 rounded-lg shadow-md">
             <div className="flex gap-3">
-            <h3 className="text-lg font-bold text-blue-800">
-              select demographic{" "}
-            </h3>
-            <form className="flex  items-center gap-5">
-              {totalDemographicData.map((item, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <input
-                    id={`radio-${index}`}
-                    name="demographic"
-                    value={index}
-                    onChange={() => handleRadioChange(index)}
-                    checked={
-                      selectedData === item ||
-                      (index === 0 && selectedData === null)
-                    }
-                    type="checkbox"
-                    defaultChecked
-                    className="checkbox border-blue-300 bg-white checked:[--chkbg:white] checked:[--chkfg:blue] "
-                  />
+              <h3 className="text-lg font-bold text-blue-800">
+                select demographic{" "}
+              </h3>
+              <form className="flex  items-center gap-5">
+                {totalDemographicData.map((item, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <input
+                      id={`radio-${index}`}
+                      name="demographic"
+                      value={index}
+                      onChange={() => handleRadioChange(index)}
+                      checked={
+                        selectedData === item ||
+                        (index === 0 && selectedData === null)
+                      }
+                      type="checkbox"
+                      defaultChecked
+                      className="checkbox border-blue-300 bg-white checked:[--chkbg:white] checked:[--chkfg:blue] "
+                    />
 
-                  <label
-                    htmlFor={`radio-${index}`}
-                    className="text-sm text-gray-700"
-                  >
-                    {item.tru || `Option ${index + 1}`}
-                  </label>
-                </div>
-              ))}
-            </form>
-            
-            
-            
+                    <label
+                      htmlFor={`radio-${index}`}
+                      className="text-sm text-gray-700"
+                    >
+                      {item.tru || `Option ${index + 1}`}
+                    </label>
+                  </div>
+                ))}
+              </form>
             </div>
-<div className="flex gap-5 ">
-            {SchemePerformanceVisible &&
-            <Link href="/Schemetime" className=" border-t border-b border-blue-300 py-2 text-blue-500 hover:underline">
-              <div className="flex items-center space-x-2">
-                <TrendingUp className="h-5 w-5" />
-                <span>View Scheme Performance</span>
-              </div>
-            </Link>
-             } 
-            {SchemePerformanceVisible &&
-            <Link href="/publicInfo" className=" border-t border-b border-blue-300 py-2 text-blue-500 hover:underline">
-              <div className="flex items-center space-x-2">
-                <Target className="h-5 w-5" />
-                <span>View publicInfo</span>
-              </div>
-            </Link>
-             } 
+            <div className="flex gap-5 ">
+              {SchemePerformanceVisible && (
+                <Link
+                  href="/SchemeMonth"
+                  className=" border-t border-b border-blue-300 py-2 text-blue-500 hover:underline"
+                >
+                  <div className="flex items-center space-x-2">
+                    <TrendingUp className="h-5 w-5" />
+                    <span>View Scheme Performance</span>
+                  </div>
+                </Link>
+              )}
+              {SchemePerformanceVisible && (
+                <Link
+                  href="/publicInfo"
+                  className=" border-t border-b border-blue-300 py-2 text-blue-500 hover:underline"
+                >
+                  <div className="flex items-center space-x-2">
+                    <Target className="h-5 w-5" />
+                    <span>View publicInfo</span>
+                  </div>
+                </Link>
+              )}
             </div>
-            
           </div>
         )}
       </div>
@@ -298,7 +316,7 @@ function Dashboard() {
         <div className="flex-1 min-w-[200px] bg-white rounded-lg shadow-md">
           <div className="p-4 flex items-center space-x-4">
             <div className="p-3 bg-blue-100 rounded-lg">
-              <Landmark  className="h-6 w-6 text-blue-800"/>
+              <Landmark className="h-6 w-6 text-blue-800" />
             </div>
             <div>{renderInfo()}</div>
           </div>

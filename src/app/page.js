@@ -1,11 +1,11 @@
 "use client";
 
-import Dashboard from "./components/popup/dashboard";
+import Dashboard from "./dashboard/page";
 
 export default function HomePage() {
   return (
     <div>
-  <Dashboard/>  
+      <Dashboard />
     </div>
   );
-}
+} 

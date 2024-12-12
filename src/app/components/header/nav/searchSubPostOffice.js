@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { debounce } from 'lodash';
 import useDashboardStore from '@/store/dashboardStore';
 import axios from 'axios'; // Make sure to install axios: npm install axios
+import useheaddata from '@/store/headpostdata';
 
 const SubPostOfficeSearch = () => {
   // State management
@@ -148,11 +149,14 @@ const SubPostOfficeSearch = () => {
     []
   );
 
+  const{setSub}=useheaddata()
+
   // Handle selecting a post office
   const handleClick = (office) => {
     console.log(office);
     // setSubpostoffice( office.Pincode);
     setSubpostoffice({ name: office.name, pincode: office.pincode });
+    setSub({ name: office.name, pincode: office.pincode })
     setPostoffice("");
     setActiveTab('postoffice');
   };
@@ -166,7 +170,7 @@ const SubPostOfficeSearch = () => {
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      className="absolute top-full right--1/3 w-96 mt-2 bg-white border rounded-lg shadow-lg p-4 z-10"
+      className="absolute top-full -right-1/4 w-96 mt-2 bg-white border rounded-lg shadow-lg p-4 z-10"
     >
       {/* Search Input */}
       <label className="flex items-center gap-2 border border-gray-300 rounded-lg px-3 py-2 bg-gray-50">

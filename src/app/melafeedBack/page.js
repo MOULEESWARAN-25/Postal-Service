@@ -1,4 +1,5 @@
 "use client";
+import useDashboardStore from "@/store/dashboardStore";
 import React, { useState } from "react";
 
 const FeedbackForm = () => {
@@ -20,6 +21,12 @@ const FeedbackForm = () => {
     }));
     setErrorMessage("");
   };
+
+  const{headData,setHeadData}=useDashboardStore();
+const handleclick=()=>{
+  console.log(formData);
+  setHeadData(formData)
+}
 
   const generateAndAnalyzeFeedback = (e) => {
     e.preventDefault();
@@ -312,6 +319,8 @@ const FeedbackForm = () => {
           <div className="mt-6">
             <button
               type="submit"
+
+              onClick={handleclick}
               className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-300"
             >
               Submit Feedback

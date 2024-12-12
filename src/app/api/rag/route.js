@@ -4,7 +4,7 @@ import { generateText } from "ai";
 import { createConnection } from "mysql2/promise";
 
 if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
-  throw new Error('Missing GEMINI_API_KEY environment variable');
+  throw new Error("Missing GEMINI_API_KEY environment variable");
 }
 
 const google = createGoogleGenerativeAI({
@@ -14,91 +14,93 @@ const google = createGoogleGenerativeAI({
 const POST_OFFICE_SCHEMES = [
   {
     name: "Post Office Savings Account",
-    eligibility: { 
-      minAge: 0, 
-      maxAge: 100, 
-      types: ["general", "youth", "senior"]
+    eligibility: {
+      minAge: 0,
+      maxAge: 100,
+      types: ["general", "youth", "senior"],
     },
-    description: "Basic savings account suitable for all age groups"
+    description: "Basic savings account suitable for all age groups",
   },
   {
     name: "Recurring Deposit Scheme (RD)",
-    eligibility: { 
-      minAge: 18, 
-      maxAge: 55, 
-      types: ["working", "salaried"]
+    eligibility: {
+      minAge: 18,
+      maxAge: 55,
+      types: ["working", "salaried"],
     },
-    description: "Regular monthly deposit scheme for disciplined savings"
+    description: "Regular monthly deposit scheme for disciplined savings",
   },
   {
     name: "Public Provident Fund (PPF)",
-    eligibility: { 
-      minAge: 18, 
-      maxAge: 60, 
-      types: ["salaried", "self-employed", "general"]
+    eligibility: {
+      minAge: 18,
+      maxAge: 60,
+      types: ["salaried", "self-employed", "general"],
     },
-    description: "Long-term tax-saving investment with attractive returns"
+    description: "Long-term tax-saving investment with attractive returns",
   },
   {
     name: "Senior Citizen Savings Scheme (SCSS)",
-    eligibility: { 
-      minAge: 60, 
-      maxAge: 100, 
-      types: ["retired", "senior"]
+    eligibility: {
+      minAge: 60,
+      maxAge: 100,
+      types: ["retired", "senior"],
     },
-    description: "Special savings scheme for retired individuals with higher interest rates"
+    description:
+      "Special savings scheme for retired individuals with higher interest rates",
   },
   {
     name: "Sukanya Samriddhi Yojana (SSA)",
-    eligibility: { 
-      minAge: 0, 
-      maxAge: 10, 
-      types: ["girl_child"]
+    eligibility: {
+      minAge: 0,
+      maxAge: 10,
+      types: ["girl_child"],
     },
-    description: "Savings scheme specifically for the girl child's future education and marriage"
+    description:
+      "Savings scheme specifically for the girl child's future education and marriage",
   },
   {
     name: "Atal Pension Yojana (APY)",
-    eligibility: { 
-      minAge: 18, 
-      maxAge: 40, 
-      types: ["working", "unorganized_sector"]
+    eligibility: {
+      minAge: 18,
+      maxAge: 40,
+      types: ["working", "unorganized_sector"],
     },
-    description: "Pension scheme targeting workers in the unorganized sector"
+    description: "Pension scheme targeting workers in the unorganized sector",
   },
   {
     name: "Mahila Samman Savings Certificate",
-    eligibility: { 
-      minAge: 18, 
-      maxAge: 55, 
-      types: ["women"]
+    eligibility: {
+      minAge: 18,
+      maxAge: 55,
+      types: ["women"],
     },
-    description: "Special savings certificate designed for women"
+    description: "Special savings certificate designed for women",
   },
   {
     name: "Time Deposit (TD)",
-    eligibility: { 
-      minAge: 18, 
-      maxAge: 80, 
-      types: ["general", "investor"]
+    eligibility: {
+      minAge: 18,
+      maxAge: 80,
+      types: ["general", "investor"],
     },
-    description: "Fixed deposit with flexible tenure options"
+    description: "Fixed deposit with flexible tenure options",
   },
   {
     name: "National Savings Certificate (NSC)",
-    eligibility: { 
-      minAge: 18, 
-      maxAge: 60, 
-      types: ["investor", "tax_saver"]
+    eligibility: {
+      minAge: 18,
+      maxAge: 60,
+      types: ["investor", "tax_saver"],
     },
-    description: "Tax-saving investment instrument with government backing"
-  }
+    description: "Tax-saving investment instrument with government backing",
+  },
 ];
 
 const getConnection = async () => {
   return await createConnection({
     host: process.env.MYSQL_HOST,
-    port: process.env.MYSQL_PORT, 
+    port: process.env.MYSQL_PORT,
     user: process.env.MYSQL_USER,
     database: process.env.MYSQL_DATABASE,
     password: process.env.MYSQL_PASSWORD,
@@ -118,7 +120,7 @@ const extractJson = (responseText) => {
         const cleanJson = jsonMatch[1].trim();
         return JSON.parse(cleanJson);
       }
-      
+
       const possibleJson = responseText.match(/\{[\s\S]*\}/);
       if (possibleJson) {
         return JSON.parse(possibleJson[0]);
@@ -127,11 +129,11 @@ const extractJson = (responseText) => {
     throw new Error("No valid JSON found in the response");
   } catch (error) {
     console.error("JSON parsing error:", error);
-    return { 
-      query: null, 
+    return {
+      query: null,
       message: "Failed to parse SQL query",
       error: error.message,
-      rawResponse: responseText 
+      rawResponse: responseText,
     };
   }
 };
@@ -158,18 +160,22 @@ Example Format:
     });
 
     const result = extractJson(response.text);
-    
+
     if (!result.query) {
-      result.query = `SELECT * FROM tamilnadustatistics WHERE name LIKE '%${prompt.split(' ')[0]}%';`;
-      result.message = `Fallback query to fetch all columns for locations similar to ${prompt.split(' ')[0]}`;
+      result.query = `SELECT * FROM tamilnadustatistics WHERE name LIKE '%${
+        prompt.split(" ")[0]
+      }%';`;
+      result.message = `Fallback query to fetch all columns for locations similar to ${
+        prompt.split(" ")[0]
+      }`;
     }
-    
+
     return result;
   } catch (error) {
     console.error("Error generating SQL query:", error);
     return {
       query: "SELECT * FROM tamilnadustatistics;",
-      message: "Fallback query to fetch all data due to query generation error"
+      message: "Fallback query to fetch all data due to query generation error",
     };
   }
 };
@@ -179,62 +185,21 @@ const generateResultInterpretation = async (prompt, statistics) => {
   try {
     const response = await generateText({
       model: google("gemini-1.5-flash-latest"),
-      prompt: `You are a marketing strategist for India Post. Provide a comprehensive marketing strategy for promoting post office schemes based on the demographic data.
-
-Query: "${prompt}"
-Statistics data: ${JSON.stringify(statistics)}
-
-MARKETING STRATEGY GUIDELINES:
-1. Analyze demographic data to identify target audiences
-2. Suggest specific marketing channels and approaches
-3. Create tailored messaging for different demographic segments
-4. Recommend local community engagement strategies
-5. Propose digital and traditional marketing methods
-6. Consider cultural and economic nuances of the region
-
-REQUIRED OUTPUT FORMAT:
-{
-  "targetAudiences": [
-    {
-      "segment": "Young Professionals (25-40)",
-      "schemes": ["Recurring Deposit", "PPF"],
-      "marketingApproaches": [
-        "Social media targeted ads",
-        "LinkedIn campaign",
-        "Campus and corporate workshops"
-      ]
-    }
-  ],
-  "communicationStrategy": {
-    "keyMessages": [
-      "Secure your financial future",
-      "Government-backed investments"
-    ],
-    "communicationChannels": [
-      "Local language newspapers",
-      "Community radio",
-      "Digital platforms"
-    ]
-  },
-  "communityEngagementTips": [
-    "Partner with local banks for awareness camps",
-    "Conduct financial literacy workshops"
-  ]
-}`,
+      prompt: `Provide a detailed, insightful interpretation of the demographic statistics for the query: "${prompt}". 
+      Statistics data: ${JSON.stringify(statistics)}
+      
+      Guidelines:
+      - Provide a comprehensive analysis
+      - Highlight key demographic insights
+      - Use clear, concise language
+      - Focus on meaningful interpretations of the data`,
       maxSteps: 5,
     });
 
     return response.text;
   } catch (error) {
-    console.error("Error generating marketing strategy:", error);
-    return JSON.stringify({
-      error: "Unable to generate marketing strategy",
-      fallbackTips: [
-        "Conduct local awareness campaigns",
-        "Use multiple communication channels",
-        "Highlight scheme benefits and government backing"
-      ]
-    });
+    console.error("Error generating result interpretation:", error);
+    return "Unable to generate detailed interpretation of the statistics.";
   }
 };
 
@@ -245,19 +210,22 @@ const access_db = async (message) => {
     if (!queryResult.query) {
       throw new Error("Failed to generate SQL query");
     }
-    
+
     const connection = await getConnection();
     const [rows] = await connection.execute(queryResult.query);
     await connection.end();
-    
+
     if (!Array.isArray(rows)) {
       throw new Error("Invalid database response format");
     }
-    
+
     const normalizedData = normalizeStatisticsData(rows);
-    const interpretation = await generateResultInterpretation(message, normalizedData);
+    const interpretation = await generateResultInterpretation(
+      message,
+      normalizedData
+    );
     const suggestedSchemes = suggestPostOfficeSchemes(normalizedData);
-    
+
     // Parse marketing strategy if it's a JSON string
     let marketingStrategy;
     try {
@@ -265,15 +233,15 @@ const access_db = async (message) => {
     } catch {
       marketingStrategy = interpretation;
     }
-    
-    return { 
-      success: true, 
+
+    return {
+      success: true,
       statistics: normalizedData,
       query: queryResult.query,
       queryMessage: queryResult.message,
       interpretation: interpretation,
       suggestedSchemes: suggestedSchemes,
-      marketingStrategy: marketingStrategy
+      marketingStrategy: marketingStrategy,
     };
   } catch (error) {
     console.error("Error in accessing Database:", error);
@@ -282,7 +250,7 @@ const access_db = async (message) => {
 };
 
 const normalizeStatisticsData = (data) => {
-  return data.map(item => ({
+  return data.map((item) => ({
     ...item,
     totP: Number(item.totP) || 0,
     totM: Number(item.totM) || 0,
@@ -292,16 +260,16 @@ const normalizeStatisticsData = (data) => {
     population2540: Number(item.population2540) || 0,
     population4060: Number(item.population4060) || 0,
     population60Plus: Number(item.population60Plus) || 0,
-    district: item.district || 'Not specified',
-    sub_district: item.sub_district || 'Not specified',
-    level: item.level || 'Unknown'
+    district: item.district || "Not specified",
+    sub_district: item.sub_district || "Not specified",
+    level: item.level || "Unknown",
   }));
 };
 
 const suggestPostOfficeSchemes = (statistics) => {
   const suggestedSchemes = [];
 
-  statistics.forEach(stat => {
+  statistics.forEach((stat) => {
     const population2540 = stat.population2540 || 0;
     const population4060 = stat.population4060 || 0;
     const population60Plus = stat.population60Plus || 0;
@@ -313,61 +281,67 @@ const suggestPostOfficeSchemes = (statistics) => {
       let matches = false;
       let matchReason = "";
 
-      switch(scheme.name) {
+      switch (scheme.name) {
         case "Post Office Savings Account":
           matches = true;
           matchReason = "Suitable for all age groups and demographics";
           break;
-        
+
         case "Recurring Deposit Scheme (RD)":
           if (population2540 > 0 && population1824 > 0) {
             matches = true;
-            matchReason = "Ideal for young working professionals with steady income";
+            matchReason =
+              "Ideal for young working professionals with steady income";
           }
           break;
-        
+
         case "Public Provident Fund (PPF)":
           if (population2540 > 0 && population4060 > 0) {
             matches = true;
-            matchReason = "Excellent tax-saving option for mid-career professionals";
+            matchReason =
+              "Excellent tax-saving option for mid-career professionals";
           }
           break;
-        
+
         case "Senior Citizen Savings Scheme (SCSS)":
           if (population60Plus > 0) {
             matches = true;
-            matchReason = "Tailored specifically for retired individuals seeking secure returns";
+            matchReason =
+              "Tailored specifically for retired individuals seeking secure returns";
           }
           break;
-        
+
         case "Sukanya Samriddhi Yojana (SSA)":
           if (population717 > 0) {
             matches = true;
-            matchReason = "Perfect for families with girl children's future planning";
+            matchReason =
+              "Perfect for families with girl children's future planning";
           }
           break;
-        
+
         case "Atal Pension Yojana (APY)":
           if (population2540 > 0 && population1824 > 0) {
             matches = true;
-            matchReason = "Designed for young workers in unorganized sectors seeking pension security";
+            matchReason =
+              "Designed for young workers in unorganized sectors seeking pension security";
           }
           break;
-        
+
         case "Mahila Samman Savings Certificate":
           if (totF > 0) {
             matches = true;
             matchReason = "Special savings option exclusively for women";
           }
           break;
-        
+
         case "Time Deposit (TD)":
           if (population2540 > 0 && population4060 > 0) {
             matches = true;
-            matchReason = "Flexible investment option for professionals looking to park funds";
+            matchReason =
+              "Flexible investment option for professionals looking to park funds";
           }
           break;
-        
+
         case "National Savings Certificate (NSC)":
           if (population2540 > 0 && population4060 > 0) {
             matches = true;
@@ -376,23 +350,25 @@ const suggestPostOfficeSchemes = (statistics) => {
           break;
       }
 
-      return matches ? { 
-        scheme: scheme.name, 
-        description: scheme.description,
-        matchReason: matchReason 
-      } : null;
+      return matches
+        ? {
+            scheme: scheme.name,
+            description: scheme.description,
+            matchReason: matchReason,
+          }
+        : null;
     };
 
-    const schemeMatches = POST_OFFICE_SCHEMES
-      .map(analyzeSchemes)
-      .filter(match => match !== null);
+    const schemeMatches = POST_OFFICE_SCHEMES.map(analyzeSchemes).filter(
+      (match) => match !== null
+    );
 
     suggestedSchemes.push(...schemeMatches);
   });
 
   // Remove duplicates while preserving match reasons
   const uniqueSchemes = Array.from(
-    new Map(suggestedSchemes.map(s => [s.scheme, s])).values()
+    new Map(suggestedSchemes.map((s) => [s.scheme, s])).values()
   );
 
   return uniqueSchemes;
@@ -404,21 +380,21 @@ const suggestPostOfficeSchemes = (statistics) => {
 //     if (!queryResult.query) {
 //       throw new Error("Failed to generate SQL query");
 //     }
-    
+
 //     const connection = await getConnection();
 //     const [rows] = await connection.execute(queryResult.query);
 //     await connection.end();
-    
+
 //     if (!Array.isArray(rows)) {
 //       throw new Error("Invalid database response format");
 //     }
-    
+
 //     const normalizedData = normalizeStatisticsData(rows);
 //     const interpretation = await generateResultInterpretation(message, normalizedData);
 //     const suggestedSchemes = suggestPostOfficeSchemes(normalizedData);
-    
-//     return { 
-//       success: true, 
+
+//     return {
+//       success: true,
 //       statistics: normalizedData,
 //       query: queryResult.query,
 //       queryMessage: queryResult.message,
@@ -435,34 +411,40 @@ export async function POST(req) {
   try {
     const body = await req.json();
     const { messages } = body;
-    
+
     if (!messages || !Array.isArray(messages)) {
-      return new Response(JSON.stringify({ error: "Invalid messages format" }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return new Response(
+        JSON.stringify({ error: "Invalid messages format" }),
+        {
+          status: 400,
+          headers: { "Content-Type": "application/json" },
+        }
+      );
     }
-    
+
     const dbResult = await access_db(messages[messages.length - 1].content);
-    
+
     if (!dbResult.success) {
       return new Response(JSON.stringify({ error: dbResult.error }), {
         status: 500,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
       });
     }
 
     return new Response(JSON.stringify(dbResult), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { "Content-Type": "application/json" },
     });
   } catch (error) {
     console.error("Error in POST request:", error);
-    return new Response(JSON.stringify({ 
-      error: "Internal Server Error", 
-      details: error.message 
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        error: "Internal Server Error",
+        details: error.message,
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }

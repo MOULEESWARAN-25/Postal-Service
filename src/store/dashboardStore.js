@@ -14,6 +14,9 @@ const useDashboardStore = create((set) => ({
 
   individualProfile: null,
 
+  headData: null,
+  setHeadData: (data) => set({ headData: data }),
+
   sathyBranchOffices:{
     Araipalayam: [
       "Arasur",
