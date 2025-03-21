@@ -20,7 +20,7 @@ export default function ModernCalendar() {
   const [goToDate, setGoToDate] = useState("");
   const [hoveredDay, setHoveredDay] = useState(null);
 
-  const districts = ["Holiday", "Coimbatore", "Chennai", "Thanjavur","Erode"];
+  const districts = ["Holiday", "Coimbatore", "Chennai", "Thanjavur", "Erode"];
 
   const months = [
     "January",
@@ -45,7 +45,7 @@ export default function ModernCalendar() {
       "0f9827236d2f73bb4705ad00c27d7b5d4fde8abfe11164e6d9cdf87641a3d240@group.calendar.google.com",
     Thanjavur:
       "5870ae90cd377ca289ec009216c6078cc72bc1c557cfaca54e19383e72c506d9@group.calendar.google.com",
-      Erode:
+    Erode:
       "635c2f88d0000c2849c9f2c07332dde5d2a353624c07c9bd8d9f274e5b3d90f9@group.calendar.google.com",
   };
 
@@ -355,7 +355,6 @@ export default function ModernCalendar() {
                           <span className="font-medium">{event.summary}</span>
                           {event.description && (
                             <p className="text-sm text-gray-600 mt-1">
-                             
                               {event.description}
                             </p>
                           )}

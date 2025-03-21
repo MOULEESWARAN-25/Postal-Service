@@ -94,6 +94,12 @@ export default function Login() {
           <p className="text-gray-600 text-center">
             Secure Access to Postal Services
           </p>
+
+          <p className="text-gray-500 text-center mt-4">
+            Use these demo credentials: <br />
+            <strong>Email:</strong> a@g.c <br />
+            <strong>Password:</strong> 123
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6 z-10 relative">
