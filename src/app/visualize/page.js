@@ -1076,50 +1076,56 @@ const MapComponent = () => {
         </div>
       )}
 
-      <div className="absolute p-2 gap-2 flex flex-col right-0 bottom-0 h-full w-1/4 bg-transparent z-[1000]">
-        <motion.div
-          className="w-full h-1/2 group relative"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-        >
-          <Link
-            href="/test"
-            className="absolute top-2 left-2 hidden group-hover:flex items-center z-50 px-3 py-1 bg-blue-500 text-white rounded-md shadow-lg hover:bg-blue-600 transition-all"
-          >
-            Action
-          </Link>
-          <CustomerSegmentation />
-        </motion.div>
-
-        <motion.div
-          className="w-full h-1/2 group relative"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-        >
-          <button
-            onClick={() => setMapState({ isPopupOpen: !mapState.isPopupOpen })}
-            className="absolute top-2 left-2 hidden group-hover:flex items-center z-20 px-3 py-1 bg-blue-500 text-white rounded-md shadow-lg hover:bg-blue-600 transition-all"
-          >
-            Action
-          </button>
-
-          {/* Popup overlay */}
-          {mapState.isPopupOpen && (
-            <div className="w-screen h-screen fixed inset-0 bg-gray-800 bg-opacity-75 z-40 flex items-center justify-center">
-              <div className="bg-white w-screen h-screen">
-                <Suspense fallback={<div>Loading...</div>}>
-                  <PopupContent />
-                </Suspense>
-              </div>
-            </div>
-          )}
-          <SalesOverviewChart />
-        </motion.div>
-      </div>
+     
+{/* here  */}
+      
     </div>
   );
 };
 
 export default MapComponent;
+
+
+
+// {/* <div className="absolute p-2 gap-2 flex flex-col right-0 bottom-0 h-full w-1/4 bg-transparent z-[1000]">
+// <motion.div
+//   className="w-full h-1/2 group relative"
+//   initial={{ opacity: 0, y: 20 }}
+//   animate={{ opacity: 1, y: 0 }}
+//   transition={{ delay: 0.6 }}
+// >
+//   <Link
+//     href="/test"
+//     className="absolute top-2 left-2 hidden group-hover:flex items-center z-50 px-3 py-1 bg-blue-500 text-white rounded-md shadow-lg hover:bg-blue-600 transition-all"
+//   >
+//     Action
+//   </Link>
+//   <CustomerSegmentation />
+// </motion.div>
+
+// <motion.div
+//   className="w-full h-1/2 group relative"
+//   initial={{ opacity: 0, y: 20 }}
+//   animate={{ opacity: 1, y: 0 }}
+//   transition={{ delay: 0.6 }}
+// >
+//   <button
+//     onClick={() => setMapState({ isPopupOpen: !mapState.isPopupOpen })}
+//     className="absolute top-2 left-2 hidden group-hover:flex items-center z-20 px-3 py-1 bg-blue-500 text-white rounded-md shadow-lg hover:bg-blue-600 transition-all"
+//   >
+//     Action
+//   </button>
+
+//   {/* Popup overlay */}
+//   {mapState.isPopupOpen && (
+//     <div className="w-screen h-screen fixed inset-0 bg-gray-800 bg-opacity-75 z-40 flex items-center justify-center">
+//       <div className="bg-white w-screen h-screen">
+//         <Suspense fallback={<div>Loading...</div>}>
+//           <PopupContent />
+//         </Suspense>
+//       </div>
+//     </div>
+//   )}
+//   <SalesOverviewChart />
+// </motion.div>
+// </div> */}
