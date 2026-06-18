@@ -1,43 +1,55 @@
 "use client";
 
-import { useState } from 'react';
-import { get_answer } from '../api/query-resolver/route';
-import Markdown from 'markdown-to-jsx';
-import { MessageCircle, X, Send, Loader2, bot, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect, useRef } from "react";
+import { 
+  Bot, Send, BookOpen, AlertCircle, ArrowRight
+} from "lucide-react";
+import Markdown from "markdown-to-jsx";
+import useDashboardStore from "@/store/dashboardStore";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
-// Custom Markdown components with styling
-const MarkdownCustom = ({ children, message }) => {
+// Custom Markdown components with brand styling
+const MarkdownCustom = ({ children }) => {
   const options = {
     overrides: {
       h2: {
         component: ({ children }) => (
-          <h2 className="text-lg font-bold text-blue-700 mt-4 mb-2">{children}</h2>
+          <h2 className="text-sm font-bold text-foreground mt-4 mb-2 flex items-center gap-1.5 border-b pb-1 border-border">
+            {children}
+          </h2>
         ),
       },
       h3: {
         component: ({ children }) => (
-          <h3 className="text-md font-semibold text-blue-600 mt-3 mb-2">{children}</h3>
+          <h3 className="text-xs font-bold text-primary mt-3 mb-1.5">{children}</h3>
         ),
       },
       strong: {
         component: ({ children }) => (
-          <strong className="text-blue-800 font-semibold">{children}</strong>
+          <strong className="text-foreground font-semibold">{children}</strong>
         ),
       },
       p: {
         component: ({ children }) => (
-          <p className="my-2 leading-relaxed">{children}</p>
+          <p className="my-1.5 leading-relaxed text-muted-foreground text-xs">{children}</p>
         ),
       },
       ul: {
         component: ({ children }) => (
-          <ul className="space-y-1 my-2">{children}</ul>
+          <ul className="space-y-1 my-2 list-none">{children}</ul>
         ),
       },
       li: {
         component: ({ children }) => (
-          <li className="flex items-start space-x-2">
-            <span className="text-blue-600 mt-1">•</span>
+          <li className="flex items-start gap-1.5 text-muted-foreground text-xs">
+            <span className="text-primary font-bold">•</span>
             <span>{children}</span>
           </li>
         ),
@@ -49,178 +61,249 @@ const MarkdownCustom = ({ children, message }) => {
 };
 
 export default function PostOfficeChatbot() {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
-  const [generation, setGeneration] = useState([]);
+  const { chatbotQuery, triggerChatbot } = useDashboardStore();
+  const [messages, setMessages] = useState([
+    {
+      type: "bot",
+      text: "Hello! I am your India Post Query Resolution Assistant.\n\nI can resolve your questions regarding savings schemes, accounts, interest rates, eligibility rules, and document requirements. Type a query below or select a suggested topic to get started!"
+    }
+  ]);
   const [loading, setLoading] = useState(false);
-  const [userPrompt, setUserPrompt] = useState('');
-  const [showSuggestions, setShowSuggestions] = useState(true);
+  const [userPrompt, setUserPrompt] = useState("");
+  const scrollAreaRef = useRef(null);
+
+  // Sync external chatbot triggers (e.g. "Explain Recommendation")
+  useEffect(() => {
+    if (chatbotQuery) {
+      handleSend(chatbotQuery);
+      // Clear the trigger after executing
+      triggerChatbot("");
+    }
+  }, [chatbotQuery]);
 
   const suggestions = [
     "What are the benefits of the Post Office Savings Scheme?",
     "How can I open a Senior Citizens Savings Scheme account?",
     "How do I invest in the National Savings Certificate (NSC)?",
-    "Where can I find information on the Public Provident Fund (PPF) scheme?",
-    "How can I enroll in the Sukanya Samriddhi Yojana?",
-    "What is the eligibility criteria for the Kisan Vikas Patra scheme?",
+    "How can I enroll in the Sukanya Samriddhi Yojana (SSA)?"
   ];
-  
 
-  const handleSuggestionClick = (suggestion) => {
-    setUserPrompt(suggestion);
+  const scrollToBottom = () => {
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
+    }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages, loading]);
 
-    if (userPrompt.trim() === '') {
-      alert('Please enter a valid question or suggestion.');
-      return;
-    }
+  const handleSend = async (promptText = userPrompt) => {
+    if (!promptText.trim()) return;
 
     setLoading(true);
-    setShowSuggestions(false);
+    const userMessage = { text: promptText, type: "user" };
+    setMessages((prev) => [...prev, userMessage]);
+    setUserPrompt("");
 
-    const userMessage = { text: userPrompt, type: 'user' };
-    setGeneration((prev) => [...prev, userMessage]);
+    let reply = "I'm sorry, I'm having trouble connecting to the system right now.";
+    try {
+      const res = await fetch("/api/query-resolver", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: promptText })
+      });
+      const data = await res.json();
+      if (data && data.text) {
+        reply = data.text;
+      }
+    } catch (err) {
+      console.warn("Chatbot query failed:", err);
+    }
 
-    const result = await get_answer(userPrompt);
-
-    const botMessage = { text: result.text, type: 'bot' };
-    setGeneration((prev) => [...prev, botMessage]);
-
-    setUserPrompt('');
+    const botMessage = { text: reply, type: "bot" };
+    setMessages((prev) => [...prev, botMessage]);
     setLoading(false);
   };
 
-  const toggleChat = () => {
-    setIsOpen(!isOpen);
-    setIsMinimized(false);
-  };
-
-  const minimizeChat = (e) => {
-    e.stopPropagation();
-    setIsMinimized(!isMinimized);
-  };
-
   return (
-    <div className="fixed bottom-4 right-4 z-50">
-      {/* Chat Icon Button */}
-      {!isOpen && (
-        <button
-          onClick={toggleChat}
-          className="w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-blue-500 transition-all duration-300 hover:scale-110"
-        >
-          <MessageCircle size={24} />
-        </button>
-      )}
-
-      {/* Chat Window */}
-      {isOpen && (
-        <div className={`bg-white rounded-2xl shadow-2xl w-[500px] transition-all duration-300 border border-gray-200 ${isMinimized ? 'h-20' : 'h-[600px]'}`}>
-          {/* Chat Header */}
-          <div className="bg-blue-50 p-4 rounded-t-2xl border-b border-gray-200 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <bot className="text-blue-600" size={24} />
-              <h2 className="text-lg font-semibold text-blue-800">Post Office Assistant</h2>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={minimizeChat}
-                className="p-1 hover:bg-blue-100 rounded-lg transition-colors"
-              >
-                <ChevronDown
-                  size={20}
-                  className={`text-blue-600 transform transition-transform ${isMinimized ? 'rotate-180' : ''}`}
-                />
-              </button>
-              <button
-                onClick={toggleChat}
-                className="p-1 hover:bg-blue-100 rounded-lg transition-colors"
-              >
-                <X size={20} className="text-blue-600" />
-              </button>
-            </div>
+    <ErrorBoundary>
+      <div className="bg-background min-h-[calc(100vh-80px)] text-foreground py-6 flex flex-col justify-start">
+        <div className="w-full max-w-[1100px] mx-auto flex flex-col flex-grow space-y-6 px-4 md:px-6">
+          
+          {/* Page Header */}
+          <div className="border-b pb-4 border-border">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
+              <Bot className="text-primary" /> Post Office Assistant
+            </h1>
+            <p className="text-muted-foreground text-sm mt-1">
+              Resolve customer queries instantly using the AI-powered knowledge engine for banking, insurance, and postal services.
+            </p>
           </div>
 
-          {!isMinimized && (
-            <div className="flex flex-col h-[calc(600px-64px)]">
-              {/* Main Content Area */}
-              <div className="flex-1 overflow-hidden">
-                {/* Suggestions Section */}
-                {showSuggestions && generation.length === 0 && (
-                  <div className="p-4 border-b border-gray-200">
-                    <h3 className="text-sm font-medium text-gray-600 mb-3">Suggested Questions:</h3>
-                    <div className="space-y-2">
-                      {suggestions.map((s, index) => (
-                        <button
-                          key={index}
-                          onClick={() => handleSuggestionClick(s)}
-                          className="w-full p-2 text-left text-sm text-blue-800 hover:bg-blue-50 rounded-lg transition-colors"
-                        >
-                          {s}
-                        </button>
-                      ))}
+          {/* Content Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch flex-grow min-h-[550px]">
+            
+            {/* Left Column — Scheme Reference Info */}
+            <div className="lg:col-span-4 flex flex-col space-y-4">
+              <Card className="flex flex-col flex-1 h-full border-border bg-card">
+                <CardHeader className="pb-2 border-b border-border">
+                  <CardTitle className="text-base font-bold text-foreground flex items-center gap-2">
+                    <BookOpen size={18} className="text-primary" /> Schemes Reference
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 flex-1 flex flex-col justify-between pt-4 px-4 pb-4">
+                  <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1 flex-1">
+                    <div className="p-3 bg-muted/30 rounded-lg border border-border">
+                      <h4 className="font-semibold text-xs text-foreground">Sukanya Samriddhi Yojana (SSA)</h4>
+                      <p className="text-xs text-muted-foreground mt-1">For girl children under 10 years. Currently offers 8.2% interest. Exemption under 80C.</p>
+                    </div>
+
+                    <div className="p-3 bg-muted/30 rounded-lg border border-border">
+                      <h4 className="font-semibold text-xs text-foreground">Senior Citizen Savings Scheme (SCSS)</h4>
+                      <p className="text-xs text-muted-foreground mt-1">For citizens aged 60+. Offers 8.2% interest. Quarterly interest payouts.</p>
+                    </div>
+
+                    <div className="p-3 bg-muted/30 rounded-lg border border-border">
+                      <h4 className="font-semibold text-xs text-foreground">National Savings Certificate (NSC)</h4>
+                      <p className="text-xs text-muted-foreground mt-1">5-year maturity scheme. 7.7% interest rate compounded annually. 80C tax benefits.</p>
+                    </div>
+
+                    <div className="p-3 bg-muted/30 rounded-lg border border-border">
+                      <h4 className="font-semibold text-xs text-foreground">Kisan Vikas Patra (KVP)</h4>
+                      <p className="text-xs text-muted-foreground mt-1">Doubles investment in 115 months. 7.5% interest rate compounded annually.</p>
                     </div>
                   </div>
-                )}
 
-                {/* Chat Messages */}
-                <div className={`overflow-y-auto ${showSuggestions && generation.length === 0 ? 'h-[calc(100%-200px)]' : 'h-full'}`}>
-                  <div className="p-4 space-y-4">
-                    {generation.map((message, index) => (
-                      <div
-                        key={index}
-                        className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                      >
-                        <div
-                          className={`max-w-[80%] rounded-2xl px-4 py-2 ${
-                            message.type === 'user'
-                              ? 'bg-blue-600 text-white'
-                              : 'bg-blue-50 text-blue-900'
-                          }`}
-                        >
-                          <MarkdownCustom message={message}>{message.text}</MarkdownCustom>
-                        </div>
-                      </div>
-                    ))}
-                    {loading && (
-                      <div className="flex justify-start">
-                        <div className="bg-blue-50 rounded-2xl px-4 py-2 text-blue-600">
-                          <Loader2 className="animate-spin" size={20} />
-                        </div>
-                      </div>
-                    )}
+                  <div className="bg-primary/10 border border-primary/20 p-3 rounded-lg flex items-start gap-2 text-xs text-primary mt-4">
+                    <AlertCircle size={14} className="shrink-0 mt-0.5" />
+                    <span>Disclaimer: Scheme interest rates are reviewed quarterly by the Ministry of Finance.</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Column — Chat Container */}
+            <div className="lg:col-span-8 flex flex-col bg-card border border-border rounded-xl shadow-sm overflow-hidden min-h-[500px]">
+              
+              {/* Chat Header */}
+              <div className="bg-secondary text-secondary-foreground px-6 py-4 flex items-center justify-between border-b border-border">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                    <Bot size={16} className="text-primary-foreground" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-sm text-secondary-foreground">Postal Service Query Resolver</h3>
+                    <div className="flex items-center gap-1 mt-0.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                      <span className="text-xs text-secondary-foreground/70">Assistant Online</span>
+                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* Input Form */}
-              <form
-                onSubmit={handleSubmit}
-                className="p-4 border-t border-gray-200 bg-white mt-auto"
-              >
-                <div className="flex gap-2">
-                  <input
+              {/* Chat Messages scroll area */}
+              <ScrollArea ref={scrollAreaRef} className="flex-1 p-6 h-[420px] bg-muted/10">
+                <div className="space-y-4">
+                  {messages.map((msg, index) => (
+                    <div
+                      key={index}
+                      className={`flex items-end gap-2.5 ${msg.type === "user" ? "justify-end" : "justify-start"}`}
+                    >
+                      {msg.type === "bot" && (
+                        <Avatar className="h-8 w-8 shrink-0 border border-border">
+                          <AvatarFallback className="bg-secondary text-secondary-foreground text-xs font-bold">IP</AvatarFallback>
+                        </Avatar>
+                      )}
+                      <div
+                        className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-xs shadow-sm leading-relaxed ${
+                          msg.type === "user"
+                            ? "bg-primary text-primary-foreground rounded-br-none"
+                            : "bg-card text-foreground rounded-bl-none border border-border"
+                        }`}
+                      >
+                        {msg.type === "bot" ? (
+                          <MarkdownCustom>{msg.text}</MarkdownCustom>
+                        ) : (
+                          <p className="whitespace-pre-line font-medium">{msg.text}</p>
+                        )}
+                      </div>
+                      {msg.type === "user" && (
+                        <Avatar className="h-8 w-8 shrink-0 border border-border">
+                          <AvatarFallback className="bg-muted text-muted-foreground text-xs font-bold">USR</AvatarFallback>
+                        </Avatar>
+                      )}
+                    </div>
+                  ))}
+                  
+                  {loading && (
+                    <div className="flex items-end gap-2.5 justify-start">
+                      <Avatar className="h-8 w-8 shrink-0 border border-border">
+                        <AvatarFallback className="bg-secondary text-secondary-foreground text-xs font-bold">IP</AvatarFallback>
+                      </Avatar>
+                      <div className="max-w-[75%] rounded-2xl rounded-bl-none bg-card text-foreground border border-border px-4 py-3 text-xs shadow-sm space-y-2 w-48">
+                        <Skeleton className="h-3 w-5/6" />
+                        <Skeleton className="h-3 w-full" />
+                        <Skeleton className="h-3 w-2/3" />
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+
+              {/* Suggestions */}
+              {messages.length === 1 && (
+                <div className="px-6 pb-3 pt-2 bg-card border-t border-border">
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Suggested Inquiries</p>
+                  <div className="flex flex-col gap-2">
+                    {suggestions.map((sug, i) => (
+                      <Button
+                        key={i}
+                        variant="outline"
+                        onClick={() => handleSend(sug)}
+                        className="justify-between h-9 text-xs font-semibold px-4 w-full border-border text-foreground hover:text-primary hover:border-primary group"
+                      >
+                        <span>{sug}</span>
+                        <ArrowRight size={12} className="opacity-0 group-hover:opacity-100 transition-opacity text-primary" />
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Chat Input */}
+              <div className="p-4 border-t border-border bg-muted/20">
+                <form
+                  onSubmit={(e) => { e.preventDefault(); handleSend(); }}
+                  className="flex items-center gap-2"
+                >
+                  <Input
                     type="text"
                     value={userPrompt}
                     onChange={(e) => setUserPrompt(e.target.value)}
-                    placeholder="Type your postal service question..."
-                    className="flex-1 bg-white border border-gray-300 rounded-xl px-4 py-2 text-blue-900 placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <button
-                    type="submit"
+                    placeholder="Ask a question about post office savings, deposits, insurance..."
+                    className="flex-1 bg-card text-xs text-foreground px-4 h-10 border-border focus:ring-primary placeholder-muted-foreground"
                     disabled={loading}
-                    className="p-2 bg-blue-600 text-white rounded-xl hover:bg-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
+                  />
+                  <Button
+                    type="submit"
+                    disabled={loading || !userPrompt.trim()}
+                    className="h-10 w-10 shrink-0"
                   >
-                    <Send size={20} />
-                  </button>
-                </div>
-              </form>
+                    <Send size={16} />
+                  </Button>
+                </form>
+              </div>
+
             </div>
-          )}
+
+          </div>
+
         </div>
-      )}
-    </div>
+      </div>
+    </ErrorBoundary>
   );
-};
+}

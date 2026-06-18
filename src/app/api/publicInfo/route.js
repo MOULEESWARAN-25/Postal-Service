@@ -19,27 +19,24 @@ export async function GET(request) {
     
     if (searchTerm) {
       query.$or = [
-        { $expr: { $regexMatch: { input: { $toString: "$aadharId" }, regex: searchTerm, options: "i" } } },
-            { name: { $regex: searchTerm, $options: 'i' } },
-            { area: { $regex: searchTerm, $options: 'i' } }
+        { $expr: { $regexMatch: { input: { $toString: "$aadhaar_id" }, regex: searchTerm, options: "i" } } },
+        { Name: { $regex: searchTerm, $options: 'i' } },
+        { Area: { $regex: searchTerm, $options: 'i' } }
       ];
     }
     
-    
-
-    console.log(query);
     // Village filter
     if (villages.length > 0) {
-      query.area = { $in: villages };
+      query.Area = { $in: villages };
     }
     
     // Scheme filter
     if (schemes.length > 0) {
       query.$or = schemes.map(scheme => ({
         $or: [
-          { recommendedScheme1: scheme },
-          { recommendedScheme2: scheme },
-          { recommendedScheme3: scheme }
+          { RecommendedScheme1: scheme },
+          { RecommendedScheme2: scheme },
+          { RecommendedScheme3: scheme }
         ]
       }));
     }

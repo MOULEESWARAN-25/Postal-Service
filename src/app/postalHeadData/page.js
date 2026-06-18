@@ -66,7 +66,7 @@ const PostOfficeDashboard = () => {
   
       fetchHeadData();
     } catch (error) {
-      console.error("Error randomizing data:", error);
+      console.warn("Error randomizing data:", error);
       toast.error("Failed to randomize data");
     } finally {
       setIsLoading(false);

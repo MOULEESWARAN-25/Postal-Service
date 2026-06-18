@@ -1,10 +1,10 @@
 import React, { useRef, useEffect } from "react";
 import ApexCharts from "apexcharts";
-import useDemographicsStore from "@/store/demographicsStore";
 import useDashboardStore from "@/store/dashboardStore";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const options = {
-  colors: ["#1A56DB", "#FDBA8C"],
+  colors: ["#C8102E", "#1A2B4A"],
   chart: {
     type: "bar",
     width: "100%",
@@ -67,12 +67,14 @@ const options = {
     colors: ["transparent"],
   },
   grid: {
-    show: false,
+    show: true,
+    borderColor: '#f1f5f9',
     strokeDashArray: 4,
     padding: {
-      left: 2,
-      right: 2,
-      top: -14,
+      left: 20,
+      right: 20,
+      top: 10,
+      bottom: 10,
     },
   },
   dataLabels: {
@@ -138,12 +140,12 @@ export default function GenderAge() {
         series: [
           {
             name: "Female",
-            color: "#c8a2c8",
+            color: "#C8102E",
             data: femaleData,
           },
           {
             name: "Male",
-            color: "#1A56DB",
+            color: "#1A2B4A",
             data: maleData,
           },
         ],
@@ -161,8 +163,10 @@ export default function GenderAge() {
   }, [demographicData]); // Re-run effect when demographicData changes
 
   return (
-    <div className="flex flex-col border justify-center">
-      <div ref={chartRef} id="bar-chart"></div>
-    </div>
+    <ErrorBoundary>
+      <div className="w-full h-full flex items-center justify-center">
+        <div ref={chartRef} id="bar-chart" className="w-full"></div>
+      </div>
+    </ErrorBoundary>
   );
 }

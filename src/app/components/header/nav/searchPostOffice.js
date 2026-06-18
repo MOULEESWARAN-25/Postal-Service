@@ -117,7 +117,7 @@
 //         setPostOffice(randomPostOffices); // Use random data if district is not Sathiyamangalam
 //       }
 //     } catch (error) {
-//       console.error("Error fetching PostOffice:", error);
+//       console.warn("Error fetching PostOffice:", error);
 //     } finally {
 //       setLoading(false);
 //     }
@@ -277,7 +277,7 @@ const SearchPostOffice = () => {
         setPostOffice([]);
       }
     } catch (error) {
-      console.error("Error fetching post offices:", error);
+      console.warn("Error fetching post offices:", error);
       setError("Failed to fetch post offices");
       setPostOffice([]);
     } finally {
@@ -312,7 +312,8 @@ const SearchPostOffice = () => {
 
   // Handle selecting a post office
   const handleClick = (postOffice) => {
-    setPostoffice(postOffice["Post Office"]);
+    // Store as object with pincode so village search can use it
+    setPostoffice({ name: postOffice["Post Office"], pincode: postOffice["Pin Code"] });
     setVillage("");
     setActiveTab("village");
   };

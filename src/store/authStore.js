@@ -18,7 +18,7 @@ const useAuthStore = create((set) => ({
       const data = await response.json();
       set({ user: data.user, token: data.token, isAuthenticated: true });
     } catch (error) {
-      console.error('Login failed:', error.message);
+      console.warn('Login failed:', error.message);
       alert(error.message);
     }
   },
@@ -26,3 +26,4 @@ const useAuthStore = create((set) => ({
 }));
 
 export default useAuthStore;
+

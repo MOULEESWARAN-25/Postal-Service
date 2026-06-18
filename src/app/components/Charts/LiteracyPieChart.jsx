@@ -1,16 +1,16 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import ApexCharts from "apexcharts";
-import useDemographicsStore from "@/store/demographicsStore";
 import useDashboardStore from "@/store/dashboardStore";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const getLiteracyChartOptions = (seriesData) => {
   return {
     series: seriesData,
-    colors: ["#FF7F50", "#FFB6C1", "#9370DB", "#BA55D3"],
+    colors: ["#1A2B4A", "#475569", "#C8102E", "#94A3B8"],
     chart: {
       height: 320, // Adjust height to match Occupation chart
-      width: "110%", // Maintain width 100% within container
+      width: "100%", // Maintain width 100% within container
       type: "pie",
     },
     stroke: {
@@ -70,9 +70,10 @@ export default function LiteracyPieChart() {
   }, [demographicData]);
 
   return (
-    <div className="flex-col items-center p-4">
-      <h2 className="text-[18px] items-center text-blue-800 text-center">Literate/Illiterate Men and Women</h2>
-      <div id="literacy-chart" style={{ height: "320px", width: "100%" }}></div>
-    </div>
+    <ErrorBoundary>
+      <div className="w-full h-full flex items-center justify-center">
+        <div id="literacy-chart" style={{ height: "320px", width: "100%" }}></div>
+      </div>
+    </ErrorBoundary>
   );
 }

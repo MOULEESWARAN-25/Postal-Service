@@ -32,8 +32,8 @@ const DistrictSearch = () => {
 
       setDistricts(data.matches || []);
     } catch (error) {
-      console.error('Error fetching districts:', error);
-      setDistricts(initialDistricts);
+      console.warn('Error fetching districts:', error);
+      setDistricts([]);
     } finally {
       setLoading(false);
     }
@@ -45,7 +45,7 @@ const DistrictSearch = () => {
       if (query.trim()) {
         fetchDistricts(query);
       } else {
-        setDistricts(initialDistricts);
+        setDistricts([]);
       }
     }, 300),
     []
@@ -72,13 +72,16 @@ const DistrictSearch = () => {
   useEffect(() => {
     const fetchDistricts = async () => {
       try {
+        // State can be a string or object {name, image}
+        const stateName = typeof State === 'object' ? State?.name : State;
+
         const response = await fetch("/api/getDistricts", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            state: State, // Pass the state directly in the body object
+            state: stateName,
           }),
         });
   
@@ -87,12 +90,9 @@ const DistrictSearch = () => {
         }
   
         const data = await response.json();
-        
-        
-        setDistricts(data.matches);
-        console.log("districts",districts);
+        setDistricts(data.matches || []);
       } catch (error) {
-        console.error("Error fetching districts:", error);
+        console.warn("Error fetching districts:", error);
       }
     };
   

@@ -1,7 +1,7 @@
-"use client";
 import React, { useEffect, useRef } from 'react';
 import ApexCharts from 'apexcharts';
 import useDashboardStore from '@/store/dashboardStore';
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 export default function PopulationSpike() {
   const chartRef = useRef(null);
@@ -34,7 +34,7 @@ export default function PopulationSpike() {
     const options = {
       chart: {
         height: 300,
-        width: 723,
+        width: "100%",
         type: "area",
         fontFamily: "Poppins, sans-serif",
         dropShadow: {
@@ -55,8 +55,8 @@ export default function PopulationSpike() {
         gradient: {
           opacityFrom: 0.55,
           opacityTo: 0,
-          shade: "#1C64F2",
-          gradientToColors: ["#1C64F2"],
+          shade: "#1A2B4A",
+          gradientToColors: ["#1A2B4A"],
         },
       },
       dataLabels: {
@@ -66,19 +66,21 @@ export default function PopulationSpike() {
         width: 6,
       },
       grid: {
-        show: false,
+        show: true,
+        borderColor: '#f1f5f9',
         strokeDashArray: 4,
         padding: {
-          left: 1,
-          right: 1,
-          top: 0,
+          left: 30,
+          right: 20,
+          top: 10,
+          bottom: 10,
         },
       },
       series: [
         {
           name: "Population",
           data: populationData, // Use the calculated population data
-          color: "#1A56DB",
+          color: "#1A2B4A",
         },
       ],
       xaxis: {
@@ -115,9 +117,10 @@ export default function PopulationSpike() {
   }, [totalPopulation]);
 
   return (
-    <div className="flex-col items-center justify-between p-2">
-      <h2 className="text-[18px] text-blue-800 underline p-2 mb-2">Expected Population Spike</h2>
-      <div ref={chartRef} id="area-chart" className='text-black border rounded-lg'></div>
-    </div>
+    <ErrorBoundary>
+      <div className="w-full h-full">
+        <div ref={chartRef} id="area-chart" className="w-full text-black"></div>
+      </div>
+    </ErrorBoundary>
   );
 }

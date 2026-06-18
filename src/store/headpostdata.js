@@ -44,7 +44,7 @@ const useheaddata = create((set, get) => ({
       const data = await response.json(); 
       setsch(data); // Update store with the fetched data 
     } catch (error) { 
-      console.error("Error fetching demographics:", error); 
+      console.warn("Error fetching demographics:", error); 
     } finally { 
       setLoa(false); // Reset loading state 
     } 

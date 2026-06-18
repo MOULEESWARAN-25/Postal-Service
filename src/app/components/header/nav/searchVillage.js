@@ -4,54 +4,104 @@ import { debounce } from "lodash";
 import useDashboardStore from "@/store/dashboardStore";
 
 const VillageSearch = () => {
-  // State management
   const [searchTerm, setSearchTerm] = useState("");
   const [villages, setVillages] = useState([]);
+  const [allVillages, setAllVillages] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const { District, setVillage, setActiveTab, postoffice, sathyBranchOffices } =
+  const { District, setVillage, setActiveTab, postoffice, subpostoffice } =
     useDashboardStore();
-  // Simulated API call function
-  const fetchVillages = async (query) => {
+
+  // Fetch villages by pincode (when a post office is selected)
+  const fetchByPincode = async (pincode) => {
+    if (!pincode) return;
     setLoading(true);
     try {
-      // Replace with your actual API endpoint
-      const response = await fetch("/api/searchPlace", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          text: {
-            step: 3,
-            District: District,
-            Query: query,
-          },
-        }),
-      });
-      const data = await response.json();
-      setVillages(data.matches || []);
-    } catch (error) {
-      console.error("Error fetching villages:", error);
-      setVillages(initialVillages);
+      const res = await fetch(
+        `https://api.postalpincode.in/pincode/${pincode}`
+      );
+      const data = await res.json();
+      if (data[0]?.Status === "Success") {
+        const names = data[0].PostOffice.map((o) => o.Name).filter(Boolean);
+        const unique = [...new Set(names)].sort((a, b) => a.localeCompare(b));
+        setAllVillages(unique);
+        setVillages(unique);
+      } else {
+        setAllVillages([]);
+        setVillages([]);
+      }
+    } catch (err) {
+      console.warn("Error fetching villages by pincode:", err);
+      setAllVillages([]);
+      setVillages([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Debounced search function
+  // Fetch villages by district (when only district is selected)
+  const fetchByDistrict = async () => {
+    if (!District) return;
+    setLoading(true);
+    try {
+      const res = await fetch("/api/getVillages", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ District }),
+      });
+      if (!res.ok) throw new Error(res.statusText);
+      const data = await res.json();
+      const list = data.matches || [];
+      const sorted = list.sort((a, b) => a.localeCompare(b));
+      setAllVillages(sorted);
+      setVillages(sorted);
+    } catch (err) {
+      console.warn("Error fetching villages:", err);
+      setAllVillages([]);
+      setVillages([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // When subpostoffice changes — use its pincode to get branch offices as villages
+  useEffect(() => {
+    const pincode = subpostoffice?.pincode;
+    if (pincode) {
+      fetchByPincode(pincode);
+    }
+  }, [subpostoffice]);
+
+  // When postoffice changes — it may carry a pincode too
+  useEffect(() => {
+    if (postoffice && typeof postoffice === "object" && postoffice.pincode) {
+      fetchByPincode(postoffice.pincode);
+    }
+  }, [postoffice]);
+
+  // When only District is selected (no postoffice yet), fetch from DB/API
+  useEffect(() => {
+    if (District && !subpostoffice) {
+      fetchByDistrict();
+    }
+  }, [District]);
+
+  // Local debounced filter — no extra API call on search
   const debouncedSearch = useCallback(
     debounce((query) => {
       if (query.trim()) {
-        fetchVillages(query);
+        setVillages(
+          allVillages.filter((v) =>
+            v.toLowerCase().includes(query.toLowerCase())
+          )
+        );
       } else {
-        setVillages(initialVillages);
+        setVillages(allVillages);
       }
     }, 300),
-    []
+    [allVillages]
   );
 
-  // Handle input change
   const handleInputChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
@@ -62,46 +112,6 @@ const VillageSearch = () => {
     setVillage(village);
     setActiveTab("");
   };
-
-  useEffect(() => {
-    const fetchvillages = async () => {
-      try {
-        const response = await fetch("/api/getVillages", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            District: District,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Error fetching districts: ${response.statusText}`);
-        }
-
-        const data = await response.json();
-
-        setVillages(data.matches);
-      } catch (error) {
-        console.error("Error fetching districts:", error);
-      }
-    };
-
-    if (District && !postoffice) {
-      fetchvillages();
-    }
-  }, [District]);
-
-  useEffect(() => {
-    if (postoffice) {
-      const branchOffices = sathyBranchOffices[postoffice];
-      if (branchOffices) {
-        console.log(branchOffices);
-        setVillages(branchOffices);
-      }
-    }
-  }, [postoffice]);
 
   return (
     <div
@@ -132,7 +142,7 @@ const VillageSearch = () => {
       </label>
 
       {/* Scrollable List */}
-      <div className="overflow-y-auto border-t border-gray-200 mt-4 max-h-60 grid grid-cols-1 gap-3">
+      <div className="overflow-y-auto border-t border-gray-200 mt-4 max-h-60 grid grid-cols-1 gap-2">
         {loading ? (
           <div className="text-center py-2 text-gray-500">Loading...</div>
         ) : villages.length > 0 ? (
@@ -146,9 +156,7 @@ const VillageSearch = () => {
             </div>
           ))
         ) : (
-          <div className="text-center py-2 text-gray-500">
-            No villages found
-          </div>
+          <div className="text-center py-2 text-gray-500">No villages found</div>
         )}
       </div>
     </div>

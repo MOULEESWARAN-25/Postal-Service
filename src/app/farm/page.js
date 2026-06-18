@@ -50,7 +50,7 @@ const AgriculturalForm = () => {
       });
     } catch (err) {
       setError(err.message);
-      console.error("Weather fetch error:", err);
+      console.warn("Weather fetch error:", err);
     } finally {
       setLoading(false);
     }

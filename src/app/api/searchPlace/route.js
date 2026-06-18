@@ -1,5 +1,5 @@
-import connectToDatabase from "../../../lib/mongoose";
-import Village from "../../../models/Village";
+import connectToDatabase from "@/lib/mongoose";
+import Village from "@/models/Village";
 
 const states = [
   "Andhra Pradesh",

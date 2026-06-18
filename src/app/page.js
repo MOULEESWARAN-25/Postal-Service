@@ -1,11 +1,15 @@
 "use client";
+import dynamic from "next/dynamic";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
-import Dashboard from "./dashboard/page";
+const DashboardView = dynamic(() => import("./components/DashboardView"), {
+  ssr: false,
+});
 
 export default function HomePage() {
   return (
-    <div>
-      <Dashboard />
-    </div>
+    <ErrorBoundary>
+      <DashboardView />
+    </ErrorBoundary>
   );
-} 
+}

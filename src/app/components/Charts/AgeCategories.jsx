@@ -1,11 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react';
 import ApexCharts from 'apexcharts';
-
 import useDashboardStore from '@/store/dashboardStore';
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const options = {
   series: [], // Start with an empty array
-  colors: ["#00B4D8", "#0077B6", "#90E0EF", "#48CAE4", "#023E8A", "#1C64F2"], // Colors for each segment
+  colors: ["#1A2B4A", "#C8102E", "#475569", "#94A3B8", "#E2E8F0", "#9F1239"], // Colors for each segment
   chart: {
     height: 250,
     width: "100%",
@@ -116,9 +116,11 @@ export default function AgeDistribution() {
   }, [demographicData, chart]); // Update the chart when demographicData or chart changes
 
   return (
-    <div className="flex flex-col justify-between">
-      <h2 className="text-[18px] text-blue-800 mb-4 align-text">Age Distribution</h2>
-      <div ref={chartRef} id="donut-chart"></div>
-    </div>
+    <ErrorBoundary>
+      <div className="flex flex-col justify-between p-4">
+        <h2 className="text-lg font-semibold text-foreground text-center mb-4">Age Distribution</h2>
+        <div ref={chartRef} id="donut-chart"></div>
+      </div>
+    </ErrorBoundary>
   );
 }

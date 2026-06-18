@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import ApexCharts from "apexcharts";
 import useDashboardStore from "@/store/dashboardStore";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 export default function Occupation() {
   const { demographicData } = useDashboardStore();
@@ -39,10 +40,10 @@ export default function Occupation() {
   const getChartOptions = () => {
     return {
       series: chartData.series,
-      colors: ["#023E8A", "#0077B6", "#00B4D8", "#48CAE4"],
+      colors: ["#1A2B4A", "#475569", "#C8102E", "#94A3B8"],
       chart: {
         height: 320,
-        width: "110%",
+        width: "100%",
         type: "pie",
       },
       stroke: {
@@ -90,9 +91,10 @@ export default function Occupation() {
   }, [chartData]); // Depend on chartData to re-render when data changes
 
   return (
-    <div className="flex-col items-center justify-between p-4">
-      <h2 className="text-[18px] text-blue-800 text-center">Occupation Distribution</h2>
-      <div id="pie-chart" style={{ height: "320px", width: "100%" }}></div>
-    </div>
+    <ErrorBoundary>
+      <div className="w-full h-full flex items-center justify-center">
+        <div id="pie-chart" style={{ height: "320px", width: "100%" }}></div>
+      </div>
+    </ErrorBoundary>
   );
 }

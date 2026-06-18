@@ -17,103 +17,8 @@ const useDashboardStore = create((set) => ({
   headData: null,
   setHeadData: (data) => set({ headData: data }),
 
-  sathyBranchOffices:{
-    Araipalayam: [
-      "Arasur",
-      "Ayyampalayam",
-      "Baguthampalayam",
-      "Byannapuram",
-      "Chikkahajanur",
-      "Chikkarasampalayam",
-      "Dasaripalayam",
-      "Dhoddahajanur",
-    ],
-    Bannari: [
-      "Rajan Nagar",
-      "Pudupeerkadavu",
-      "Bhavanisagar",
-      "Pungar",
-      "Dhoddampalayam",
-      "Kothamangalam",
-      "Akkaraithathappalli",
-    ],
-    Chikkarasampalayam: [
-      "Chikkarasampalayam",
-      "Ikkarainegamam",
-      "Ikkaraithathappalli",
-      "Vinnappalli",
-      "Periyakallipatti",
-      "Sunkakaranpalayam",
-    ],
-    Dhimbam: [
-      "Erahanahalli",
-      "Gettavadi",
-      "Dhoddamudukkarai",
-      "Kongahalli",
-      "Talamalai",
-    ],
-    Germalam: [
-      "Boosaripalayam",
-      "Ikkarainegamam",
-      "Ikkaraithathappalli",
-      "Indiampalayam",
-      "Madahalli",
-      "Madampalayam",
-      "Makkinancombai",
-      "Malayadipudur",
-      "Shenbagapudur",
-    ],
-    Hassanur: [
-      "Marur",
-      "Neithalapuram",
-      "Thiginarai",
-      "Gundri",
-      "Guthiyalathur",
-      "Guthiyalathur extension RF",
-      "Guthiyalathur addition RF",
-      "Akkurinjieri RF",
-      "Akkurinjieri Extn RF",
-      "Barabetta RF",
-      "Velamundi RF",
-    ],
-    Ikkarainegamam: [
-      "Ikkarainegamam",
-      "Ikkaraithathappalli",
-      "Kurumbapalayam",
-      "Vinnappalli",
-      "Periyakallipatti",
-      "Sunkakaranpalayam",
-    ],
-    Komarapalayam: [
-      "Komarapalayam",
-      "Konamoolai",
-      "Koothampalayam",
-      "Kothamangalam",
-    ],
-    Kottuveerampalayam: [
-      "Pudupeerkadavu",
-      "Rajan Nagar",
-      "Bhavani Sagar",
-      "Pungar",
-      "Dhoddampalayam",
-      "Kothamangalam",
-    ],
-    Puduvadavalli: [
-      "Talavadi",
-      "Talamalai",
-      "Talamalai Extn. RF",
-      "Talamalai R.F.",
-    ],
-    Thingalur: [
-      "Thingalur",
-      "Thoppampalayam",
-      "Talamalai",
-      "Thiginarai",
-      "Ukkaram",
-    ],
-    Varadampalayam: ["Alathucombai", "Mallankuli", "Karalavadi", "Karapadi"],
-  },
-  
+
+
   SchemePerformanceVisible: false,
 
   setSchemePerformanceVisible: (visible) => set({ SchemePerformanceVisible: visible }),
@@ -131,12 +36,19 @@ const useDashboardStore = create((set) => ({
   setDemographicData: (data) => set({ demographicData: data }),
   setTotalDemographicData: (data) => set({ totalDemographicData: data }),
 
-  filterDemographicData: () =>
+  chatbotOpen: false,
+  chatbotQuery: "",
+  setChatbotOpen: (open) => set({ chatbotOpen: open }),
+  setChatbotQuery: (query) => set({ chatbotQuery: query }),
+  triggerChatbot: (query) => set({ chatbotOpen: true, chatbotQuery: query }),
+
+  filterDemographicData: (freshData) =>
     set((state) => {
+      const source = freshData || state.totalDemographicData;
       const filtered =
-        state.totalDemographicData?.find((item) => item.tru === "Total") ||
-        state.totalDemographicData?.find((item) => item.tru === "Urban") ||
-        state.totalDemographicData?.find((item) => item.tru === "Rural");
+        source?.find((item) => item.tru === "Total") ||
+        source?.find((item) => item.tru === "Urban") ||
+        source?.find((item) => item.tru === "Rural");
         
       return { demographicData: filtered || null };
     }),

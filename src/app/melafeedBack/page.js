@@ -1,6 +1,32 @@
 "use client";
-import useDashboardStore from "@/store/dashboardStore";
+
 import React, { useState } from "react";
+import useDashboardStore from "@/store/dashboardStore";
+import { toast } from "sonner";
+import { 
+  Card, 
+  CardHeader, 
+  CardTitle, 
+  CardContent, 
+  CardDescription 
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 const FeedbackForm = () => {
   const [formData, setFormData] = useState({
@@ -12,21 +38,14 @@ const FeedbackForm = () => {
     submissionTimestamp: "",
   });
 
-  const [errorMessage, setErrorMessage] = useState("");
+  const { headData, setHeadData } = useDashboardStore();
 
   const handleInputChange = (name, value) => {
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
-    setErrorMessage("");
   };
-
-  const{headData,setHeadData}=useDashboardStore();
-const handleclick=()=>{
-  console.log(formData);
-  setHeadData(formData)
-}
 
   const generateAndAnalyzeFeedback = (e) => {
     e.preventDefault();
@@ -37,7 +56,7 @@ const handleclick=()=>{
       .every((key) => formData[key] !== "");
 
     if (!isFormValid) {
-      setErrorMessage("Please fill out all fields before submitting.");
+      toast.error("Please fill out all fields before submitting.");
       return;
     }
 
@@ -49,40 +68,21 @@ const handleclick=()=>{
 
     // Simple sentiment analysis function
     const analyzeSentiment = (text) => {
-      const positiveWords = [
-        "support",
-        "help",
-        "beneficial",
-        "excellent",
-        "great",
-        "wonderful",
-      ];
-      const negativeWords = [
-        "limited",
-        "insufficient",
-        "complex",
-        "challenging",
-        "inadequate",
-      ];
+      const positiveWords = ["support", "help", "beneficial", "excellent", "great", "wonderful"];
+      const negativeWords = ["limited", "insufficient", "complex", "challenging", "inadequate"];
 
       const lowerText = text.toLowerCase();
-      const positiveCount = positiveWords.filter((word) =>
-        lowerText.includes(word)
-      ).length;
-      const negativeCount = negativeWords.filter((word) =>
-        lowerText.includes(word)
-      ).length;
+      const positiveCount = positiveWords.filter((word) => lowerText.includes(word)).length;
+      const negativeCount = negativeWords.filter((word) => lowerText.includes(word)).length;
 
       if (positiveCount > negativeCount) return "Positive";
       if (negativeCount > positiveCount) return "Negative";
       return "Neutral";
     };
 
-    // Perform sentiment analysis
     const positiveSentiment = analyzeSentiment(formData.positiveFeedback);
     const negativeSentiment = analyzeSentiment(formData.negativeFeedback);
 
-    // Suggestions for improvement
     const improvementSuggestions = [
       "Conduct frequent melas to educate more people.",
       "Engage local influencers to spread awareness.",
@@ -92,12 +92,8 @@ const handleclick=()=>{
       "Ensure regular follow-up visits to address issues and update us about new schemes.",
     ];
 
-    // Map one suggestion to negative feedback
-    const mappedSuggestion = formData.negativeFeedback
-      ? improvementSuggestions[0]
-      : null;
+    const mappedSuggestion = formData.negativeFeedback ? improvementSuggestions[0] : null;
 
-    // Create comprehensive analysis result
     const analysisOutput = {
       ...dataWithTimestamp,
       sentimentAnalysis: {
@@ -119,11 +115,10 @@ const handleclick=()=>{
       },
     };
 
-    // Convert analysis result to JSON
-    const jsonString = JSON.stringify(analysisOutput, null, 2);
-    console.log("JSON Output:", jsonString); // Log JSON output to console
-    const blob = new Blob([jsonString], { type: "application/json" });
-    const href = URL.createObjectURL(blob);
+    console.log("JSON Output:", JSON.stringify(analysisOutput, null, 2));
+    setHeadData(formData);
+
+    toast.success("Feedback submitted successfully!");
 
     // Reset form 
     setFormData({
@@ -172,161 +167,152 @@ const handleclick=()=>{
   ];
 
   return (
-    <div className="w-full flex justify-center items-center  h-full max-w-md mx-auto px-4 py-6 sm:px-6 lg:px-8">
-      <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
-        <h2 className="text-xl sm:text-2xl font-bold mb-6 text-black text-center">
-          Mela Scheme Feedback Form
-        </h2>
+    <div className="bg-background min-h-screen py-6 text-foreground">
+      <div className="w-full max-w-[900px] mx-auto space-y-6 px-4 md:px-6">
+        
+        {/* Navigation Breadcrumbs */}
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Mela Feedback Portal</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
-        {errorMessage && (
-          <div
-            className={`
-            p-4 rounded-md text-center mb-4
-            ${
-              errorMessage.includes("successfully")
-                ? "bg-green-100 text-green-800"
-                : "bg-red-100 text-red-800"
-            }
-          `}
-          >
-            {errorMessage}
-          </div>
-        )}
-
-        <form onSubmit={generateAndAnalyzeFeedback} className="space-y-6">
-          {/* Mela Helpfulness */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Was the Mela Helpful?
-            </label>
-            <div className="flex space-x-4">
-              {["Yes", "No"].map((option) => (
-                <label key={option} className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    name="melaHelpfulness"
-                    value={option.toLowerCase()}
-                    checked={
-                      formData.melaHelpfulness === option.toLowerCase()
-                    }
-                    onChange={() =>
-                      handleInputChange(
-                        "melaHelpfulness",
-                        option.toLowerCase()
-                      )
-                    }
-                    className="form-radio h-4 w-4 text-blue-600"
-                  />
-                  <span className="ml-2">{option}</span>
+        <Card className="border-border bg-card">
+          <CardHeader className="border-b border-border pb-4">
+            <CardTitle className="text-xl font-bold text-foreground">Mela Scheme Feedback Form</CardTitle>
+            <CardDescription className="text-xs text-muted-foreground mt-1">
+              Provide campaign feedback and evaluate postal schemes performance metrics.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <form onSubmit={generateAndAnalyzeFeedback} className="space-y-6">
+              
+              {/* Mela Helpfulness */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider block">
+                  Was the Mela Helpful?
                 </label>
-              ))}
-            </div>
-          </div>
+                <RadioGroup 
+                  value={formData.melaHelpfulness} 
+                  onValueChange={(val) => handleInputChange("melaHelpfulness", val)}
+                  className="flex gap-4 pt-1"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="yes" id="mela-yes" />
+                    <label htmlFor="mela-yes" className="text-xs font-medium text-foreground cursor-pointer select-none">Yes</label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="no" id="mela-no" />
+                    <label htmlFor="mela-no" className="text-xs font-medium text-foreground cursor-pointer select-none">No</label>
+                  </div>
+                </RadioGroup>
+              </div>
 
-          {/* Scheme Suitability */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Is the Scheme Suitable?
-            </label>
-            <div className="flex space-x-4">
-              {["Yes", "No"].map((option) => (
-                <label key={option} className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    name="schemeSuitability"
-                    value={option.toLowerCase()}
-                    checked={
-                      formData.schemeSuitability === option.toLowerCase()
-                    }
-                    onChange={() =>
-                      handleInputChange(
-                        "schemeSuitability",
-                        option.toLowerCase()
-                      )
-                    }
-                    className="form-radio h-4 w-4 text-blue-600"
-                  />
-                  <span className="ml-2">{option}</span>
+              {/* Scheme Suitability */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider block">
+                  Is the Scheme Suitable?
                 </label>
-              ))}
-            </div>
-          </div>
+                <RadioGroup 
+                  value={formData.schemeSuitability} 
+                  onValueChange={(val) => handleInputChange("schemeSuitability", val)}
+                  className="flex gap-4 pt-1"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="yes" id="suit-yes" />
+                    <label htmlFor="suit-yes" className="text-xs font-medium text-foreground cursor-pointer select-none">Yes</label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="no" id="suit-no" />
+                    <label htmlFor="suit-no" className="text-xs font-medium text-foreground cursor-pointer select-none">No</label>
+                  </div>
+                </RadioGroup>
+              </div>
 
-          {/* Positive Feedback */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Positive Feedback
-            </label>
-            <select
-              value={formData.positiveFeedback}
-              onChange={(e) =>
-                handleInputChange("positiveFeedback", e.target.value)
-              }
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white text-black"
-            >
-              <option value="">Select Positive Feedback</option>
-              {positiveFeedbackOptions.map((option, index) => (
-                <option key={index} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </div>
+              {/* Positive Feedback */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider block">
+                  Positive Feedback Comments
+                </label>
+                <Select
+                  value={formData.positiveFeedback}
+                  onValueChange={(val) => handleInputChange("positiveFeedback", val)}
+                >
+                  <SelectTrigger className="w-full text-xs border-border bg-transparent text-foreground">
+                    <SelectValue placeholder="Select positive feedback criteria" />
+                  </SelectTrigger>
+                  <SelectContent className="border-border">
+                    {positiveFeedbackOptions.map((option, index) => (
+                      <SelectItem key={index} value={option} className="text-xs">
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          {/* Negative Feedback */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Negative Feedback
-            </label>
-            <select
-              value={formData.negativeFeedback}
-              onChange={(e) =>
-                handleInputChange("negativeFeedback", e.target.value)
-              }
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white text-black"
-            >
-              <option value="">Select Negative Feedback</option>
-              {negativeFeedbackOptions.map((option, index) => (
-                <option key={index} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </div>
+              {/* Negative Feedback */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider block">
+                  Negative Feedback / Areas of Improvement
+                </label>
+                <Select
+                  value={formData.negativeFeedback}
+                  onValueChange={(val) => handleInputChange("negativeFeedback", val)}
+                >
+                  <SelectTrigger className="w-full text-xs border-border bg-transparent text-foreground">
+                    <SelectValue placeholder="Select negative feedback criteria" />
+                  </SelectTrigger>
+                  <SelectContent className="border-border">
+                    {negativeFeedbackOptions.map((option, index) => (
+                      <SelectItem key={index} value={option} className="text-xs">
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          {/* Scheme Identification */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Identify Suitable Scheme
-            </label>
-            <select
-              value={formData.schemeIdentification}
-              onChange={(e) =>
-                handleInputChange("schemeIdentification", e.target.value)
-              }
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md bg-white text-black"
-            >
-              <option value="">Select Suitable Scheme</option>
-              {schemeIdentificationOptions.map((option, index) => (
-                <option key={index} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </div>
+              {/* Scheme Identification */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-foreground uppercase tracking-wider block">
+                  Identify Suitable Scheme
+                </label>
+                <Select
+                  value={formData.schemeIdentification}
+                  onValueChange={(val) => handleInputChange("schemeIdentification", val)}
+                >
+                  <SelectTrigger className="w-full text-xs border-border bg-transparent text-foreground">
+                    <SelectValue placeholder="Select suitable scheme to benchmark" />
+                  </SelectTrigger>
+                  <SelectContent className="border-border">
+                    {schemeIdentificationOptions.map((option, index) => (
+                      <SelectItem key={index} value={option} className="text-xs">
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
 
-          {/* Submit Button */}
-          <div className="mt-6">
-            <button
-              type="submit"
-
-              onClick={handleclick}
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-300"
-            >
-              Submit Feedback
-            </button>
-          </div>
-        </form>
+              {/* Submit Button */}
+              <div className="pt-4 border-t border-border flex justify-end">
+                <Button
+                  type="submit"
+                  className="w-full sm:w-auto px-6 h-10 text-xs font-bold"
+                >
+                  Submit Feedback Report
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

@@ -2,168 +2,112 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { debounce } from 'lodash';
 import useDashboardStore from '@/store/dashboardStore';
-import axios from 'axios'; // Make sure to install axios: npm install axios
+import axios from 'axios';
 import useheaddata from '@/store/headpostdata';
 
 const SubPostOfficeSearch = () => {
-  // State management
   const [searchTerm, setSearchTerm] = useState('');
   const [subPostOffice, setSubPostOffice] = useState([]);
+  const [allSubPostOffices, setAllSubPostOffices] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const { District, setVillage, setPostoffice, setActiveTab, setSubpostoffice } = useDashboardStore();
+  const { District, State, setPostoffice, setActiveTab, setSubpostoffice } = useDashboardStore();
+  const { setSub } = useheaddata();
 
-  const erodePostOffices = [
-    {
-      name: "Anthiyur S.O",
-      pincode: "638501",
-      phone: "04256-260238",
-      division: "Erode",
-      state: "Tamil Nadu"
-    },
-    {
-      name: "Bhavani Head Post Office",
-      pincode: "638301",
-      phone: "04256-233035",
-      division: "Erode",
-      state: "Tamil Nadu"
-    },
-    {
-      name: "Erode Head Post Office",
-      pincode: "638001",
-      phone: "0424-259111",
-      division: "Erode",
-      state: "Tamil Nadu"
-    },
-    {
-      name: "Gobichettipalyam Head Post Office",
-      pincode: "638452",
-      phone: "04285-241028",
-      division: "Erode",
-      state: "Tamil Nadu"
-    },
-    {
-      name: "Kodumudi S.O",
-      pincode: "638151",
-      phone: "04204-222166",
-      division: "Erode",
-      state: "Tamil Nadu"
-    },
-    {
-      name: "Modakkuruchi S.O",
-      pincode: "638104",
-      phone: "0424-2500280",
-      division: "Erode",
-      state: "Tamil Nadu"
-    },
-    {
-      name: "Nambiyur S.O",
-      pincode: "638458",
-      phone: "04285-267432",
-      division: "Erode",
-      state: "Tamil Nadu"
-    },
-    {
-      name: "Perundurai S.O",
-      pincode: "638052",
-      phone: "04294-220530",
-      division: "Erode",
-      state: "Tamil Nadu"
-    },
-    {
-      name: "Sathiyamangalam S.O",
-      pincode: "638401",
-      phone: "04295-2220208",
-      division: "Erode",
-      state: "Tamil Nadu"
-    },
-    {
-      name: "Talavadi S.O",
-      pincode: "638461",
-      phone: "04295-245521",
-      division: "Erode",
-      state: "Tamil Nadu"
-    }
-  ];
-  
-
- 
-  const fetchVillages = async () => {
+  const fetchSubPostOffices = async () => {
     if (!District) return;
 
     setLoading(true);
     setError(null);
 
-    if(District==="Erode"){
-      setSubPostOffice(erodePostOffices);
-      setLoading(false);
-      return
-    }
-
     try {
       const response = await axios.get(`https://api.postalpincode.in/postoffice/${District}`);
-      
+
       if (response.data[0]?.Status === "Success") {
         const postOffices = response.data[0].PostOffice || [];
-        setSubPostOffice(postOffices.map(office => ({
-          name: office.Name,
-          pincode: office.Pincode,
-          phone: 'N/A', // API doesn't provide phone numbers
-          division: office.Division,
-          state: office.State
-        })));
+
+        // Extract state name — State can be object {name, image} or string
+        const selectedState = typeof State === 'object' ? State?.name : State;
+
+        // Filter to the correct state only (avoids cross-state results)
+        const inState = selectedState
+          ? postOffices.filter(o => o.State?.toLowerCase() === selectedState.toLowerCase())
+          : postOffices;
+
+        // Prefer Head and Sub Post Offices (SP level in postal hierarchy)
+        const spLevel = inState.filter(o =>
+          o.BranchType === "Head Post Office" || o.BranchType === "Sub Post Office"
+        );
+
+        // Fall back to all offices in state if no SP-level found
+        const source = spLevel.length > 0 ? spLevel : inState;
+
+        // Deduplicate by name, sort alphabetically
+        const seen = new Set();
+        const unique = [];
+        source.forEach(office => {
+          if (!seen.has(office.Name)) {
+            seen.add(office.Name);
+            unique.push({
+              name: office.Name,
+              pincode: office.Pincode,
+              division: office.Division,
+              state: office.State,
+            });
+          }
+        });
+        unique.sort((a, b) => a.name.localeCompare(b.name));
+
+        setAllSubPostOffices(unique);
+        setSubPostOffice(unique);
       } else {
         setError("No post offices found for this district");
         setSubPostOffice([]);
+        setAllSubPostOffices([]);
       }
-    } catch (error) {
-      console.error("Error fetching post offices:", error);
-      setError("Failed to fetch post offices");
+    } catch (err) {
+      console.warn("Error fetching post offices:", err);
+      setError("Failed to fetch post offices. Check your connection.");
       setSubPostOffice([]);
+      setAllSubPostOffices([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle input change and search
+  // Local filter on search — restore full list when query cleared
+  const debouncedSearch = useCallback(
+    debounce((query) => {
+      if (query.trim()) {
+        setSubPostOffice(
+          allSubPostOffices.filter(o =>
+            o.name.toLowerCase().includes(query.toLowerCase())
+          )
+        );
+      } else {
+        setSubPostOffice(allSubPostOffices);
+      }
+    }, 300),
+    [allSubPostOffices]
+  );
+
   const handleInputChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
     debouncedSearch(value);
   };
 
-  const debouncedSearch = useCallback(
-    debounce((query) => {
-      if (query.trim()) {
-        // Filter subPostOffice based on search query
-        setSubPostOffice((prevPostOffices) =>
-          prevPostOffices.filter((office) =>
-            office.name.toLowerCase().includes(query.toLowerCase())
-          )
-        );
-      } else {
-        fetchVillages();
-      }
-    }, 300),
-    []
-  );
-
-  const{setSub}=useheaddata()
-
-  // Handle selecting a post office
   const handleClick = (office) => {
-    console.log(office);
-    // setSubpostoffice( office.Pincode);
     setSubpostoffice({ name: office.name, pincode: office.pincode });
-    setSub({ name: office.name, pincode: office.pincode })
+    setSub({ name: office.name, pincode: office.pincode });
     setPostoffice("");
     setActiveTab('postoffice');
   };
 
   useEffect(() => {
     if (District) {
-      fetchVillages();
+      fetchSubPostOffices();
     }
   }, [District]);
 
@@ -179,31 +123,19 @@ const SubPostOfficeSearch = () => {
           value={searchTerm}
           onChange={handleInputChange}
           className="flex-grow outline-none bg-transparent text-sm"
-          placeholder="Search for a post office"
+          placeholder="Search for a sub-post office"
         />
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 16 16"
-          fill="currentColor"
-          className="h-5 w-5 text-gray-500"
-        >
-          <path
-            fillRule="evenodd"
-            d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z"
-            clipRule="evenodd"
-          />
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="h-5 w-5 text-gray-500">
+          <path fillRule="evenodd" d="M9.965 11.026a5 5 0 1 1 1.06-1.06l2.755 2.754a.75.75 0 1 1-1.06 1.06l-2.755-2.754ZM10.5 7a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z" clipRule="evenodd" />
         </svg>
       </label>
 
-      {/* Error Handling */}
       {error && (
-        <div className="text-center py-2 text-red-500 mt-4">
-          {error}
-        </div>
+        <div className="text-center py-2 text-red-500 mt-4">{error}</div>
       )}
 
       {/* Scrollable List */}
-      <div className="overflow-y-auto border-t border-gray-200 mt-4 max-h-60 grid grid-cols-1 gap-3">
+      <div className="overflow-y-auto border-t border-gray-200 mt-4 max-h-60 grid grid-cols-1 gap-2">
         {loading ? (
           <div className="text-center py-2 text-gray-500">Loading...</div>
         ) : subPostOffice.length > 0 ? (

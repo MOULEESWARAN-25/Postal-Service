@@ -1,15 +1,20 @@
-// 'use server';
 import { generateText } from 'ai';
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 
-const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
 const google = createGoogleGenerativeAI({
   apiKey: apiKey,
 });
 
-export async function get_answer(prompt) {
-  const enhancedPrompt = `You are an expert advisor specializing in post office banking and financial schemes. 
-  
+export async function POST(req) {
+  try {
+    const { prompt } = await req.json();
+    if (!prompt) {
+      return new Response(JSON.stringify({ error: "Prompt is required" }), { status: 400 });
+    }
+
+    const enhancedPrompt = `You are an expert advisor specializing in post office banking and financial schemes. 
+    
 Context: You're assisting individuals seeking advice on savings, investments, and financial planning through post office schemes.
 
 Format your response using this specific Markdown structure:
@@ -57,10 +62,20 @@ Note: Ensure all advice is:
 - Easy to understand and follow
 - Optimized for different financial goals like saving, tax planning, or long-term investments`;
 
-  const { text } = await generateText({
-    model: google('gemini-1.5-flash-latest'),
-    prompt: enhancedPrompt,
-  });
+    const { text } = await generateText({
+      model: google('gemini-1.5-flash-latest'),
+      prompt: enhancedPrompt,
+    });
 
-  return { text };
+    return new Response(JSON.stringify({ text }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" }
+    });
+  } catch (error) {
+    console.error("Error in query-resolver API:", error);
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
 }

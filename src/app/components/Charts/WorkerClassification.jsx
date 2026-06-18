@@ -2,12 +2,13 @@
 import React, { useEffect, useRef } from 'react';
 import ApexCharts from 'apexcharts';
 import useDashboardStore from '@/store/dashboardStore';
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const options = {
   chart: {
     type: 'bar',
     height: '100%',
-    width: "110%",
+    width: "100%",
     toolbar: {
       show: false,
     },
@@ -41,7 +42,7 @@ const options = {
       borderRadius: 10,
     },
   },
-  colors: ['#1C64F2', '#E74694'],
+  colors: ['#1A2B4A', '#C8102E'],
   legend: {
     position: 'top',
   },
@@ -58,8 +59,14 @@ const options = {
     },
   },
   grid: {
-    borderColor: '#e0e0e0',
+    borderColor: '#f1f5f9',
     strokeDashArray: 4,
+    padding: {
+      left: 20,
+      right: 20,
+      top: 10,
+      bottom: 10,
+    },
   },
 };
 
@@ -120,8 +127,10 @@ export default function WorkerClassification() {
   }, [demographicData]);
 
   return (
-    <div className="flex-col w-full h-full  items-center justify-between p-2">
-      <div ref={chartRef} id="bar-chart" className='w-full border h-full text-black'></div>
-    </div>
+    <ErrorBoundary>
+      <div className="w-full h-full flex items-center justify-center p-2">
+        <div ref={chartRef} id="bar-chart" className="w-full h-full text-black"></div>
+      </div>
+    </ErrorBoundary>
   );
 }

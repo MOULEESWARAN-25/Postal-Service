@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import ApexCharts from 'apexcharts';
 import useDashboardStore from '@/store/dashboardStore';
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 export default function IncomeDistribution() {
   const chartRef = useRef(null);
@@ -28,7 +29,7 @@ export default function IncomeDistribution() {
       // Chart options
       const options = {
         series: updatedData.map((value) => parseFloat(value)),
-        colors: ["#0071c5", "#0047AB", "#73C2FB"],
+        colors: ["#C8102E", "#1A2B4A", "#94A3B8"],
         chart: {
           height: 250,
           width: "100%",
@@ -93,8 +94,10 @@ export default function IncomeDistribution() {
   }, [demographicData]); // Re-run effect if demographicData changes
 
   return (
-    <div className="flex justify-center w-full h-full rounded-lg p-8 items-center">
-      <div ref={chartRef} id="donut-chart"></div>
-    </div>
+    <ErrorBoundary>
+      <div className="flex justify-center w-full h-full p-2 items-center">
+        <div ref={chartRef} id="donut-chart" className="w-full"></div>
+      </div>
+    </ErrorBoundary>
   );
 }

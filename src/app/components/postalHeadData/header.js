@@ -87,7 +87,7 @@ const Header = () => {
   //       console.log(data)
   //       setsch(data)
   //     } catch (error) {
-  //       console.error("Error fetching demographics:", error);
+  //       console.warn("Error fetching demographics:", error);
   //     } finally {
   //       setLoading(false); // Ensure loading state is reset
   //     }
@@ -158,8 +158,8 @@ const Header = () => {
   return (
     <header className="flex items-center sticky top-0 z-50 justify-between px-5 py-4 shadow-md bg-white">
       <div className="flex items-center gap-5 justify-center">
-        <Building2 className="h-9 w-9 text-red-400" />
-        <h1 className="font-bold text-3xl text-red-400 tracking-wide">
+        <Building2 className="h-9 w-9 text-[#C8102E]" />
+        <h1 className="font-bold text-3xl text-[#C8102E] tracking-wide">
           HeadPostData
         </h1>
       </div>
@@ -191,9 +191,9 @@ const Header = () => {
               <div className="flex w-full items-center">
                 <motion.div
                   ref={modalRefs.state}
-                  className={`relative text-[11px] p-5 font-semibold flex items-center gap-4 w-full h-full justify-start hover:shadow-2xl rounded-full cursor-pointer ${
+                  className={`relative text-xs p-5 font-semibold flex items-center gap-4 w-full h-full justify-start hover:shadow-2xl rounded-full cursor-pointer ${
                     activeTab === "state"
-                      ? "bg-white text-red-500 shadow-2xl"
+                      ? "bg-white text-[#C8102E] shadow-2xl"
                       : "text-black"
                   }`}
                   onClick={(e) => {
@@ -208,7 +208,7 @@ const Header = () => {
                   <Map className="w-5 h-5 shrink-0" />
                   <div className="flex flex-col truncate">
                     <span className="text-xs text-gray-500">Select State</span>
-                    <p className="text-xs text-red-500 font-semibold truncate">
+                    <p className="text-xs text-[#C8102E] font-semibold truncate">
                       {State?.name || "Choose State"}
                     </p>
                   </div>
@@ -219,9 +219,9 @@ const Header = () => {
 
                 <motion.div
                   ref={modalRefs.district}
-                  className={`relative text-[11px] p-5 font-semibold flex items-center gap-4 w-full h-full justify-start hover:shadow-2xl rounded-full cursor-pointer ${
+                  className={`relative text-xs p-5 font-semibold flex items-center gap-4 w-full h-full justify-start hover:shadow-2xl rounded-full cursor-pointer ${
                     activeTab === "district"
-                      ? "bg-white text-red-500 font-semibold shadow-2xl"
+                      ? "bg-white text-[#C8102E] font-semibold shadow-2xl"
                       : "text-black"
                   }`}
                   onClick={(e) => {
@@ -240,7 +240,7 @@ const Header = () => {
                       Select District
                     </span>
 
-                    <p className="text-xs text-red-500 font-semibold truncate">
+                    <p className="text-xs text-[#C8102E] font-semibold truncate">
                       {District || "Select?"}
                     </p>
                   </div>
@@ -252,9 +252,9 @@ const Header = () => {
 
                 <motion.div
                   ref={modalRefs.subPostOffice}
-                  className={` relative text-[11px] p-5 font-semibold flex items-center gap-4 w-full h-full justify-start hover:shadow-2xl rounded-full cursor-pointer ${
+                  className={` relative text-xs p-5 font-semibold flex items-center gap-4 w-full h-full justify-start hover:shadow-2xl rounded-full cursor-pointer ${
                     activeTab === "subpostoffice"
-                      ? "bg-white text-red-500 font-semibold shadow-2xl"
+                      ? "bg-white text-[#C8102E] font-semibold shadow-2xl"
                       : "text-black"
                   }`}
                   onClick={(e) => {
@@ -271,7 +271,7 @@ const Header = () => {
                   <div className="flex flex-col truncate">
                     <span className="text-xs text-gray-500">Select SP</span>
 
-                    <p className="text-xs text-red-500 font-semibold truncate">
+                    <p className="text-xs text-[#C8102E] font-semibold truncate">
                       {subpostoffice?.name || "Select?"}
                     </p>
                   </div>
@@ -284,7 +284,7 @@ const Header = () => {
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={fetchHeadData}
-                    className="flex items-center justify-center w-10 h-10 text-white bg-red-500 rounded-full"
+                    className="flex items-center justify-center w-10 h-10 text-white bg-[#C8102E] rounded-full"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
@@ -312,3 +312,4 @@ const Header = () => {
 };
 
 export default Header;
+

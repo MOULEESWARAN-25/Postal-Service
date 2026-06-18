@@ -1,11 +1,12 @@
 // WorkingChart.js
 import React, { useEffect } from "react";
 import ApexCharts from "apexcharts";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const getWorkingChartOptions = () => {
   return {
     series: [30, 20, 25, 25],
-    colors: ["#023E8A", "#0077B6", "#00B4D8", "#48CAE4"],
+    colors: ["#1A2B4A", "#475569", "#C8102E", "#94A3B8"],
     chart: {
       height: 300,
       width: "75%",
@@ -42,9 +43,11 @@ export default function WorkerPieChart() {
   }, []);
 
   return (
-    <div className="flex-col items-center">
-      <h2 className="text-[18px] text-blue-800 p-2">Working/Non-Working Men and Women</h2>
-      <div id="working-chart"></div>
-    </div>
+    <ErrorBoundary>
+      <div className="flex flex-col items-center p-4">
+        <h2 className="text-lg font-semibold text-foreground text-center mb-4">Working/Non-Working Men and Women</h2>
+        <div id="working-chart"></div>
+      </div>
+    </ErrorBoundary>
   );
 }

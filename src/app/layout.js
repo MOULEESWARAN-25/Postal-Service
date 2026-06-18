@@ -1,39 +1,45 @@
 import "./globals.css";
 import { Inter } from "next/font/google";
-import FloatingChatbot from "./query-resolver/page";
 import ClientHeader from "./clientHeader";
-import PostOfficeSchemesBotUI from "./rag/page";
+import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 export const metadata = {
-  title: "PostalService",
+  title: "India Post DSS — Decision Support System",
   description:
-    "PostalService is a web application that helps postal offices to suggest shipping schemes based on the user's location/region and package details. It uses AI to generate responses based on the input provided by the user.",
+    "A decision support system for India Post field officers to analyze demographics, recommend postal schemes, and plan outreach campaigns.",
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#C8102E",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" className={inter.variable}>
       <head>
-        <title>{metadata.title}</title>
-        <meta name="description" content={metadata.description} />
-        <link
-          rel="stylesheet"
-          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body className={inter.className}>
-        <main className="flex h-screen bg-white text-gray-100 overflow-hidden">
-          <div className="flex flex-col flex-1 h-full overflow-y-auto">
+      <body>
+        <TooltipProvider>
+          <div className="flex flex-col min-h-screen bg-[#F8F9FB]">
             <ClientHeader />
-            {children}
-            <PostOfficeSchemesBotUI />
+            <div className="flex-1">
+              {children}
+            </div>
           </div>
-        </main>
+          <Toaster />
+        </TooltipProvider>
       </body>
     </html>
   );
 }
-
-
