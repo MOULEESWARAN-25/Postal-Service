@@ -2,84 +2,85 @@
 import React, { useEffect } from "react";
 import ApexCharts from "apexcharts";
 
-export default function CreditScore({ creditScore }) {
-  const getChartOptions = (score) => {
-    return {
-      series: [score, 1000 - score], 
-      colors: ["#1A56DB", "#E0E0E0"], 
-      chart: {
-        height: 200,
-        width: "100%",
-        type: "donut",
-      },
-      stroke: {
-        
-        colors: ["transparent"],
-      },
-      plotOptions: {
-        pie: {
-          donut: {
-            labels: {
+const getChartOptions = (score) => {
+  return {
+    series: [score, 1000 - score], 
+    colors: ["#1A56DB", "#E0E0E0"], 
+    chart: {
+      height: 200,
+      width: "100%",
+      type: "donut",
+    },
+    stroke: {
+      
+      colors: ["transparent"],
+    },
+    plotOptions: {
+      pie: {
+        donut: {
+          labels: {
+            show: true,
+            name: {
               show: true,
-              name: {
-                show: true,
-                fontFamily: "Poppins, sans-serif",
-                offsetY: 20,
-              },
-              total: {
-                showAlways: true,
-                show: true,
-                label: "Credit Score",
-                fontFamily: "Poppins, sans-serif",
-                formatter: function () {
-                  return `${score}`; // Display score out of 1000
-                },
-              },
-              value: {
-                show: true,
-                fontFamily: "Poppins, sans-serif",
-                offsetY: -20,
-                formatter: function (value) {
-                  return value + " / 1000"; // Show score out of 1000
-                },
+              fontFamily: "Poppins, sans-serif",
+              offsetY: 20,
+            },
+            total: {
+              showAlways: true,
+              show: true,
+              label: "Credit Score",
+              fontFamily: "Poppins, sans-serif",
+              formatter: function () {
+                return `${score}`; // Display score out of 1000
               },
             },
-            size: "75%",
-            
+            value: {
+              show: true,
+              fontFamily: "Poppins, sans-serif",
+              offsetY: -20,
+              formatter: function (value) {
+                return value + " / 1000"; // Show score out of 1000
+              },
+            },
           },
+          size: "75%",
+          
         },
       },
-      labels: [`Score: ${score}`, "Remaining"],
-      dataLabels: {
-        enabled: false,
-      },
-      legend: {
-        show:false,
-        position: "bottom",
-        fontFamily: "Inter, sans-serif",
-      },
-      yaxis: {
-        labels: {
-          formatter: function (value) {
-            return value + " / 1000";
-          },
+    },
+    labels: [`Score: ${score}`, "Remaining"],
+    dataLabels: {
+      enabled: false,
+    },
+    legend: {
+      show:false,
+      position: "bottom",
+      fontFamily: "Inter, sans-serif",
+    },
+    yaxis: {
+      labels: {
+        formatter: function (value) {
+          return value + " / 1000";
         },
       },
-      xaxis: {
-        labels: {
-          formatter: function (value) {
-            return value + " / 1000";
-          },
-        },
-        axisTicks: {
-          show: false,
-        },
-        axisBorder: {
-          show: false,
+    },
+    xaxis: {
+      labels: {
+        formatter: function (value) {
+          return value + " / 1000";
         },
       },
-    };
+      axisTicks: {
+        show: false,
+      },
+      axisBorder: {
+        show: false,
+      },
+    },
   };
+};
+
+export default function CreditScore({ creditScore }) {
 
   // Initialize and clean up donut chart
   useEffect(() => {

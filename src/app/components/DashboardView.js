@@ -73,7 +73,7 @@ function DashboardView() {
   const [comparisonData, setComparisonData] = useState([]);
 
   // Fetch campaign recommendations from MongoDB
-  const fetchRecommendations = async () => {
+  const fetchRecommendations = React.useCallback(async () => {
     try {
       const res = await axios.get("/api/campaign-recommendations");
       if (res.data.success) {
@@ -82,10 +82,10 @@ function DashboardView() {
     } catch (err) {
       console.warn("Error fetching priority actions:", err);
     }
-  };
+  }, []);
 
   // Fetch live enrollments count from MongoDB
-  const fetchLiveEnrollments = async () => {
+  const fetchLiveEnrollments = React.useCallback(async () => {
     try {
       const res = await axios.get("/api/enrollments");
       if (res.data.success) {
@@ -98,14 +98,14 @@ function DashboardView() {
     } catch (err) {
       console.warn("Error fetching live enrollments count:", err);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchRecommendations();
     fetchLiveEnrollments();
-  }, [village, demographicData]);
+  }, [village, demographicData, fetchRecommendations, fetchLiveEnrollments]);
 
-  const fetchVillages = async () => {
+  const fetchVillages = React.useCallback(async () => {
     if (!District) return;
 
     try {
@@ -125,9 +125,9 @@ function DashboardView() {
     } catch (error) {
       console.warn("Error fetching post offices:", error);
     }
-  };
+  }, [District]);
 
-  const fetchPostOffices = async () => {
+  const fetchPostOffices = React.useCallback(async () => {
     if (!subpostoffice) return;
 
     try {
@@ -146,15 +146,15 @@ function DashboardView() {
     } catch (error) {
       console.warn("Error fetching post offices by pincode:", error);
     }
-  };
+  }, [subpostoffice, postoffice]);
 
   useEffect(() => {
     fetchVillages();
-  }, [District]);
+  }, [fetchVillages]);
 
   useEffect(() => {
     fetchPostOffices();
-  }, [subpostoffice]);
+  }, [fetchPostOffices]);
 
   const renderInfo = () => {
     if (!State && !District && !subpostoffice && !postoffice && !village) {
@@ -251,6 +251,7 @@ function DashboardView() {
     };
 
     getDemographics();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const [selectedData, setSelectedData] = useState(null);

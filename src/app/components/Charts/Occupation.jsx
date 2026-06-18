@@ -3,6 +3,46 @@ import ApexCharts from "apexcharts";
 import useDashboardStore from "@/store/dashboardStore";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
+const getChartOptions = (chartData) => {
+  return {
+    series: chartData.series,
+    colors: ["#1A2B4A", "#475569", "#C8102E", "#94A3B8"],
+    chart: {
+      height: 320,
+      width: "100%",
+      type: "pie",
+    },
+    stroke: {
+      colors: ["white"],
+      width: 3,
+    },
+    plotOptions: {
+      pie: {
+        dataLabels: {
+          offset: -25,
+        },
+      },
+    },
+    labels: chartData.labels,
+    dataLabels: {
+      enabled: true,
+      formatter: (val) => `${val.toFixed(1)}%`,
+      style: {
+        fontFamily: "Poppins, sans-serif",
+      },
+    },
+    legend: {
+      position: "bottom",
+      fontFamily: "Poppins, sans-serif",
+    },
+    tooltip: {
+      y: {
+        formatter: (val) => `${val.toFixed(1)}%`,
+      },
+    },
+  };
+};
+
 export default function Occupation() {
   const { demographicData } = useDashboardStore();
 
@@ -37,50 +77,10 @@ export default function Occupation() {
     };
   }, [demographicData]);
 
-  const getChartOptions = () => {
-    return {
-      series: chartData.series,
-      colors: ["#1A2B4A", "#475569", "#C8102E", "#94A3B8"],
-      chart: {
-        height: 320,
-        width: "100%",
-        type: "pie",
-      },
-      stroke: {
-        colors: ["white"],
-        width: 3,
-      },
-      plotOptions: {
-        pie: {
-          dataLabels: {
-            offset: -25,
-          },
-        },
-      },
-      labels: chartData.labels,
-      dataLabels: {
-        enabled: true,
-        formatter: (val) => `${val.toFixed(1)}%`,
-        style: {
-          fontFamily: "Poppins, sans-serif",
-        },
-      },
-      legend: {
-        position: "bottom",
-        fontFamily: "Poppins, sans-serif",
-      },
-      tooltip: {
-        y: {
-          formatter: (val) => `${val.toFixed(1)}%`,
-        },
-      },
-    };
-  };
-
   useEffect(() => {
     let chart;
     if (document.getElementById("pie-chart") && typeof ApexCharts !== "undefined") {
-      chart = new ApexCharts(document.getElementById("pie-chart"), getChartOptions());
+      chart = new ApexCharts(document.getElementById("pie-chart"), getChartOptions(chartData));
       chart.render();
     }
     return () => {

@@ -70,30 +70,27 @@ const options = {
   },
 };
 
+const calculatePercentage = (part, total) => {
+  return total > 0 ? Math.round((part / total) * 100) : 0;
+};
+
 export default function WorkerClassification() {
   const chartRef = useRef(null);
   const { demographicData } = useDashboardStore();
 
-  const totalworkingPopulation = demographicData?.totWorkP || 0;
-  
-  const totalMainWorkers = demographicData?.mainworkP || 0;
-  const mainCultivators = demographicData?.mainClP || 0;
-  const mainAgriculturalLaborers = demographicData?.mainAlP || 0;
-  const mainHouseholdIndustries = demographicData?.mainHhP || 0;
-  const mainOtherWorkers = demographicData?.mainOtP || 0;
-
-  const totalMarginalizedWorkers = demographicData?.margworkP || 0;
-  const marginalizedCultivators = demographicData?.margClP || 0;
-  const marginalizedAgriculturalLaborers = demographicData?.margAlP || 0;
-  const marginalizedHouseholdIndustries = demographicData?.margHhP || 0;
-  const marginalizedOtherWorkers = demographicData?.margOtP || 0;
-
-  // Helper function to calculate percentages
-  const calculatePercentage = (part, total) => {
-    return total > 0 ? Math.round((part / total) * 100) : 0;
-  };
-
   useEffect(() => {
+    const totalMainWorkers = demographicData?.mainworkP || 0;
+    const mainCultivators = demographicData?.mainClP || 0;
+    const mainAgriculturalLaborers = demographicData?.mainAlP || 0;
+    const mainHouseholdIndustries = demographicData?.mainHhP || 0;
+    const mainOtherWorkers = demographicData?.mainOtP || 0;
+
+    const totalMarginalizedWorkers = demographicData?.margworkP || 0;
+    const marginalizedCultivators = demographicData?.margClP || 0;
+    const marginalizedAgriculturalLaborers = demographicData?.margAlP || 0;
+    const marginalizedHouseholdIndustries = demographicData?.margHhP || 0;
+    const marginalizedOtherWorkers = demographicData?.margOtP || 0;
+
     // Calculate the percentages
     const mainWorkersPercentage = [
       calculatePercentage(mainCultivators, totalMainWorkers),
