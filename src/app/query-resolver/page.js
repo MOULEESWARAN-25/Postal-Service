@@ -93,14 +93,43 @@ export default function PostOfficeChatbot() {
       <div className="bg-background min-h-[calc(100vh-80px)] text-foreground flex flex-col justify-start">
         <div className="page-container flex flex-col flex-grow space-y-5">
           
-          {/* Page Header */}
-          <div className="border-b pb-4 border-border">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
-              <Bot className="text-primary" /> Post Office Assistant
-            </h1>
-            <p className="text-muted-foreground text-sm mt-1">
-              Resolve customer queries instantly using the AI-powered knowledge engine for banking, insurance, and postal services.
-            </p>
+          {/* Premium Page Hero */}
+          <div
+            className="relative rounded-2xl overflow-hidden"
+            style={{
+              background: "linear-gradient(135deg, #0F172A 0%, #1A2B4A 55%, #1E3A5F 100%)",
+              padding: "1.5rem 2rem",
+              boxShadow: "0 8px 32px rgba(0,0,0,0.12)",
+            }}
+          >
+            <div className="absolute top-0 right-0 w-48 h-48 rounded-full pointer-events-none"
+              style={{ background: "radial-gradient(circle, rgba(200,16,46,0.15) 0%, transparent 70%)", transform: "translate(20%, -40%)" }}
+            />
+            <div className="absolute inset-0 pointer-events-none opacity-[0.04]"
+              style={{
+                backgroundImage: "linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px)",
+                backgroundSize: "32px 32px",
+              }}
+            />
+            <div className="relative z-10 flex items-center gap-4">
+              <div
+                className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+                style={{ background: "rgba(200,16,46,0.2)", border: "1px solid rgba(200,16,46,0.3)" }}
+              >
+                <Bot size={22} style={{ color: "#F87171" }} />
+              </div>
+              <div>
+                <h1
+                  className="text-xl font-extrabold text-white"
+                  style={{ letterSpacing: "-0.03em" }}
+                >
+                  Post Office AI Assistant
+                </h1>
+                <p className="text-xs font-medium mt-0.5" style={{ color: "rgba(148,163,184,0.85)" }}>
+                  Resolve customer queries instantly using the AI-powered knowledge engine for banking, insurance, and postal services.
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Content Layout */}
@@ -116,49 +145,57 @@ export default function PostOfficeChatbot() {
                 </CardHeader>
                 <CardContent className="space-y-4 flex-1 flex flex-col justify-between pt-4 px-4 pb-4">
                   <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1 flex-1">
-                    <div className="p-3 bg-muted/30 rounded-lg border border-border">
-                      <h4 className="font-semibold text-xs text-foreground">Sukanya Samriddhi Yojana (SSA)</h4>
-                      <p className="text-xs text-muted-foreground mt-1">For girl children under 10 years. Currently offers 8.2% interest. Exemption under 80C.</p>
-                    </div>
-
-                    <div className="p-3 bg-muted/30 rounded-lg border border-border">
-                      <h4 className="font-semibold text-xs text-foreground">Senior Citizen Savings Scheme (SCSS)</h4>
-                      <p className="text-xs text-muted-foreground mt-1">For citizens aged 60+. Offers 8.2% interest. Quarterly interest payouts.</p>
-                    </div>
-
-                    <div className="p-3 bg-muted/30 rounded-lg border border-border">
-                      <h4 className="font-semibold text-xs text-foreground">National Savings Certificate (NSC)</h4>
-                      <p className="text-xs text-muted-foreground mt-1">5-year maturity scheme. 7.7% interest rate compounded annually. 80C tax benefits.</p>
-                    </div>
-
-                    <div className="p-3 bg-muted/30 rounded-lg border border-border">
-                      <h4 className="font-semibold text-xs text-foreground">Kisan Vikas Patra (KVP)</h4>
-                      <p className="text-xs text-muted-foreground mt-1">Doubles investment in 115 months. 7.5% interest rate compounded annually.</p>
-                    </div>
+                    {[
+                      { title: "Sukanya Samriddhi Yojana (SSA)", desc: "For girl children under 10 years. Currently offers 8.2% interest. Exemption under 80C." },
+                      { title: "Senior Citizen Savings Scheme (SCSS)", desc: "For citizens aged 60+. Offers 8.2% interest. Quarterly interest payouts." },
+                      { title: "National Savings Certificate (NSC)", desc: "5-year maturity scheme. 7.7% interest rate compounded annually. 80C tax benefits." },
+                      { title: "Kisan Vikas Patra (KVP)", desc: "Doubles investment in 115 months. 7.5% interest rate compounded annually." },
+                    ].map(({ title, desc }) => (
+                      <div key={title}
+                        className="p-3 rounded-xl border transition-all duration-150 cursor-default"
+                        style={{ background: "#F8FAFF", border: "1px solid #EEF1F8" }}
+                        onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#CBD5E1"; e.currentTarget.style.background = "#F1F5F9"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#EEF1F8"; e.currentTarget.style.background = "#F8FAFF"; }}
+                      >
+                        <h4 className="font-bold text-xs" style={{ color: "#1A2B4A" }}>{title}</h4>
+                        <p className="text-xs mt-1 leading-relaxed" style={{ color: "#64748B" }}>{desc}</p>
+                      </div>
+                    ))}
                   </div>
 
-                  <div className="bg-primary/10 border border-primary/20 p-3 rounded-lg flex items-start gap-2 text-xs text-primary mt-4">
+                  <div
+                    className="p-3 rounded-xl flex items-start gap-2 text-xs mt-4"
+                    style={{ background: "rgba(200,16,46,0.06)", border: "1px solid rgba(200,16,46,0.12)", color: "#C8102E" }}
+                  >
                     <AlertCircle size={14} className="shrink-0 mt-0.5" />
-                    <span>Disclaimer: Scheme interest rates are reviewed quarterly by the Ministry of Finance.</span>
+                    <span>Scheme interest rates are reviewed quarterly by the Ministry of Finance.</span>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
             {/* Right Column — Chat Container */}
-            <div className="lg:col-span-8 flex flex-col bg-card border border-border rounded-xl shadow-sm overflow-hidden min-h-[500px]">
-              
+            <div
+              className="lg:col-span-8 flex flex-col rounded-xl overflow-hidden min-h-[500px]"
+              style={{ border: "1px solid #E8EDF5", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", background: "#fff" }}
+            >
               {/* Chat Header */}
-              <div className="bg-secondary text-secondary-foreground px-6 py-4 flex items-center justify-between border-b border-border">
+              <div
+                className="px-6 py-4 flex items-center justify-between"
+                style={{ background: "linear-gradient(135deg, #0F172A 0%, #1A2B4A 100%)", borderBottom: "1px solid rgba(255,255,255,0.08)" }}
+              >
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                    <Bot size={16} className="text-primary-foreground" />
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center"
+                    style={{ background: "rgba(200,16,46,0.2)", border: "1px solid rgba(200,16,46,0.3)" }}
+                  >
+                    <Bot size={16} style={{ color: "#F87171" }} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-sm text-secondary-foreground">Postal Service Query Resolver</h3>
+                    <h3 className="font-bold text-sm text-white" style={{ letterSpacing: "-0.01em" }}>Postal Service Query Resolver</h3>
                     <div className="flex items-center gap-1 mt-0.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                      <span className="text-xs text-secondary-foreground/70">Assistant Online</span>
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="text-xs font-semibold" style={{ color: "rgba(148,163,184,0.7)" }}>Assistant Online</span>
                     </div>
                   </div>
                 </div>

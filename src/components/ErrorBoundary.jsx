@@ -41,7 +41,7 @@ class ErrorBoundary extends React.Component {
                 An unexpected error occurred while loading this section of the decision support interface.
               </p>
               {this.state.error?.message && (
-                <pre className="mt-2 p-2 bg-red-100/50 rounded text-[10px] font-mono text-red-800 break-all whitespace-pre-wrap">
+                <pre className="mt-2 p-2 bg-red-100/50 rounded text-xs font-mono text-red-800 break-all whitespace-pre-wrap">
                   {this.state.error.message}
                 </pre>
               )}

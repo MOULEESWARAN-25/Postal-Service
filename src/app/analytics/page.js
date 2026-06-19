@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { 
-  TrendingUp, Users, Target, CheckCircle2, Star, Calendar, MessageSquare, Plus, Loader2, ArrowLeft, BarChart2, Award
+  TrendingUp, Users, Target, CheckCircle2, Star, Calendar, MessageSquare, Plus, Loader2, ArrowLeft, Award
 } from "lucide-react";
 import Link from "next/link";
 import axios from "axios";
@@ -187,17 +187,17 @@ export default function CampaignAnalytics() {
     {
       accessorKey: "scheme",
       header: "Savings Scheme Promoted",
-      cell: ({ row }) => <span className="font-medium text-slate-800">{row.getValue("scheme")}</span>
+      cell: ({ row }) => <span className="font-semibold text-foreground">{row.getValue("scheme")}</span>
     },
     {
       accessorKey: "attendees",
       header: () => <div className="text-center">Attendees</div>,
-      cell: ({ row }) => <div className="text-center font-semibold">{row.getValue("attendees")}</div>
+      cell: ({ row }) => <div className="text-center font-bold text-foreground">{row.getValue("attendees")}</div>
     },
     {
       accessorKey: "newEnrollments",
       header: () => <div className="text-center">Enrollments</div>,
-      cell: ({ row }) => <div className="text-center font-semibold text-green-600">{row.getValue("newEnrollments")}</div>
+      cell: ({ row }) => <div className="text-center font-bold text-emerald-600">{row.getValue("newEnrollments")}</div>
     },
     {
       id: "conversion",
@@ -208,7 +208,7 @@ export default function CampaignAnalytics() {
         const conv = attendees > 0 ? ((enrollments / attendees) * 100).toFixed(1) : 0;
         return (
           <div className="text-center">
-            <Badge variant="outline" className="border-green-500 bg-green-500/10 text-green-700">
+            <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600">
               {conv}%
             </Badge>
           </div>
@@ -221,7 +221,7 @@ export default function CampaignAnalytics() {
       cell: ({ row }) => (
         <div className="flex justify-center items-center gap-1 text-amber-500 font-bold">
           <span>{row.getValue("feedbackScore")}</span>
-          <Star size={14} fill="currentColor" />
+          <Star size={12} fill="currentColor" />
         </div>
       )
     },
@@ -241,48 +241,48 @@ export default function CampaignAnalytics() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-[#F8F9FB] text-slate-800">
-        <div className="page-container space-y-5">
+      <div className="min-h-screen bg-background text-foreground py-6">
+        <div className="page-container max-w-[1440px] mx-auto w-full space-y-6">
 
           {/* Navigation & Header */}
-          <Breadcrumb>
+          <Breadcrumb className="text-xs">
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/" className="font-semibold text-slate-500 hover:text-[#C8102E]">Dashboard</BreadcrumbLink>
+                <BreadcrumbLink href="/" className="font-semibold text-muted-foreground hover:text-primary">Dashboard</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage className="font-extrabold text-[#1A2B4A]">Scheme & Campaign Analytics</BreadcrumbPage>
+                <BreadcrumbPage className="font-extrabold text-secondary">Scheme & Campaign Analytics</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
 
-          <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+          <div className="flex justify-between items-center border-b border-border pb-4">
             <div>
-              <Link href="/" className="flex items-center space-x-1.5 text-[#C8102E] hover:underline font-bold transition mb-1 text-xs">
+              <Link href="/" className="flex items-center space-x-1.5 text-primary hover:underline font-bold transition mb-1 text-xs">
                 <ArrowLeft size={14} />
                 <span>Back to Regional Intelligence</span>
               </Link>
-              <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
+              <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
                 Scheme & Campaign Analytics
               </h1>
-              <p className="text-xs text-slate-500 font-semibold mt-1">
+              <p className="text-xs text-muted-foreground font-semibold mt-1">
                 Strategy Audit and campaign logs detailing Reach, Conversion efficiency, and public feedback.
               </p>
             </div>
-            <Badge className="bg-[#2E7D32] text-white py-1.5 px-3 rounded-full text-xs font-semibold">
+            <Badge className="bg-emerald-600 text-white py-1.5 px-3 rounded-full text-xs font-bold">
               Is our strategy working?
             </Badge>
           </div>
 
           {/* DSS Heading strategy-badge Alert */}
-          <div className="bg-[#DCFCE7] border border-green-200 rounded-xl p-4 flex items-center justify-between text-green-800">
+          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 flex items-center justify-between text-emerald-700">
             <div className="flex items-center gap-3">
-              <span className="text-xl">🟢</span>
+              <span className="text-xl select-none">🟢</span>
               <div>
-                <h4 className="text-[10px] font-bold uppercase tracking-wider text-green-950">Strategy Audit Status</h4>
-                <p className="text-xs font-semibold mt-0.5">
-                  Campaign strategy is <strong className="text-green-950">highly effective</strong>. Overall conversion efficiency is at <strong className="text-green-950">{conversionRate || 23.4}%</strong>, exceeding the national target baseline.
+                <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-950">Strategy Audit Status</h4>
+                <p className="text-xs font-semibold mt-0.5 text-emerald-900">
+                  Campaign strategy is <strong className="text-emerald-950 font-bold">highly effective</strong>. Overall conversion efficiency is at <strong className="text-emerald-950 font-bold">{conversionRate || 23.4}%</strong>, exceeding the national target baseline.
                 </p>
               </div>
             </div>
@@ -290,50 +290,50 @@ export default function CampaignAnalytics() {
 
           {/* KPI Summary Cards Row */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="border border-slate-200 bg-white shadow-sm rounded-xl">
+            <Card className="border border-border bg-card shadow-sm rounded-xl">
               <CardContent className="p-5 flex items-center space-x-4">
-                <div className="p-2.5 bg-red-50 text-[#C8102E] rounded-lg shrink-0">
+                <div className="p-2.5 bg-primary/10 text-primary rounded-lg shrink-0">
                   <Calendar size={18} />
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Total Campaigns</span>
-                  <h3 className="text-xl font-extrabold text-slate-900 mt-0.5">{totalCampaigns} Active</h3>
+                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest block">Total Campaigns</span>
+                  <h3 className="text-lg font-extrabold text-foreground mt-0.5">{totalCampaigns} Active</h3>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border border-slate-200 bg-white shadow-sm rounded-xl">
+            <Card className="border border-border bg-card shadow-sm rounded-xl">
               <CardContent className="p-5 flex items-center space-x-4">
-                <div className="p-2.5 bg-blue-50 text-[#1A2B4A] rounded-lg shrink-0">
+                <div className="p-2.5 bg-secondary/10 text-secondary rounded-lg shrink-0">
                   <Users size={18} />
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Campaign Reach</span>
-                  <h3 className="text-xl font-extrabold text-slate-900 mt-0.5">{totalAttendees.toLocaleString()}</h3>
+                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest block">Campaign Reach</span>
+                  <h3 className="text-lg font-extrabold text-foreground mt-0.5">{totalAttendees.toLocaleString()}</h3>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border border-slate-200 bg-white shadow-sm rounded-xl">
+            <Card className="border border-border bg-card shadow-sm rounded-xl">
               <CardContent className="p-5 flex items-center space-x-4">
-                <div className="p-2.5 bg-green-50 text-green-700 rounded-lg shrink-0">
+                <div className="p-2.5 bg-emerald-500/10 text-emerald-600 rounded-lg shrink-0">
                   <CheckCircle2 size={18} />
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Total Enrollments</span>
-                  <h3 className="text-xl font-extrabold text-slate-900 mt-0.5">{totalEnrollments.toLocaleString()}</h3>
+                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest block">Total Enrollments</span>
+                  <h3 className="text-lg font-extrabold text-foreground mt-0.5">{totalEnrollments.toLocaleString()}</h3>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="border border-slate-200 bg-white shadow-sm rounded-xl">
+            <Card className="border border-border bg-card shadow-sm rounded-xl">
               <CardContent className="p-5 flex items-center space-x-4">
-                <div className="p-2.5 bg-amber-50 text-amber-600 rounded-lg shrink-0">
+                <div className="p-2.5 bg-amber-500/10 text-amber-600 rounded-lg shrink-0">
                   <Star size={18} />
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Avg Feedback</span>
-                  <h3 className="text-xl font-extrabold text-slate-900 mt-0.5">{avgFeedback} / 5</h3>
+                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest block">Avg Feedback</span>
+                  <h3 className="text-lg font-extrabold text-foreground mt-0.5">{avgFeedback} / 5</h3>
                 </div>
               </CardContent>
             </Card>
@@ -344,10 +344,10 @@ export default function CampaignAnalytics() {
             
             {/* Left Panel - 70% width (Campaign Conversion Trend Chart) */}
             <div className="lg:col-span-7">
-              <Card className="border border-slate-200 bg-white shadow-sm rounded-2xl p-6">
-                <CardHeader className="p-0 pb-4 border-b border-slate-100 mb-6">
-                  <CardTitle className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">Campaign Conversion Trend</CardTitle>
-                  <CardDescription className="text-[10px] text-slate-400 font-semibold">Comparing public reach (attendees) to logged scheme enrollments chronologically</CardDescription>
+              <Card className="border border-border bg-card shadow-sm rounded-2xl p-6">
+                <CardHeader className="p-0 pb-4 border-b border-border mb-6">
+                  <CardTitle className="text-xs font-extrabold text-foreground uppercase tracking-wider">Campaign Conversion Trend</CardTitle>
+                  <CardDescription className="text-xs text-muted-foreground font-semibold">Comparing public reach (attendees) to logged scheme enrollments chronologically</CardDescription>
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="h-[320px] w-full">
@@ -364,11 +364,11 @@ export default function CampaignAnalytics() {
                               <stop offset="95%" stopColor="#C8102E" stopOpacity={0}/>
                             </linearGradient>
                           </defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.6} />
                           <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} fontWeight="bold" />
                           <YAxis stroke="#94a3b8" fontSize={10} fontWeight="bold" />
                           <RechartsTooltip 
-                            contentStyle={{ backgroundColor: "#ffffff", border: "1px solid #e2e8f0", borderRadius: "12px", fontSize: "11px" }}
+                            contentStyle={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "12px", fontSize: "11px", color: "var(--foreground)" }}
                           />
                           <Legend wrapperStyle={{ fontSize: "11px", fontWeight: "bold", paddingTop: "10px" }} />
                           <Area type="monotone" name="Reach (Attendees)" dataKey="reach" stroke="#1A2B4A" fillOpacity={1} fill="url(#colorReach)" strokeWidth={2} />
@@ -376,7 +376,7 @@ export default function CampaignAnalytics() {
                         </AreaChart>
                       </ResponsiveContainer>
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center text-xs text-slate-400 font-bold uppercase tracking-wider">
+                      <div className="w-full h-full flex items-center justify-center text-xs text-muted-foreground font-bold uppercase tracking-wider">
                         Log campaigns below to populate conversion chart
                       </div>
                     )}
@@ -387,29 +387,29 @@ export default function CampaignAnalytics() {
 
             {/* Right Panel - 30% width (Analytics Leaderboard) */}
             <div className="lg:col-span-3 space-y-6">
-              <Card className="border border-slate-200 bg-white shadow-sm rounded-2xl overflow-hidden">
-                <div className="bg-slate-50 border-b border-slate-100 p-4">
-                  <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                    <Award className="h-4 w-4 text-[#1A2B4A]" />
+              <Card className="border border-border bg-card shadow-sm rounded-2xl overflow-hidden p-0">
+                <div className="bg-muted/40 border-b border-border p-4">
+                  <h3 className="text-xs font-extrabold text-secondary uppercase tracking-wider flex items-center gap-1.5">
+                    <Award className="h-4 w-4 text-secondary" />
                     <span>🏆 Analytics Leaderboard</span>
                   </h3>
                 </div>
-                <CardContent className="p-4 space-y-4 divide-y divide-slate-100">
-                  <div className="pt-2">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Best Performing Village</span>
-                    <h4 className="text-base font-extrabold text-slate-900 mt-1">
+                <CardContent className="p-4 space-y-4 divide-y divide-border">
+                  <div className="pt-1">
+                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest block">Best Performing Village</span>
+                    <h4 className="text-base font-extrabold text-foreground mt-1">
                       {leaderboard.bestVillage}
                     </h4>
-                    <p className="text-[10px] text-green-600 font-semibold mt-1">
+                    <p className="text-xs text-emerald-600 font-semibold mt-1">
                       &bull; Conversion rate: {leaderboard.bestConv}%
                     </p>
                   </div>
                   <div className="pt-3">
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Best Performing Scheme</span>
-                    <h4 className="text-sm font-bold text-slate-800 mt-1">
+                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest block">Best Performing Scheme</span>
+                    <h4 className="text-sm font-bold text-foreground mt-1">
                       {leaderboard.bestScheme}
                     </h4>
-                    <p className="text-[10px] text-green-600 font-semibold mt-1">
+                    <p className="text-xs text-emerald-600 font-semibold mt-1">
                       &bull; Estimated Adoption: {leaderboard.bestSchemeAdoption}
                     </p>
                   </div>
@@ -419,7 +419,7 @@ export default function CampaignAnalytics() {
               {/* Log Campaign Action */}
               <Button
                 onClick={() => setShowAddForm(true)}
-                className="w-full h-10 rounded-xl bg-[#C8102E] hover:bg-[#A00D24] text-white text-xs font-bold shadow-sm gap-2"
+                className="w-full h-10 rounded-xl bg-primary hover:bg-primary/90 text-white text-xs font-bold shadow-sm gap-2"
               >
                 <Plus size={16} /> Log Campaign Outcome
               </Button>
@@ -428,10 +428,10 @@ export default function CampaignAnalytics() {
           </div>
 
           {/* Historical Campaign Audits & Outcomes Table */}
-          <Card className="border border-slate-200 bg-white shadow-sm rounded-2xl overflow-hidden">
-            <div className="bg-slate-50 border-b border-slate-100 p-4">
-              <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                <MessageSquare className="text-slate-700" /> Historical Campaign Audits & Outcomes
+          <Card className="border border-border bg-card shadow-sm rounded-2xl overflow-hidden p-0">
+            <div className="bg-muted/40 border-b border-border p-4">
+              <h3 className="text-xs font-extrabold text-secondary uppercase tracking-wider flex items-center gap-1.5">
+                <MessageSquare className="text-secondary h-4 w-4" /> Historical Campaign Audits & Outcomes
               </h3>
             </div>
             <CardContent className="p-0">
@@ -453,16 +453,16 @@ export default function CampaignAnalytics() {
 
           {/* ShadCN Dialog for logging campaign outcome */}
           <Dialog open={showAddForm} onOpenChange={setShowAddForm}>
-            <DialogContent className="sm:max-w-md border border-slate-200 bg-white shadow-lg rounded-2xl overflow-hidden p-6">
-              <DialogHeader className="pb-3 border-b border-slate-100">
-                <DialogTitle className="text-base font-bold flex items-center gap-2 text-slate-900 uppercase tracking-wider">
-                  <Target className="text-[#C8102E] h-5 w-5" /> Log Campaign Outcome
+            <DialogContent className="sm:max-w-md border border-border bg-card shadow-lg rounded-2xl overflow-hidden p-6">
+              <DialogHeader className="pb-3 border-b border-border">
+                <DialogTitle className="text-sm font-bold flex items-center gap-2 text-secondary uppercase tracking-wider">
+                  <Target className="text-primary h-5 w-5" /> Log Campaign Outcome
                 </DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleFormSubmit} className="space-y-4 pt-4 text-slate-800">
+              <form onSubmit={handleFormSubmit} className="space-y-4 pt-4 text-foreground">
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Campaign ID</label>
+                    <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest">Campaign ID</label>
                     <Input 
                       type="text" 
                       name="campaignId" 
@@ -470,19 +470,19 @@ export default function CampaignAnalytics() {
                       onChange={handleInputChange}
                       placeholder="e.g. CMP-004"
                       required
-                      className="h-9 border-border bg-transparent text-xs rounded-xl"
+                      className="h-9 text-xs rounded-xl"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Village</label>
+                    <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest">Village</label>
                     <Select 
                       value={form.village} 
                       onValueChange={(val) => handleSelectChange("village", val)}
                     >
-                      <SelectTrigger className="h-9 border-border text-xs rounded-xl bg-white text-slate-800">
+                      <SelectTrigger className="h-9 text-xs rounded-xl">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="border-border bg-white text-slate-800 text-xs max-h-48">
+                      <SelectContent className="border-border bg-card text-xs max-h-48">
                         {villages.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}
                       </SelectContent>
                     </Select>
@@ -490,15 +490,15 @@ export default function CampaignAnalytics() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Savings Scheme Promoted</label>
+                  <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest">Savings Scheme Promoted</label>
                   <Select 
                     value={form.scheme} 
                     onValueChange={(val) => handleSelectChange("scheme", val)}
                   >
-                    <SelectTrigger className="h-9 border-border text-xs rounded-xl bg-white text-slate-800">
+                    <SelectTrigger className="h-9 text-xs rounded-xl">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="border-border bg-white text-slate-800 text-xs max-h-48">
+                    <SelectContent className="border-border bg-card text-xs max-h-48">
                       {schemes.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                     </SelectContent>
                   </Select>
@@ -506,7 +506,7 @@ export default function CampaignAnalytics() {
 
                 <div className="grid grid-cols-3 gap-4">
                   <div className="space-y-1">
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Attendees</label>
+                    <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest">Attendees</label>
                     <Input 
                       type="number" 
                       name="attendees" 
@@ -514,11 +514,11 @@ export default function CampaignAnalytics() {
                       onChange={handleInputChange}
                       placeholder="100"
                       required
-                      className="h-9 border-border bg-transparent text-xs rounded-xl"
+                      className="h-9 text-xs rounded-xl"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Enrollments</label>
+                    <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest">Enrollments</label>
                     <Input 
                       type="number" 
                       name="newEnrollments" 
@@ -526,19 +526,19 @@ export default function CampaignAnalytics() {
                       onChange={handleInputChange}
                       placeholder="25"
                       required
-                      className="h-9 border-border bg-transparent text-xs rounded-xl"
+                      className="h-9 text-xs rounded-xl"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Feedback Score</label>
+                    <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest">Feedback Score</label>
                     <Select 
                       value={form.feedbackScore} 
                       onValueChange={(val) => handleSelectChange("feedbackScore", val)}
                     >
-                      <SelectTrigger className="h-9 border-border text-xs rounded-xl bg-white text-slate-800">
+                      <SelectTrigger className="h-9 text-xs rounded-xl">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="border-border bg-white text-slate-800 text-xs">
+                      <SelectContent className="border-border bg-card text-xs">
                         <SelectItem value="5">5 - Excellent</SelectItem>
                         <SelectItem value="4">4 - Very Good</SelectItem>
                         <SelectItem value="3">3 - Good</SelectItem>
@@ -550,21 +550,21 @@ export default function CampaignAnalytics() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest">Operational Remarks</label>
+                  <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest">Operational Remarks</label>
                   <Textarea 
                     name="remarks" 
                     value={form.remarks} 
                     onChange={handleInputChange}
                     placeholder="Enter details on public engagement..."
                     rows={3}
-                    className="border-border bg-transparent text-xs resize-none rounded-xl"
+                    className="text-xs resize-none rounded-xl"
                   />
                 </div>
 
                 <Button
                   type="submit"
                   disabled={submitting}
-                  className="w-full font-bold h-10 mt-2 bg-[#C8102E] hover:bg-[#A00D24] text-white rounded-full transition shadow-sm"
+                  className="w-full font-bold h-10 mt-2 bg-primary hover:bg-primary/90 text-white rounded-lg transition shadow-sm"
                 >
                   {submitting ? <Loader2 className="animate-spin mr-2 h-4 w-4" /> : "Save Outcome Record"}
                 </Button>

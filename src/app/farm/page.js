@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState, useEffect } from "react";
 import {
   Leaf,
@@ -142,13 +143,13 @@ const AgriculturalForm = () => {
   ];
 
   return (
-    <div className="w-full min-h-screen bg-[#F8F9FB]">
-      <div className="page-container flex flex-col lg:flex-row gap-6 items-start">
+    <div className="w-full min-h-screen bg-background py-6">
+      <div className="page-container max-w-[1200px] mx-auto w-full flex flex-col lg:flex-row gap-6 items-start">
         {/* Left Side - Form */}
         <div className="w-full lg:w-1/2 flex justify-center">
-          <Card className="w-full border-0 bg-white shadow-[0_10px_35px_rgba(0,0,0,0.03)] rounded-2xl overflow-hidden">
-            <CardHeader className="bg-[#1A2B4A] text-white p-6 shadow-sm border-0">
-              <CardTitle className="text-xl font-bold tracking-wider uppercase text-center">
+          <Card className="w-full border border-border bg-card shadow-sm rounded-xl overflow-hidden p-0">
+            <CardHeader className="bg-secondary text-secondary-foreground p-6 border-b border-border">
+              <CardTitle className="text-lg font-bold tracking-wider uppercase text-center">
                 Agricultural Data Collection
               </CardTitle>
             </CardHeader>
@@ -156,18 +157,18 @@ const AgriculturalForm = () => {
             <CardContent className="p-6 md:p-8">
               {isSubmitted ? (
                 <div className="text-center py-6">
-                  <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-6 py-4 rounded-lg">
-                    <p className="text-lg font-semibold">
+                  <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 px-6 py-4 rounded-lg">
+                    <p className="text-sm font-bold">
                       Data Submitted Successfully
                     </p>
                   </div>
                 </div>
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     {/* Areas Input */}
                     <div className="space-y-2">
-                      <Label htmlFor="areas" className="text-sm font-semibold text-slate-700">
+                      <Label htmlFor="areas" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                         Cultivation Areas
                       </Label>
                       <Input
@@ -177,14 +178,14 @@ const AgriculturalForm = () => {
                         value={formData.areas}
                         onChange={handleInputChange}
                         placeholder="Enter cultivation areas"
-                        className="w-full px-4 py-3 border border-slate-200 rounded-lg shadow-sm focus-visible:ring-[#C8102E] text-slate-800 bg-white"
+                        className="w-full text-sm h-10"
                         required
                       />
                     </div>
 
                     {/* Crop Input */}
                     <div className="space-y-2">
-                      <Label htmlFor="crop" className="text-sm font-semibold text-slate-700">
+                      <Label htmlFor="crop" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                         Crop Variety
                       </Label>
                       <Input
@@ -194,16 +195,16 @@ const AgriculturalForm = () => {
                         value={formData.crop}
                         onChange={handleInputChange}
                         placeholder="Enter crop name"
-                        className="w-full px-4 py-3 border border-slate-200 rounded-lg shadow-sm focus-visible:ring-[#C8102E] text-slate-800 bg-white"
+                        className="w-full text-sm h-10"
                         required
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     {/* Land Area Input */}
                     <div className="space-y-2">
-                      <Label htmlFor="landArea" className="text-sm font-semibold text-slate-700">
+                      <Label htmlFor="landArea" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                         Land Area (sq.km)
                       </Label>
                       <Input
@@ -214,14 +215,14 @@ const AgriculturalForm = () => {
                         onChange={handleInputChange}
                         placeholder="Enter land area"
                         step="0.01"
-                        className="w-full px-4 py-3 border border-slate-200 rounded-lg shadow-sm focus-visible:ring-[#C8102E] text-slate-800 bg-white"
+                        className="w-full text-sm h-10"
                         required
                       />
                     </div>
 
                     {/* Amount Input */}
                     <div className="space-y-2">
-                      <Label htmlFor="amount" className="text-sm font-semibold text-slate-700">
+                      <Label htmlFor="amount" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                         Estimated Yield/Production
                       </Label>
                       <Input
@@ -232,16 +233,16 @@ const AgriculturalForm = () => {
                         onChange={handleInputChange}
                         placeholder="Enter amount"
                         step="0.01"
-                        className="w-full px-4 py-3 border border-slate-200 rounded-lg shadow-sm focus-visible:ring-[#C8102E] text-slate-800 bg-white"
+                        className="w-full text-sm h-10"
                         required
                       />
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     {/* Start Month Input */}
                     <div className="space-y-2">
-                      <Label htmlFor="startMonth" className="text-sm font-semibold text-slate-700">
+                      <Label htmlFor="startMonth" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                         Cultivation Start Month
                       </Label>
                       <Select
@@ -251,12 +252,12 @@ const AgriculturalForm = () => {
                         }
                         required
                       >
-                        <SelectTrigger id="startMonth" className="w-full px-4 py-6 border border-slate-200 rounded-lg shadow-sm text-slate-700 bg-white focus:ring-[#C8102E]">
+                        <SelectTrigger id="startMonth" className="w-full px-4 py-5 text-sm h-10">
                           <SelectValue placeholder="Select start month" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white border border-slate-200">
+                        <SelectContent className="bg-card border border-border">
                           {months.map((month) => (
-                            <SelectItem key={month} value={month} className="text-slate-700 focus:bg-slate-100 cursor-pointer">
+                            <SelectItem key={month} value={month} className="focus:bg-muted cursor-pointer text-sm">
                               {month}
                             </SelectItem>
                           ))}
@@ -266,7 +267,7 @@ const AgriculturalForm = () => {
 
                     {/* End Month Input */}
                     <div className="space-y-2">
-                      <Label htmlFor="endMonth" className="text-sm font-semibold text-slate-700">
+                      <Label htmlFor="endMonth" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                         Cultivation End Month
                       </Label>
                       <Select
@@ -276,12 +277,12 @@ const AgriculturalForm = () => {
                         }
                         required
                       >
-                        <SelectTrigger id="endMonth" className="w-full px-4 py-6 border border-slate-200 rounded-lg shadow-sm text-slate-700 bg-white focus:ring-[#C8102E]">
+                        <SelectTrigger id="endMonth" className="w-full px-4 py-5 text-sm h-10">
                           <SelectValue placeholder="Select end month" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white border border-slate-200">
+                        <SelectContent className="bg-card border border-border">
                           {months.map((month) => (
-                            <SelectItem key={month} value={month} className="text-slate-700 focus:bg-slate-100 cursor-pointer">
+                            <SelectItem key={month} value={month} className="focus:bg-muted cursor-pointer text-sm">
                               {month}
                             </SelectItem>
                           ))}
@@ -294,7 +295,7 @@ const AgriculturalForm = () => {
                   <div className="pt-2">
                     <Button
                       type="submit"
-                      className="w-full bg-[#C8102E] text-white hover:bg-[#A00D24] py-6 rounded-lg font-bold uppercase tracking-wider transition-colors duration-300 shadow-md hover:shadow-lg focus-visible:ring-[#C8102E]"
+                      className="w-full bg-primary text-white hover:bg-primary/90 py-5 rounded-lg font-bold uppercase tracking-wider transition-colors duration-200 shadow-sm h-10"
                     >
                       Submit Agricultural Data
                     </Button>
@@ -309,27 +310,27 @@ const AgriculturalForm = () => {
         <div className="w-full lg:w-1/2 flex flex-col gap-6">
           <div className="flex flex-col sm:flex-row gap-4">
             {/* Seasonal Info Cards */}
-            <Card className="flex items-center p-6 min-h-[90px] flex-1 border-0 shadow-[0_8px_30px_rgba(0,0,0,0.025)] bg-white hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)] hover:translate-y-[-2px] transition-all duration-300 rounded-2xl">
-              <Leaf className="text-emerald-600 mr-4 shrink-0" size={32} />
+            <Card className="flex items-center p-6 min-h-[90px] flex-1 border border-border shadow-sm bg-card rounded-xl">
+              <Leaf className="text-emerald-600 mr-4 shrink-0" size={28} />
               <div className="space-y-0.5">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Sowing Season</h3>
-                <p className="text-lg font-bold text-slate-800">June to July</p>
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Sowing Season</h3>
+                <p className="text-base font-extrabold text-foreground">June to July</p>
               </div>
             </Card>
 
-            <Card className="flex items-center p-6 min-h-[90px] flex-1 border-0 shadow-[0_8px_30px_rgba(0,0,0,0.025)] bg-white hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)] hover:translate-y-[-2px] transition-all duration-300 rounded-2xl">
-              <Sprout className="text-emerald-600 mr-4 shrink-0" size={32} />
+            <Card className="flex items-center p-6 min-h-[90px] flex-1 border border-border shadow-sm bg-card rounded-xl">
+              <Sprout className="text-emerald-600 mr-4 shrink-0" size={28} />
               <div className="space-y-0.5">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Harvesting Season</h3>
-                <p className="text-lg font-bold text-slate-800">November to January</p>
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Harvesting Season</h3>
+                <p className="text-base font-extrabold text-foreground">November to January</p>
               </div>
             </Card>
           </div>
 
           {/* Weather Forecast */}
-          <Card className="border-0 shadow-[0_8px_30px_rgba(0,0,0,0.025)] bg-white rounded-2xl overflow-hidden w-full">
-            <CardHeader className="border-b border-slate-50/50 bg-[#1A2B4A]/5 p-6">
-              <CardTitle className="text-lg font-bold text-[#1A2B4A] tracking-wide uppercase">
+          <Card className="border border-border shadow-sm bg-card rounded-xl overflow-hidden w-full p-0">
+            <CardHeader className="border-b border-border bg-muted/40 p-5">
+              <CardTitle className="text-sm font-bold text-secondary tracking-wide uppercase">
                 Weekly Weather Forecast
               </CardTitle>
             </CardHeader>
@@ -343,22 +344,22 @@ const AgriculturalForm = () => {
                   {weatherData.daily.map((day, index) => (
                     <div
                       key={index}
-                      className="text-center bg-slate-50/50 p-4 rounded-lg border border-slate-100 hover:shadow-sm transition"
+                      className="text-center bg-muted/20 p-4 rounded-lg border border-border/60 hover:shadow-sm transition"
                     >
-                      <p className="text-xs font-semibold text-slate-700">
+                      <p className="text-xs font-bold text-foreground">
                         {new Date(day.date).toLocaleDateString("en-US", {
                           weekday: "short",
                         })}
                       </p>
-                      <div className="flex justify-center items-center my-2 text-slate-700">
-                        <Thermometer className="text-[#C8102E] mr-1 shrink-0" size={16} />
+                      <div className="flex justify-center items-center my-2 text-foreground">
+                        <Thermometer className="text-primary mr-1 shrink-0" size={14} />
                         <span className="text-xs font-bold">
                           {day.max_temp}°C / {day.min_temp}°C
                         </span>
                       </div>
-                      <div className="flex justify-center items-center text-slate-700">
-                        <Droplet className="text-sky-600 mr-1 shrink-0" size={16} />
-                        <span className="text-xs font-semibold">
+                      <div className="flex justify-center items-center text-foreground">
+                        <Droplet className="text-sky-600 mr-1 shrink-0" size={14} />
+                        <span className="text-xs font-semibold text-muted-foreground">
                           {day.precipitation_probability}%
                         </span>
                       </div>
@@ -367,7 +368,7 @@ const AgriculturalForm = () => {
                 </div>
               )}
               {!loading && !error && (
-                <p className="text-center text-xs text-muted-foreground mt-4">
+                <p className="text-center text-xs font-semibold text-muted-foreground mt-4">
                   {weatherData.city} - Weekly Forecast
                 </p>
               )}
@@ -376,19 +377,19 @@ const AgriculturalForm = () => {
 
           <div className="flex flex-col sm:flex-row gap-4">
             {/* Additional Info Cards */}
-            <Card className="flex items-center p-6 min-h-[90px] flex-1 border-0 shadow-[0_8px_30px_rgba(0,0,0,0.025)] bg-white hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)] hover:translate-y-[-2px] transition-all duration-300 rounded-2xl">
-              <Mountain className="text-emerald-600 mr-4 shrink-0" size={32} />
+            <Card className="flex items-center p-6 min-h-[90px] flex-1 border border-border shadow-sm bg-card rounded-xl">
+              <Mountain className="text-emerald-600 mr-4 shrink-0" size={28} />
               <div className="space-y-0.5">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Soil Type</h3>
-                <p className="text-lg font-bold text-slate-800">Alluvial Soil</p>
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Soil Type</h3>
+                <p className="text-base font-extrabold text-foreground">Alluvial Soil</p>
               </div>
             </Card>
 
-            <Card className="flex items-center p-6 min-h-[90px] flex-1 border-0 shadow-[0_8px_30px_rgba(0,0,0,0.025)] bg-white hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)] hover:translate-y-[-2px] transition-all duration-300 rounded-2xl">
-              <Cloud className="text-sky-600 mr-4 shrink-0" size={32} />
+            <Card className="flex items-center p-6 min-h-[90px] flex-1 border border-border shadow-sm bg-card rounded-xl">
+              <Cloud className="text-sky-600 mr-4 shrink-0" size={28} />
               <div className="space-y-0.5">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Underground Water</h3>
-                <p className="text-lg font-bold text-slate-800">Yes</p>
+                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Underground Water</h3>
+                <p className="text-base font-extrabold text-foreground">Yes</p>
               </div>
             </Card>
           </div>

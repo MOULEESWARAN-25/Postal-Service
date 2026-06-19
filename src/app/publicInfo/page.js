@@ -3,13 +3,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { 
-  ArrowLeft, 
-  ArrowRight, 
   Search, 
-  Proportions, 
   Download, 
-  ChevronDown, 
-  ChevronUp,
   ArrowUpDown,
   MoreHorizontal
 } from "lucide-react";
@@ -19,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
 import { DataTable } from "@/components/ui/data-table";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import {
@@ -73,13 +67,10 @@ const PublicInfo = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedVillages, setSelectedVillages] = useState([]);
+  const [selectedVillages] = useState([]);
   const [selectedSchemes, setSelectedSchemes] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [schemesVisible, setSchemesVisible] = useState(false);
-  const [sorting, setSorting] = useState([]);
   const itemsPerPage = 10;
 
   // Fetch data from API
@@ -114,18 +105,8 @@ const PublicInfo = () => {
     fetchData();
   }, [currentPage, searchQuery, selectedVillages, selectedSchemes]);
 
-  const toggleScheme = (scheme) => {
-    setSelectedSchemes((prev) =>
-      prev.includes(scheme)
-        ? prev.filter((s) => s !== scheme)
-        : [...prev, scheme]
-    );
-    setCurrentPage(1);
-  };
-
   const clearFilters = () => {
     setSearchQuery("");
-    setSelectedVillages([]);
     setSelectedSchemes([]);
     setCurrentPage(1);
   };
@@ -196,7 +177,7 @@ const PublicInfo = () => {
     }
   };
 
-  // Define columns for TanStack Table
+  // 5-column user-oriented table — replaces the 10-column database design
   const columns = [
     {
       accessorKey: "aadhaar_id",
@@ -205,13 +186,14 @@ const PublicInfo = () => {
           variant="ghost"
           size="sm"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="-ml-2 h-8 text-xs font-semibold text-foreground hover:bg-muted"
+          className="-ml-2 h-8 text-xs font-bold text-foreground hover:bg-muted"
         >
-          Aadhaar ID
-          <ArrowUpDown className="ml-1.5 h-3.5 w-3.5" />
+          Aadhaar ID <ArrowUpDown className="ml-1.5 h-3 w-3" />
         </Button>
       ),
-      cell: ({ row }) => <span className="font-mono text-xs text-foreground/85">{row.getValue("aadhaar_id")}</span>
+      cell: ({ row }) => (
+        <span className="font-mono text-xs text-foreground/70 tracking-tight">{row.getValue("aadhaar_id")}</span>
+      ),
     },
     {
       accessorKey: "Name",
@@ -220,112 +202,89 @@ const PublicInfo = () => {
           variant="ghost"
           size="sm"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="-ml-2 h-8 text-xs font-semibold text-foreground hover:bg-muted"
+          className="-ml-2 h-8 text-xs font-bold text-foreground hover:bg-muted"
         >
-          Name
-          <ArrowUpDown className="ml-1.5 h-3.5 w-3.5" />
+          Beneficiary <ArrowUpDown className="ml-1.5 h-3 w-3" />
         </Button>
       ),
-      cell: ({ row }) => <span className="font-medium text-foreground">{row.getValue("Name")}</span>
-    },
-    {
-      accessorKey: "Area",
-      header: ({ column }) => (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="-ml-2 h-8 text-xs font-semibold text-foreground hover:bg-muted"
-        >
-          Area
-          <ArrowUpDown className="ml-1.5 h-3.5 w-3.5" />
-        </Button>
+      cell: ({ row }) => (
+        <div>
+          <p className="font-bold text-xs text-foreground">{row.getValue("Name")}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{row.original.Area}</p>
+        </div>
       ),
-      cell: ({ row }) => <span className="text-foreground/80">{row.getValue("Area")}</span>
     },
     {
-      accessorKey: "RecommendedScheme1",
-      header: "Scheme 1",
-      cell: ({ row }) => <span className="text-xs text-foreground/80">{row.getValue("RecommendedScheme1")}</span>
-    },
-    {
-      accessorKey: "Scheme1",
-      header: "Enrollment 1",
+      id: "schemes",
+      header: () => <span className="text-xs font-bold text-foreground">Recommended Schemes</span>,
       cell: ({ row }) => {
-        const isEnrolled = row.getValue("Scheme1");
+        const schemes = [
+          row.original.RecommendedScheme1,
+          row.original.RecommendedScheme2,
+          row.original.RecommendedScheme3,
+        ].filter(Boolean);
         return (
-          <Badge 
-            variant="outline" 
-            className={isEnrolled 
-              ? "border-green-500 bg-green-500/10 text-green-700 dark:text-green-400" 
-              : "border-destructive bg-destructive/10 text-destructive"
-            }
+          <div className="flex flex-col gap-1 py-1">
+            {schemes.map((s, i) => (
+              <span
+                key={i}
+                className="inline-block text-xs font-semibold px-2 py-0.5 rounded-md truncate max-w-[220px]"
+                style={{ background: "#EEF1F8", color: "#1A2B4A" }}
+                title={s}
+              >
+                {s}
+              </span>
+            ))}
+          </div>
+        );
+      },
+    },
+    {
+      id: "enrollment_status",
+      header: () => <span className="text-xs font-bold text-foreground">Enrollment</span>,
+      cell: ({ row }) => {
+        const enrolled = [
+          row.original.Scheme1,
+          row.original.Scheme2,
+          row.original.Scheme3,
+        ].filter(Boolean).length;
+        const total = [
+          row.original.RecommendedScheme1,
+          row.original.RecommendedScheme2,
+          row.original.RecommendedScheme3,
+        ].filter(Boolean).length;
+        const isFullyEnrolled = enrolled === total && total > 0;
+        const isPartial = enrolled > 0 && enrolled < total;
+        return (
+          <Badge
+            variant="outline"
+            className={`text-xs font-bold rounded-full px-2.5 py-0.5 border ${
+              isFullyEnrolled
+                ? "bg-primary/10 text-primary border-primary/20"
+                : isPartial
+                ? "bg-amber-50 text-amber-700 border-amber-200"
+                : "bg-destructive/10 text-destructive border-destructive/20"
+            }`}
           >
-            {isEnrolled ? "Enrolled" : "Not Enrolled"}
+            {enrolled}/{total} Enrolled
           </Badge>
         );
-      }
-    },
-    {
-      accessorKey: "RecommendedScheme2",
-      header: "Scheme 2",
-      cell: ({ row }) => <span className="text-xs text-foreground/80">{row.getValue("RecommendedScheme2")}</span>
-    },
-    {
-      accessorKey: "Scheme2",
-      header: "Enrollment 2",
-      cell: ({ row }) => {
-        const isEnrolled = row.getValue("Scheme2");
-        return (
-          <Badge 
-            variant="outline" 
-            className={isEnrolled 
-              ? "border-green-500 bg-green-500/10 text-green-700 dark:text-green-400" 
-              : "border-destructive bg-destructive/10 text-destructive"
-            }
-          >
-            {isEnrolled ? "Enrolled" : "Not Enrolled"}
-          </Badge>
-        );
-      }
-    },
-    {
-      accessorKey: "RecommendedScheme3",
-      header: "Scheme 3",
-      cell: ({ row }) => <span className="text-xs text-foreground/80">{row.getValue("RecommendedScheme3")}</span>
-    },
-    {
-      accessorKey: "Scheme3",
-      header: "Enrollment 3",
-      cell: ({ row }) => {
-        const isEnrolled = row.getValue("Scheme3");
-        return (
-          <Badge 
-            variant="outline" 
-            className={isEnrolled 
-              ? "border-green-500 bg-green-500/10 text-green-700 dark:text-green-400" 
-              : "border-destructive bg-destructive/10 text-destructive"
-            }
-          >
-            {isEnrolled ? "Enrolled" : "Not Enrolled"}
-          </Badge>
-        );
-      }
+      },
     },
     {
       id: "actions",
-      header: () => <div className="text-right">Actions</div>,
+      header: () => <div className="text-right text-xs font-bold text-foreground">Actions</div>,
       cell: ({ row }) => {
         const item = row.original;
         return (
           <div className="text-right">
             <DropdownMenu>
               <DropdownMenuTrigger render={
-                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-slate-100 rounded-full flex items-center justify-center">
-                  <MoreHorizontal className="h-4 w-4" />
+                <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-muted rounded-full flex items-center justify-center">
+                  <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
                 </Button>
               } />
-              <DropdownMenuContent align="end" className="bg-white text-slate-800 border border-slate-200">
+              <DropdownMenuContent align="end" className="bg-card text-foreground border border-border z-50 shadow-md">
                 <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleclick(item); }} className="text-xs cursor-pointer">
                   View Profile
                 </DropdownMenuItem>
@@ -345,39 +304,39 @@ const PublicInfo = () => {
 
   return (
     <ErrorBoundary>
-      <div className="bg-[#F8F9FB] min-h-screen">
-        <div className="page-container space-y-5">
+      <div className="bg-background min-h-screen text-foreground">
+        <div className="page-container max-w-[1600px] mx-auto w-full space-y-6">
           
           {/* Breadcrumbs */}
-          <Breadcrumb>
+          <Breadcrumb className="text-xs">
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/" className="font-semibold text-slate-500 hover:text-[#C8102E]">Dashboard</BreadcrumbLink>
+                <BreadcrumbLink href="/" className="font-semibold text-muted-foreground hover:text-primary">Dashboard</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage className="font-extrabold text-[#1A2B4A]">Public Information Portal</BreadcrumbPage>
+                <BreadcrumbPage className="font-extrabold text-secondary">Public Information Portal</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
 
           {/* Page Header */}
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-100 pb-4">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-border pb-4">
             <div>
-              <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
+              <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
                 Public Information Portal
               </h1>
-              <p className="text-xs text-slate-500 font-semibold mt-1">
+              <p className="text-xs text-muted-foreground font-semibold mt-1">
                 DSS Portal verifying beneficiary details, active enrollments, and recommended savings schemes.
               </p>
             </div>
-            <Badge className="bg-[#1A2B4A] text-white py-1 px-3 rounded-full text-xs font-semibold">
-              Who should I target?
+            <Badge className="bg-secondary text-secondary-foreground py-1 px-3 rounded-full text-xs font-semibold">
+              Target Candidates
             </Badge>
           </div>
 
           {/* Horizontal Filters Toolbar Row */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 border border-slate-200 bg-white rounded-xl shadow-sm">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 p-4 border border-border bg-card rounded-xl shadow-sm">
             <div className="flex flex-1 flex-col md:flex-row items-center gap-3 w-full">
               {/* Search Bar */}
               <div className="relative w-full md:max-w-xs">
@@ -390,7 +349,7 @@ const PublicInfo = () => {
                     setSearchQuery(e.target.value);
                     setCurrentPage(1);
                   }}
-                  className="pl-9 h-9 border-border bg-transparent text-xs text-foreground"
+                  className="pl-9 h-10 border-border bg-transparent text-xs text-foreground"
                 />
               </div>
 
@@ -406,10 +365,10 @@ const PublicInfo = () => {
                   setCurrentPage(1);
                 }}
               >
-                <SelectTrigger className="w-full md:w-[220px] h-9 text-xs border-border rounded-xl">
+                <SelectTrigger className="w-full md:w-[220px] h-10 text-xs border-border rounded-lg bg-card text-foreground">
                   <SelectValue placeholder="Filter Scheme" />
                 </SelectTrigger>
-                <SelectContent className="bg-white text-slate-800 border border-slate-100 max-h-60">
+                <SelectContent className="bg-card text-foreground border border-border max-h-60 z-50">
                   <SelectItem value="ALL" className="text-xs">All Schemes</SelectItem>
                   {SCHEMES.map((scheme) => (
                     <SelectItem key={scheme} value={scheme} className="text-xs">
@@ -425,7 +384,7 @@ const PublicInfo = () => {
                   onClick={clearFilters}
                   variant="ghost"
                   size="sm"
-                  className="h-9 text-xs text-[#C8102E] hover:text-[#A00D24] hover:bg-red-50 px-3 rounded-xl shrink-0"
+                  className="h-10 text-xs text-primary hover:text-primary hover:bg-muted px-3 rounded-lg shrink-0"
                 >
                   Clear Filters
                 </Button>
@@ -439,16 +398,16 @@ const PublicInfo = () => {
                 disabled={loading}
                 variant="outline"
                 size="sm"
-                className="flex items-center gap-2 h-9 text-xs font-semibold px-4 rounded-xl border-slate-200 text-slate-700 hover:bg-slate-50"
+                className="flex items-center gap-2 h-10 text-xs font-semibold px-4 rounded-lg border-border text-foreground hover:bg-muted"
               >
-                <Download className="h-4 w-4 text-slate-500" />
+                <Download className="h-3.5 w-3.5 text-muted-foreground" />
                 <span>Export CSV</span>
               </Button>
             </div>
           </div>
 
           {/* Main Data Table View */}
-          <div className="border border-slate-200 rounded-2xl bg-white p-0 overflow-hidden shadow-sm">
+          <div className="border border-border rounded-xl bg-card p-0 overflow-x-auto shadow-sm">
             {error ? (
               <div className="p-6 text-center text-destructive">
                 <p className="text-sm font-semibold">{error}</p>

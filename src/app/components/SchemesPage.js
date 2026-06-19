@@ -258,37 +258,37 @@ export default function SchemesPage() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-[#F8F9FB]">
-        <div className="page-container space-y-5">
+      <div className="min-h-screen bg-background text-foreground py-6">
+        <div className="page-container max-w-[1440px] mx-auto w-full space-y-6">
           {/* Breadcrumbs */}
-          <Breadcrumb>
+          <Breadcrumb className="text-xs">
             <BreadcrumbList>
               <BreadcrumbItem>
-                <BreadcrumbLink href="/" className="font-semibold text-slate-500 hover:text-[#C8102E]">Dashboard</BreadcrumbLink>
+                <BreadcrumbLink href="/" className="font-semibold text-muted-foreground hover:text-primary">Dashboard</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage className="font-extrabold text-[#1A2B4A]">Schemes Calendar</BreadcrumbPage>
+                <BreadcrumbPage className="font-extrabold text-secondary">Schemes Calendar</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
 
           {/* Back link */}
-          <div className="flex justify-between items-center border-b pb-4 border-slate-100">
-            <Link href="/" className="flex items-center space-x-2 text-[#C8102E] hover:underline font-bold transition">
+          <div className="flex justify-between items-center border-b pb-4 border-border">
+            <Link href="/" className="flex items-center space-x-2 text-primary hover:text-primary/90 font-bold transition">
               <ArrowLeft size={16} />
               <span className="text-xs">Back to Regional Intelligence</span>
             </Link>
-            <span className="text-[10px] font-bold text-[#C8102E] uppercase tracking-wider bg-red-50 border border-red-100 px-3 py-1 rounded-full">
+            <Badge className="bg-primary/10 text-primary border border-primary/20 text-xs font-bold rounded-full px-3 py-1">
               Harvest Calendar
-            </span>
+            </Badge>
           </div>
 
-          <div className="border-b border-slate-100 pb-4">
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
-              <Target className="text-[#C8102E]" /> Schemes Harvest & Sowing Heuristics
+          <div className="border-b border-border pb-4">
+            <h1 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
+              <Target className="text-primary h-6 w-6" /> Schemes Harvest & Sowing Heuristics
             </h1>
-            <p className="text-xs text-slate-500 font-semibold mt-1">
+            <p className="text-xs text-muted-foreground font-semibold mt-1">
               Synchronize scheme campaigns with local agricultural harvest and sowing patterns for Erode region.
             </p>
           </div>
@@ -301,14 +301,14 @@ export default function SchemesPage() {
             </div>
 
             {/* Right side info: Available Schemes Table */}
-            <Card className="lg:col-span-7 bg-white shadow-sm rounded-xl overflow-hidden border border-slate-200">
-              <CardHeader className="flex justify-between items-center flex-row bg-slate-50 border-b border-slate-100 p-4">
+            <Card className="lg:col-span-7 bg-card shadow-sm rounded-xl overflow-hidden border border-border">
+              <CardHeader className="flex justify-between items-center flex-row bg-muted/40 border-b border-border p-4">
                 <div>
-                  <CardTitle className="text-lg font-bold text-[#1A2B4A]">Available Schemes</CardTitle>
+                  <CardTitle className="text-lg font-bold text-secondary">Available Schemes</CardTitle>
                 </div>
                 <button
                   onClick={() => setIsTableExpanded(!isTableExpanded)}
-                  className="flex items-center text-slate-600 hover:text-slate-800 text-xs font-semibold"
+                  className="flex items-center text-muted-foreground hover:text-foreground text-xs font-semibold"
                 >
                   <ChevronDown 
                     className={`mr-1 transition-transform h-4 w-4 ${isTableExpanded ? 'rotate-180' : ''}`} 
@@ -321,8 +321,8 @@ export default function SchemesPage() {
                 {isTableExpanded && (
                   <CardContent className="p-0">
                     <div className="overflow-x-auto max-h-[500px]">
-                      <table className="w-full text-xs text-left text-slate-600">
-                        <thead className="sticky top-0 bg-slate-100 text-[#1A2B4A] z-10 border-b border-slate-200">
+                      <table className="w-full text-xs text-left text-muted-foreground">
+                        <thead className="sticky top-0 bg-muted/30 text-secondary z-10 border-b border-border">
                           <tr>
                             <th className="p-4 w-12 text-center">Select</th>
                             <th className="px-4 py-3 font-bold">Scheme</th>
@@ -330,14 +330,14 @@ export default function SchemesPage() {
                             <th className="px-4 py-3 font-bold">Purpose</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-border">
                           {schemes.map((scheme) => (
                             <tr
                               key={scheme.id}
-                              className={`hover:bg-slate-50 transition-colors ${
+                              className={`hover:bg-muted/30 transition-colors ${
                                 selectedScheme === scheme.id 
-                                  ? 'bg-slate-50/80' 
-                                  : 'bg-white'
+                                  ? 'bg-muted/40' 
+                                  : 'bg-card'
                               }`}
                             >
                               <td className="p-4 text-center">
@@ -345,14 +345,14 @@ export default function SchemesPage() {
                                   type="radio"
                                   checked={selectedScheme === scheme.id}
                                   onChange={() => handleSchemeSelect(scheme.id)}
-                                  className="text-[#C8102E] focus:ring-[#C8102E] h-4 w-4 cursor-pointer"
+                                  className="text-primary focus:ring-primary h-4 w-4 cursor-pointer"
                                 />
                               </td>
-                              <td className="px-4 py-3 font-bold text-[#1A2B4A]">
+                              <td className="px-4 py-3 font-bold text-secondary">
                                 {scheme.name}
                               </td>
-                              <td className="px-4 py-3 text-slate-600 font-medium">{scheme.targetAudience}</td>
-                              <td className="px-4 py-3 text-slate-500 font-medium">{scheme.purpose}</td>
+                              <td className="px-4 py-3 text-muted-foreground font-medium">{scheme.targetAudience}</td>
+                              <td className="px-4 py-3 text-muted-foreground font-medium">{scheme.purpose}</td>
                             </tr>
                           ))}
                         </tbody>

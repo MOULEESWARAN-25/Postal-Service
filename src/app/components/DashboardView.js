@@ -1,43 +1,30 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import {
-  DollarSign,
-  Landmark,
-  MapPin,
   NotebookTabs,
-  Pin,
+  MapPin,
   Target,
   TrendingUp,
   Users,
   Sparkles,
-  ArrowRight,
-  Plus,
-  HelpCircle,
-  Award,
   Layers,
   ChevronRight
 } from "lucide-react";
-import { Loader } from "lucide-react"; 
 import dynamic from "next/dynamic";
 
 const PopulationSpike = dynamic(() => import("./Charts/PopulationSpike"), { ssr: false });
 const LiteracyPieChart = dynamic(() => import("./Charts/LiteracyPieChart"), { ssr: false });
 const Occupation = dynamic(() => import("./Charts/Occupation"), { ssr: false });
-const WorkerClassification = dynamic(() => import("./Charts/WorkerClassification"), { ssr: false });
-const GenderAge = dynamic(() => import("./Charts/GenderAge"), { ssr: false });
 const IncomeDistribution = dynamic(() => import("./Charts/IncomeDistribution"), { ssr: false });
 
 import useDashboardStore from "@/store/dashboardStore";
 import axios from "axios";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { Button, buttonVariants } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 
 function DashboardView() {
@@ -56,20 +43,18 @@ function DashboardView() {
     village,
     subpostoffice,
     postoffice,
-    SchemePerformanceVisible,
+    setActiveTab,
     triggerChatbot
   } = useDashboardStore();
-
 
   const [postOfficesCount, setPostOfficesCount] = useState(null);
   const [postofficesCount, setPostofficesCount] = useState(null);
   const [error, setError] = useState(null);
 
   // DSS Data States
-  const [activeChartTab, setActiveChartTab] = useState("demographics");
+  const [activeChartTab, setActiveChartTab] = useState("population");
   const [recommendations, setRecommendations] = useState([]);
   const [liveEnrollmentCount, setLiveEnrollmentCount] = useState(0);
-  const [compVillages, setCompVillages] = useState(["Arasur", "Bannari"]);
   const [comparisonData, setComparisonData] = useState([]);
 
   // Fetch campaign recommendations from MongoDB
@@ -90,8 +75,6 @@ function DashboardView() {
       const res = await axios.get("/api/enrollments");
       if (res.data.success) {
         setLiveEnrollmentCount(res.data.stats.totalEnrolled || 84);
-        
-        // Populate Comparison Engine Details
         const allVilsData = res.data.stats.byVillage || [];
         setComparisonData(allVilsData);
       }
@@ -131,7 +114,7 @@ function DashboardView() {
     if (!subpostoffice) return;
 
     try {
-      const searchPincode = subpostoffice?.pincode || (typeof postoffice === 'object' ? postoffice?.pincode : null) || 624001;
+      const searchPincode = subpostoffice?.pincode || 624001;
 
       const response = await axios.get(
         `https://api.postalpincode.in/pincode/${searchPincode}`
@@ -146,7 +129,7 @@ function DashboardView() {
     } catch (error) {
       console.warn("Error fetching post offices by pincode:", error);
     }
-  }, [subpostoffice, postoffice]);
+  }, [subpostoffice]);
 
   useEffect(() => {
     fetchVillages();
@@ -156,103 +139,45 @@ function DashboardView() {
     fetchPostOffices();
   }, [fetchPostOffices]);
 
-  const renderInfo = () => {
-    if (!State && !District && !subpostoffice && !postoffice && !village) {
-      return (
-        <>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            Total post offices
-          </p>
-          <h2 className="text-base font-extrabold text-slate-900 mt-0.5">1.55+ Lakhs</h2>
-        </>
-      );
-    }
-    if (State && !District && !subpostoffice && !postoffice && !village) {
-      return (
-        <>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            Number of post offices
-          </p>
-          <h2 className="text-base font-extrabold text-slate-900 mt-0.5">12,450</h2>
-        </>
-      );
-    }
-    if (State && District && !subpostoffice && !postoffice && !village) {
-      return (
-        <>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            District Post Offices
-          </p>
-          <h2 className="text-base font-extrabold text-slate-900 mt-0.5">
-            {postOfficesCount ? postOfficesCount.length : "Loading..."}
-          </h2>
-        </>
-      );
-    }
-    if (State && District && subpostoffice && !postoffice && !village) {
-      return (
-        <>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            Branch post offices
-          </p>
-          <h2 className="text-base font-extrabold text-slate-900 mt-0.5">
-            {postofficesCount ? postofficesCount.length : "Loading..."}
-          </h2>
-        </>
-      );
-    }
-    if (State && District && subpostoffice && postoffice && !village) {
-      return (
-        <>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            Selected Post Office
-          </p>
-          <h2 className="text-sm font-extrabold text-slate-950 mt-0.5 truncate">
-            {typeof postoffice === 'object' ? postoffice.name : postoffice}
-          </h2>
-        </>
-      );
-    }
-    if (State && District && subpostoffice && postoffice && village) {
-      return (
-        <>
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            Selected Post Office
-          </p>
-          <h2 className="text-sm font-extrabold text-slate-950 mt-0.5 truncate">
-            {typeof postoffice === 'object' ? postoffice.name : postoffice}
-          </h2>
-        </>
-      );
-    }
-    return "Invalid data";
-  };
-
+  // ── Location-reactive demographics fetch ─────────────────────────────────
+  // Runs on mount (loads national data) and re-runs whenever any location
+  // selector changes, ensuring KPI cards always reflect the selected region.
   useEffect(() => {
-    const getDemographics = async () => {
-      if (demographicData) return;
-      setLoading(true); 
+    const fetchDemographicsForLocation = async () => {
+      setLoading(true);
       try {
+        const hasLocation = !!(State || District || village || subpostoffice || postoffice);
+        const body = hasLocation
+          ? {
+              address: {
+                State:         State?.name || null,
+                District:      District || null,
+                Village:       village || null,
+                SubPostOffice: subpostoffice?.name || null,
+                PostOffice:    (typeof postoffice === "object" ? postoffice?.name : postoffice) || null,
+              },
+            }
+          : { address: { name: "INDIA" } };
+
         const response = await fetch("/api/demographics", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ address: { name: "INDIA" } }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
         });
+        if (!response.ok) throw new Error("Demographics fetch failed");
         const data = await response.json();
         setTotalDemographicData(data);
         filterDemographicData(data);
       } catch (error) {
         console.warn("Error fetching demographics:", error);
       } finally {
-        setLoading(false); 
+        setLoading(false);
       }
     };
 
-    getDemographics();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    fetchDemographicsForLocation();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [State, District, village, subpostoffice, postoffice]);
 
   const [selectedData, setSelectedData] = useState(null);
 
@@ -262,13 +187,6 @@ function DashboardView() {
       setSelectedData(selected); 
       setDemographicData(selected); 
     }
-  };
-
-  // Chatbot contextual queries
-  const askAAboutRegion = () => {
-    const regionName = demographicData?.name || "Erode";
-    const promptText = `Analyze the demographics of the region "${regionName}". Highlight key points like total population (${demographicData?.totP?.toLocaleString() || 'N/A'}), literacy rates, and recommend which post office schemes (e.g. SSA, KCC, APY) are best to promote here and why.`;
-    triggerChatbot(promptText);
   };
 
   // Dynamic recommendation lookup for DSS
@@ -296,7 +214,6 @@ function DashboardView() {
         };
       }
       
-      // Generic fallback
       return {
         village: village,
         recommendedScheme: "Atal Pension Yojana (APY)",
@@ -311,560 +228,836 @@ function DashboardView() {
       };
     }
 
-    // Default Arasur recommendation
-    return {
-      village: "Arasur",
-      recommendedScheme: "Sukanya Samriddhi Yojana (SSA)",
-      opportunityScore: 92,
-      campaignWindow: "October - December 2026",
-      keyDrivers: [
-        "High female literacy (78.5%) detected in Erode branch sector",
-        "Significant count of girl children under the age of 10 (~142)",
-        "Low existing SSA adoption rates (<15%) compared to other post offices"
-      ],
-      estimatedEligibleCitizens: "~120"
-    };
+    return null;
   };
 
+  const isLocationSelected = !!(State || District || subpostoffice || postoffice || village);
   const currentRec = getDynamicRecommendation();
   const regionTitle = village || (typeof postoffice === "object" ? postoffice?.name : postoffice) || subpostoffice?.name || District || State?.name || "India (National)";
 
+  const handleExploreClick = () => {
+    setActiveTab("state");
+  };
+
   return (
-    <main className="flex-1 bg-[#F8F9FB] min-h-screen text-slate-800">
-      <div className="page-container space-y-5">
+    <main className="flex-1 bg-background min-h-screen text-foreground">
+      <div className="page-container max-w-[1440px] mx-auto w-full space-y-6">
         
         {/* Breadcrumbs */}
         <Breadcrumb className="text-xs">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/" className="font-semibold text-slate-500 hover:text-[#C8102E]">Home</BreadcrumbLink>
+              <BreadcrumbLink href="/" className="font-semibold text-muted-foreground hover:text-primary transition-colors">Home</BreadcrumbLink>
             </BreadcrumbItem>
-            {State?.name && (
-              <>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbLink href="#" onClick={(e) => e.preventDefault()} className="font-semibold text-slate-500">{State.name}</BreadcrumbLink>
-                </BreadcrumbItem>
-              </>
-            )}
             {District && (
               <>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="#" onClick={(e) => e.preventDefault()} className="font-semibold text-slate-500">{District}</BreadcrumbLink>
+                  <span className="font-semibold text-muted-foreground">{District}</span>
                 </BreadcrumbItem>
               </>
             )}
-            {subpostoffice?.name && (
+            {isLocationSelected && regionTitle !== District && (
               <>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbLink href="#" onClick={(e) => e.preventDefault()} className="font-semibold text-slate-500">{subpostoffice.name}</BreadcrumbLink>
-                </BreadcrumbItem>
-              </>
-            )}
-            {postoffice && (
-              <>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbLink href="#" onClick={(e) => e.preventDefault()} className="font-semibold text-slate-500">
-                    {typeof postoffice === "object" ? postoffice?.name : postoffice}
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-              </>
-            )}
-            {village && (
-              <>
-                <BreadcrumbSeparator />
-                <BreadcrumbItem>
-                  <BreadcrumbPage className="font-extrabold text-[#1A2B4A]">{village}</BreadcrumbPage>
+                  <BreadcrumbPage className="font-extrabold text-secondary">{regionTitle}</BreadcrumbPage>
                 </BreadcrumbItem>
               </>
             )}
           </BreadcrumbList>
         </Breadcrumb>
 
-        {/* Dynamic Section Heading */}
-        <div className="flex justify-between items-center border-b border-slate-100 pb-4">
-          <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
-              {regionTitle} Intelligence
-            </h1>
-            <p className="text-xs text-slate-500 font-semibold mt-1">
-              Decision Support System (DSS) panel analyzing priority regional opportunities, demographic datasets, and scheme performance metrics.
-            </p>
+        {/* Premium Page Hero Banner */}
+        <div
+          className="relative rounded-2xl overflow-hidden"
+          style={{
+            background: "linear-gradient(135deg, #0F172A 0%, #1A2B4A 55%, #1E3A5F 100%)",
+            padding: "1.75rem 2rem",
+            boxShadow: "0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08)",
+          }}
+        >
+          {/* Decorative radial glow */}
+          <div
+            className="absolute top-0 right-0 w-64 h-64 rounded-full pointer-events-none"
+            style={{ background: "radial-gradient(circle, rgba(200,16,46,0.18) 0%, transparent 70%)", transform: "translate(20%, -40%)" }}
+          />
+          <div
+            className="absolute bottom-0 left-1/2 w-40 h-40 rounded-full pointer-events-none"
+            style={{ background: "radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%)", transform: "translate(-50%, 50%)" }}
+          />
+          {/* Grid pattern overlay */}
+          <div
+            className="absolute inset-0 pointer-events-none opacity-[0.04]"
+            style={{
+              backgroundImage: "linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px)",
+              backgroundSize: "32px 32px",
+            }}
+          />
+          <div className="relative z-10 flex items-center justify-between flex-wrap gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <div
+                  className="px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-widest"
+                  style={{ background: "rgba(200, 16, 46, 0.25)", color: "#F87171", border: "1px solid rgba(200,16,46,0.3)" }}
+                >
+                  DSS Portal
+                </div>
+              </div>
+              <h1
+                className="text-2xl font-extrabold text-white"
+                style={{ letterSpacing: "-0.03em" }}
+              >
+                {regionTitle} Intelligence
+              </h1>
+              <p className="text-xs font-medium mt-1.5" style={{ color: "rgba(148,163,184,0.85)" }}>
+                Decision Support System analyzing regional Census data, opportunities, and campaigns.
+              </p>
+            </div>
+            <div className="flex items-center gap-3">
+              <div
+                className="px-4 py-2 rounded-xl text-xs font-bold"
+                style={{
+                  background: "rgba(255,255,255,0.07)",
+                  border: "1px solid rgba(255,255,255,0.12)",
+                  color: "rgba(226,232,240,0.9)",
+                }}
+              >
+                <div className="text-xs text-slate-400 uppercase tracking-wider mb-0.5">Status</div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                  Live • High Readiness
+                </div>
+              </div>
+            </div>
           </div>
-          <Badge className="bg-[#1A2B4A] text-white py-1 px-3 rounded-full text-xs font-semibold">
-            DSS Dashboard
-          </Badge>
         </div>
 
-        {/* Strategic Action Center (Action-First DSS Alert) */}
-        <Card className="border border-slate-200 bg-white shadow-sm overflow-hidden rounded-2xl relative">
-          <CardHeader className="pb-3 pl-6 pt-6">
-            <div className="flex items-center gap-2 text-[10px] font-bold text-[#C8102E] uppercase tracking-widest">
-              <Sparkles size={14} className="animate-pulse shrink-0" />
-              <span>Strategic Action Center</span>
-            </div>
-            <CardTitle className="text-xl font-extrabold text-slate-900 mt-2">
-              Promote {currentRec.recommendedScheme} in {currentRec.village}
-            </CardTitle>
-            <CardDescription className="text-xs text-slate-500 font-semibold mt-1.5 flex flex-wrap gap-x-4 gap-y-1">
-              <span>Opportunity Score: <strong className="text-[#C8102E]">{currentRec.opportunityScore}/100</strong></span>
-              <span>&bull;</span>
-              <span>Eligible Citizens: <strong className="text-slate-800">{currentRec.estimatedEligibleCitizens}</strong></span>
-              <span>&bull;</span>
-              <span>Campaign Window: <strong className="text-slate-800">{currentRec.campaignWindow}</strong></span>
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pl-6 pb-6 space-y-4">
-            {/* Intelligence Summary ("Why?") */}
-            <div className="space-y-2 border-t border-slate-100 pt-3">
-              <h4 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Why? (Intelligence Summary)</h4>
-              <ul className="space-y-1.5 text-xs text-slate-600">
-                {currentRec.keyDrivers?.map((driver, idx) => (
-                  <li key={idx} className="flex items-start gap-2">
-                    <span className="text-[#C8102E] shrink-0 font-bold select-none">&bull;</span>
-                    <span>{driver}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            
-            <div className="flex gap-2 flex-wrap pt-2">
-              <Button 
-                onClick={() => router.push("/calender")}
-                className="h-9 rounded-full bg-[#C8102E] text-white hover:bg-[#A00D24] text-xs font-bold shadow-sm"
-              >
-                Launch Campaign Outreach
-              </Button>
-              <Button 
-                onClick={() => triggerChatbot(`Provide an operational outreach plan for promoting ${currentRec.recommendedScheme} in ${currentRec.village || 'Arasur'}.`)}
-                variant="outline"
-                className="h-9 rounded-full text-xs font-bold border-slate-200 text-slate-700 hover:bg-slate-50"
-              >
-                Ask Assistant for Action Plan
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Key Demographics Overview KPI Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="border-0 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.025)] rounded-2xl p-6 flex items-start gap-4">
-            <div className="p-3 bg-indigo-50 rounded-xl shrink-0">
-              <Users className="h-6 w-6 text-indigo-600" />
-            </div>
-            <div>
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Population</span>
-              <h3 className="text-2xl font-extrabold text-slate-900 mt-1">
-                {demographicData?.totP ? demographicData.totP.toLocaleString() : "Loading..."}
-              </h3>
-              <p className="text-xs text-slate-500 font-semibold mt-1">
-                {demographicData?.noHh ? `${demographicData.noHh.toLocaleString()} Households` : "Calculating..."}
-              </p>
-            </div>
-          </Card>
-
-          <Card className="border-0 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.025)] rounded-2xl p-6 flex items-start gap-4">
-            <div className="p-3 bg-emerald-50 rounded-xl shrink-0">
-              <TrendingUp className="h-6 w-6 text-emerald-600" />
-            </div>
-            <div>
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Workforce Participation</span>
-              <h3 className="text-2xl font-extrabold text-slate-900 mt-1">
-                {demographicData?.totWorkP ? `${((demographicData.totWorkP / (demographicData.totP || 1)) * 100).toFixed(1)}%` : "Loading..."}
-              </h3>
-              <p className="text-xs text-slate-500 font-semibold mt-1">
-                {demographicData?.totWorkP ? `${demographicData.totWorkP.toLocaleString()} Active Workers` : "Calculating..."}
-              </p>
-            </div>
-          </Card>
-
-          <Card className="border-0 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.025)] rounded-2xl p-6 flex items-start gap-4">
-            <div className="p-3 bg-amber-50 rounded-xl shrink-0">
-              <NotebookTabs className="h-6 w-6 text-amber-600" />
-            </div>
-            <div>
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Avg Literacy Index</span>
-              <h3 className="text-2xl font-extrabold text-slate-900 mt-1">
-                {demographicData?.fLit && demographicData?.mLit ? `${((demographicData.fLit + demographicData.mLit) / 2).toFixed(1)}%` : "Loading..."}
-              </h3>
-              <p className="text-xs text-slate-500 font-semibold mt-1">
-                M: {demographicData?.mLit || 0}% | F: {demographicData?.fLit || 0}%
-              </p>
-            </div>
-          </Card>
-
-          <Card className="border-0 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.025)] rounded-2xl p-6 flex items-start gap-4">
-            <div className="p-3 bg-red-50 rounded-xl shrink-0">
-              <MapPin className="h-6 w-6 text-[#C8102E]" />
-            </div>
-            <div>
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Service Network</span>
-              <h3 className="text-2xl font-extrabold text-slate-900 mt-1 truncate max-w-[180px]">
-                {postofficesCount && postofficesCount.length > 0
-                  ? `${postofficesCount.length} POs`
-                  : postOfficesCount
-                  ? `${postOfficesCount.length} POs`
-                  : "1.55+ Lakhs"}
-              </h3>
-              <p className="text-xs text-slate-500 font-semibold mt-1">
-                {village ? "Village Level" : postoffice ? "Sub-Office" : District ? "District Level" : "National Level"}
-              </p>
-            </div>
-          </Card>
-        </div>
-
-        {/* Demographics Visualizer & Insights Workspace */}
-        {demographicData && (
-          <Card className="border-0 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.025)] rounded-2xl overflow-hidden p-6 space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4">
-              <div>
-                <h2 className="text-xl font-extrabold text-[#1A2B4A] flex items-center gap-2">
-                  <Users className="text-[#C8102E] h-5 w-5" />
-                  Demographics Visualizer & Insights Workspace
-                </h2>
-                <p className="text-xs text-slate-500 font-semibold mt-0.5">
-                  Detailed distribution breakdowns, literacy gap computations, and worker classifications for {regionTitle}.
-                </p>
-              </div>
-              {/* Census PCA Segment Selector as Premium Pill button group */}
-              {totalDemographicData && Array.isArray(totalDemographicData) && (
-                <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-full border border-slate-100 shrink-0">
-                  <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest px-2 hidden md:inline">Segment:</span>
-                  {totalDemographicData.map((item, index) => {
-                    const isSelected = selectedData === item || (index === 0 && selectedData === null);
-                    return (
-                      <button
-                        key={index}
-                        type="button"
-                        onClick={() => handleRadioChange(index)}
-                        className={cn(
-                          "px-3.5 py-1.5 text-[10px] font-bold rounded-full transition-all duration-200 cursor-pointer uppercase tracking-wider",
-                          isSelected
-                            ? "bg-[#C8102E] text-white shadow-sm"
-                            : "text-[#1A2B4A] hover:text-[#C8102E] hover:bg-slate-100"
-                        )}
-                      >
-                        {item.tru || `Segment ${index + 1}`}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              
-              {/* Card 1: Gender Split & Household Density */}
-              <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100 flex flex-col justify-between space-y-4">
-                <div>
-                  <div className="flex justify-between items-start">
-                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Gender Balance & Density</span>
-                    <Badge className="bg-indigo-50 text-indigo-700 hover:bg-indigo-50 border border-indigo-100 text-[10px] font-bold rounded-md">Gender Ratio</Badge>
-                  </div>
-                  
-                  {/* Stats */}
-                  <div className="mt-3 flex items-baseline gap-2">
-                    <span className="text-3xl font-extrabold text-[#1A2B4A]">
-                      {demographicData.totM && demographicData.totF
-                        ? ((demographicData.totF / demographicData.totM) * 1000).toFixed(0)
-                        : ((587584719 / 623270258) * 1000).toFixed(0)
-                      }
-                    </span>
-                    <span className="text-xs font-semibold text-slate-400">Females per 1000 Males</span>
-                  </div>
-                </div>
-
-                {/* Progress bar split */}
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs font-bold text-slate-600">
-                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-indigo-600 rounded-full inline-block"></span> Male: {((demographicData.totM / (demographicData.totP || 1)) * 100).toFixed(1)}%</span>
-                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-rose-500 rounded-full inline-block"></span> Female: {((demographicData.totF / (demographicData.totP || 1)) * 100).toFixed(1)}%</span>
-                  </div>
-                  <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden flex">
-                    <div 
-                      className="bg-indigo-600 h-full transition-all duration-500" 
-                      style={{ width: `${(demographicData.totM / (demographicData.totP || 1)) * 100}%` }}
-                    />
-                    <div 
-                      className="bg-rose-500 h-full transition-all duration-500" 
-                      style={{ width: `${(demographicData.totF / (demographicData.totP || 1)) * 100}%` }}
-                    />
-                  </div>
-                  <div className="flex justify-between text-[10px] font-semibold text-slate-400 pt-1">
-                    <span>{demographicData.totM?.toLocaleString()} Males</span>
-                    <span>{demographicData.totF?.toLocaleString()} Females</span>
-                  </div>
-                </div>
-
-                <div className="bg-white p-3 rounded-xl border border-slate-100 text-xs text-slate-500 font-medium">
-                  🏠 Average household density is <strong className="text-slate-800">{(demographicData.totP / (demographicData.noHh || 1)).toFixed(1)}</strong> people per house.
-                </div>
-              </div>
-
-              {/* Card 2: Literacy & Education Gap */}
-              <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100 flex flex-col justify-between space-y-4">
-                <div>
-                  <div className="flex justify-between items-start">
-                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Education & Literacy Gap</span>
-                    {(() => {
-                      const gap = (demographicData.mLit || 0) - (demographicData.fLit || 0);
-                      let variant = "bg-emerald-50 text-emerald-700 border-emerald-100";
-                      let label = "Low Gap";
-                      if (gap > 15) {
-                        variant = "bg-rose-50 text-rose-700 border-rose-100";
-                        label = "Critical Gap";
-                      } else if (gap > 5) {
-                        variant = "bg-amber-50 text-amber-700 border-amber-100";
-                        label = "Moderate Gap";
-                      }
-                      return <Badge className={`${variant} border text-[10px] font-bold rounded-md`}>{label}</Badge>;
-                    })()}
-                  </div>
-
-                  <div className="mt-3 flex items-baseline gap-2">
-                    <span className="text-3xl font-extrabold text-[#1A2B4A]">
-                      {((demographicData.mLit - demographicData.fLit) || 0).toFixed(1)}%
-                    </span>
-                    <span className="text-xs font-semibold text-slate-400">Gender Literacy Gap</span>
-                  </div>
-                </div>
-
-                {/* Progress bars for male/female literacy */}
-                <div className="space-y-3">
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-xs font-bold text-slate-600">
-                      <span>Male Literacy</span>
-                      <span>{demographicData.mLit}%</span>
-                    </div>
-                    <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-                      <div className="bg-indigo-600 h-full transition-all duration-500" style={{ width: `${demographicData.mLit}%` }} />
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-xs font-bold text-slate-600">
-                      <span>Female Literacy</span>
-                      <span>{demographicData.fLit}%</span>
-                    </div>
-                    <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-                      <div className="bg-rose-500 h-full transition-all duration-500" style={{ width: `${demographicData.fLit}%` }} />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Recommendations Note based on Literacy Gap */}
-                <div className="bg-white p-3 rounded-xl border border-slate-100 text-xs text-slate-500 leading-relaxed font-medium">
-                  {demographicData.mLit - demographicData.fLit > 10 ? (
-                    <span>💡 <strong className="text-[#C8102E]">Target girls outreach:</strong> Promoting Sukanya Samriddhi Yojana (SSA) is a priority to boost female financial inclusion.</span>
-                  ) : (
-                    <span>💡 <strong className="text-[#2E7D32]">Balanced literacy profile:</strong> Focus on retail savings plans like Recurring Deposit (RD) and PPF.</span>
-                  )}
-                </div>
-              </div>
-
-              {/* Card 3: Labor & Livelihood Profile */}
-              <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100 flex flex-col justify-between space-y-4">
-                <div>
-                  <div className="flex justify-between items-start">
-                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Labor & Livelihood Profile</span>
-                    <Badge className="bg-emerald-50 text-emerald-700 hover:bg-emerald-50 border border-emerald-100 text-[10px] font-bold rounded-md">Workforce mix</Badge>
-                  </div>
-
-                  <div className="mt-3 flex items-baseline gap-2">
-                    <span className="text-3xl font-extrabold text-[#1A2B4A]">
-                      {((demographicData.totWorkP / (demographicData.totP || 1)) * 100).toFixed(1)}%
-                    </span>
-                    <span className="text-xs font-semibold text-slate-400">Participation Rate</span>
-                  </div>
-                </div>
-
-                {/* Main vs Marginal Workers Progress bar */}
-                <div className="space-y-3">
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-xs font-bold text-slate-600">
-                      <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-[#1A2B4A] rounded-full inline-block"></span> Main Workers (6+ mo)</span>
-                      <span>{((demographicData.mainworkP / (demographicData.totWorkP || 1)) * 100).toFixed(0)}%</span>
-                    </div>
-                    <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-                      <div 
-                        className="bg-[#1A2B4A] h-full transition-all duration-500" 
-                        style={{ width: `${(demographicData.mainworkP / (demographicData.totWorkP || 1)) * 100}%` }} 
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <div className="flex justify-between text-xs font-bold text-slate-600">
-                      <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-amber-500 rounded-full inline-block"></span> Marginal Workers (&lt;6 mo)</span>
-                      <span>{((demographicData.margworkP / (demographicData.totWorkP || 1)) * 100).toFixed(0)}%</span>
-                    </div>
-                    <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
-                      <div 
-                        className="bg-amber-500 h-full transition-all duration-500" 
-                        style={{ width: `${(demographicData.margworkP / (demographicData.totWorkP || 1)) * 100}%` }} 
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Worker Classification counts */}
-                <div className="bg-white p-3 rounded-xl border border-slate-100 text-[11px] text-slate-500 space-y-1">
-                  <div className="flex justify-between">
-                    <span>Cultivators:</span>
-                    <strong className="text-slate-800">{demographicData.mainClP?.toLocaleString() || 'N/A'}</strong>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Agri Laborers:</span>
-                    <strong className="text-slate-800">{demographicData.mainAlP?.toLocaleString() || 'N/A'}</strong>
-                  </div>
-                  {demographicData.margworkP > demographicData.mainworkP * 0.3 && (
-                    <div className="text-[10px] text-amber-600 font-bold mt-1">
-                      ⚠️ High seasonal worker count. APY (Atal Pension) outreach recommended.
-                    </div>
-                  )}
-                </div>
-              </div>
-
-            </div>
-          </Card>
-        )}
-
-        {/* 70/30 Split Layout (Visual Hierarchy Grid) */}
-        <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
+        {/* Unified 2-Column SaaS Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           
-          {/* Left Column (70% - Demographics Open Evidence Grid) */}
-          <div className="lg:col-span-7 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              
-              {/* Card 1: Population Trend */}
-              <Card className="border-0 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.025)] rounded-2xl p-6 flex flex-col justify-between">
-                <CardHeader className="p-0 pb-4 border-b border-slate-50">
-                  <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-wider">Population Growth & Trend Projections</CardTitle>
-                  <CardDescription className="text-[10px] text-slate-400 font-semibold mt-0.5">Historical & projected regional population growth metrics</CardDescription>
-                </CardHeader>
-                <CardContent className="p-0 pt-4 h-[300px] w-full flex items-center justify-center">
-                  <PopulationSpike />
-                </CardContent>
-              </Card>
-
-              {/* Card 2: Literacy Distribution */}
-              <Card className="border-0 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.025)] rounded-2xl p-6 flex flex-col justify-between">
-                <CardHeader className="p-0 pb-4 border-b border-slate-50">
-                  <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-wider">Literacy & Education Distribution</CardTitle>
-                  <CardDescription className="text-[10px] text-slate-400 font-semibold mt-0.5">Literacy index by gender categories</CardDescription>
-                </CardHeader>
-                <CardContent className="p-0 pt-4 h-[300px] w-full flex items-center justify-center">
-                  <LiteracyPieChart />
-                </CardContent>
-              </Card>
-
-              {/* Card 3: Sectoral Occupation */}
-              <Card className="border-0 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.025)] rounded-2xl p-6 flex flex-col justify-between">
-                <CardHeader className="p-0 pb-4 border-b border-slate-50">
-                  <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-wider">Sectoral Employment breakdown</CardTitle>
-                  <CardDescription className="text-[10px] text-slate-400 font-semibold mt-0.5">Working vs. non-working gender participation ratio</CardDescription>
-                </CardHeader>
-                <CardContent className="p-0 pt-4 h-[300px] w-full flex items-center justify-center">
-                  <Occupation />
-                </CardContent>
-              </Card>
-
-              {/* Card 4: Income tiers */}
-              <Card className="border-0 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.025)] rounded-2xl p-6 flex flex-col justify-between">
-                <CardHeader className="p-0 pb-4 border-b border-slate-50">
-                  <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-wider">Income Tier & Economic Profile</CardTitle>
-                  <CardDescription className="text-[10px] text-slate-400 font-semibold mt-0.5">Household economic and class segmentation</CardDescription>
-                </CardHeader>
-                <CardContent className="p-0 pt-4 h-[300px] w-full flex items-center justify-center">
-                  <IncomeDistribution />
-                </CardContent>
-              </Card>
-
-            </div>
-
-            {/* Note on data density */}
-            <div className="text-[11px] text-slate-400 font-medium italic flex items-center gap-1">
-              <span>ℹ️</span>
-              <span>Demographic visualizations dynamically update with the selected administrative region above.</span>
-            </div>
-          </div>
-
-          {/* Right Column (30% - Intelligence Sidebar) */}
+          {/* Left Column (75% width) - Main Workspace */}
           <div className="lg:col-span-3 space-y-6">
             
-            {/* Intelligence Sidebar Card */}
-            <Card className="border border-slate-200 bg-white shadow-sm rounded-2xl overflow-hidden">
-              <div className="bg-slate-50 border-b border-slate-100 p-4">
-                <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                  <Users className="h-4 w-4 text-[#1A2B4A]" />
-                  <span>🧠 Intelligence Sidebar</span>
-                </h3>
+            {/* Top Row: Strategic Card & Supporting Metrics Grid - ABOVE THE FOLD */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              
+              {/* Column span 2: Primary Decision / Strategy Center */}
+              <div className="md:col-span-2 flex flex-col">
+                {isLocationSelected && currentRec ? (
+                  <div
+                    className="flex-grow relative rounded-xl overflow-hidden flex flex-col justify-between"
+                    style={{
+                      background: "#fff",
+                      border: "1px solid #E8EDF5",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.04)",
+                      padding: "1.5rem",
+                    }}
+                  >
+                    {/* Top accent gradient bar */}
+                    <div
+                      className="absolute top-0 left-0 right-0 h-[3px]"
+                      style={{ background: "linear-gradient(90deg, #C8102E 0%, #E8193A 60%, #F43F5E 100%)" }}
+                    />
+                    <div>
+                      {/* Header row */}
+                      <div className="flex items-start justify-between gap-3 mb-4">
+                        <div className="flex items-center gap-1.5">
+                          <div
+                            className="p-1.5 rounded-lg"
+                            style={{ background: "rgba(200,16,46,0.08)" }}
+                          >
+                            <Sparkles size={12} style={{ color: "#C8102E" }} className="animate-pulse" />
+                          </div>
+                          <span
+                            className="text-xs font-bold uppercase tracking-wider"
+                            style={{ color: "#C8102E" }}
+                          >
+                            Strategic Action Center
+                          </span>
+                        </div>
+                        {/* Opportunity Score badge */}
+                        <div
+                          className="shrink-0 text-center px-3 py-1.5 rounded-xl"
+                          style={{
+                            background: "linear-gradient(135deg, #C8102E 0%, #A00D24 100%)",
+                            boxShadow: "0 4px 12px rgba(200,16,46,0.25)",
+                          }}
+                        >
+                          <div className="text-xl font-extrabold text-white leading-none" style={{ letterSpacing: "-0.03em" }}>
+                            {currentRec.opportunityScore}
+                          </div>
+                          <div className="text-xs font-bold text-white/70 uppercase tracking-wider">/ 100</div>
+                        </div>
+                      </div>
+
+                      <h3 className="text-lg font-extrabold leading-tight mb-2" style={{ color: "#1A2B4A", letterSpacing: "-0.02em" }}>
+                        Promote {currentRec.recommendedScheme} in {currentRec.village || regionTitle}
+                      </h3>
+
+                      <div className="flex flex-wrap gap-x-4 gap-y-1 mb-4">
+                        <span className="text-xs font-semibold" style={{ color: "#64748B" }}>
+                          Eligible: <strong style={{ color: "#1E293B" }}>{currentRec.estimatedEligibleCitizens}</strong>
+                        </span>
+                        <span className="text-xs" style={{ color: "#CBD5E1" }}>•</span>
+                        <span className="text-xs font-semibold" style={{ color: "#64748B" }}>
+                          Window: <strong style={{ color: "#1E293B" }}>{currentRec.campaignWindow}</strong>
+                        </span>
+                      </div>
+
+                      {/* Supporting Evidence ("Why?") */}
+                      <div
+                        className="rounded-xl p-3 space-y-2"
+                        style={{ background: "#F8FAFF", border: "1px solid #EEF1F8" }}
+                      >
+                        <h4 className="text-xs font-bold uppercase tracking-wider" style={{ color: "#94A3B8" }}>
+                          Supporting Evidence
+                        </h4>
+                        <ul className="space-y-1.5">
+                          {currentRec.keyDrivers?.map((driver, idx) => (
+                            <li key={idx} className="flex items-start gap-2">
+                              <div
+                                className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
+                                style={{ background: "#C8102E" }}
+                              />
+                              <span className="text-xs font-medium" style={{ color: "#374151" }}>{driver}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 flex-wrap mt-5">
+                      <button
+                        onClick={() => router.push("/calender")}
+                        className="flex items-center gap-1.5 h-9 px-4 rounded-lg text-xs font-bold text-white transition-all duration-150"
+                        style={{
+                          background: "linear-gradient(135deg, #C8102E 0%, #A00D24 100%)",
+                          boxShadow: "0 2px 8px rgba(200,16,46,0.25)",
+                        }}
+                      >
+                        <ChevronRight size={13} />
+                        Launch Campaign
+                      </button>
+                      <button
+                        onClick={() => triggerChatbot(`Provide an operational outreach plan for promoting ${currentRec.recommendedScheme} in ${currentRec.village || regionTitle}.`)}
+                        className="h-9 px-4 rounded-lg text-xs font-bold transition-all duration-150"
+                        style={{
+                          background: "transparent",
+                          border: "1px solid #E8EDF5",
+                          color: "#1E293B",
+                        }}
+                        onMouseEnter={(e) => { e.currentTarget.style.background = "#F8FAFF"; }}
+                        onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                      >
+                        Ask AI Assistant
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div
+                    className="flex-grow relative rounded-xl overflow-hidden flex flex-col justify-between"
+                    style={{
+                      background: "#fff",
+                      border: "1px solid #E8EDF5",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                      padding: "1.5rem",
+                    }}
+                  >
+                    {/* Top accent gradient bar */}
+                    <div
+                      className="absolute top-0 left-0 right-0 h-[3px]"
+                      style={{ background: "linear-gradient(90deg, #1A2B4A 0%, #2A3F66 100%)" }}
+                    />
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-4">
+                        <div className="p-1.5 rounded-lg" style={{ background: "rgba(26,43,74,0.08)" }}>
+                          <Sparkles size={12} style={{ color: "#1A2B4A" }} />
+                        </div>
+                        <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "#64748B" }}>
+                          National Intelligence Overview
+                        </span>
+                      </div>
+                      <h3 className="text-lg font-extrabold leading-tight mb-2" style={{ color: "#1A2B4A", letterSpacing: "-0.02em" }}>
+                        Welcome to Regional Intelligence
+                      </h3>
+                      <p className="text-xs font-semibold mt-2 leading-relaxed" style={{ color: "#64748B" }}>
+                        Select a State, District, or Village to generate region-specific campaign recommendations, eligibility insights, and demographic intelligence.
+                      </p>
+
+                      <div
+                        className="rounded-xl p-3 space-y-2 mt-4"
+                        style={{ background: "#F8FAFF", border: "1px solid #EEF1F8" }}
+                      >
+                        <h4 className="text-xs font-bold uppercase tracking-wider" style={{ color: "#94A3B8" }}>Available Capabilities</h4>
+                        <ul className="space-y-2">
+                          <li className="flex items-start gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "#1A2B4A" }} />
+                            <span className="text-xs font-medium" style={{ color: "#374151" }}>Identify optimal schemes tailored to local literacy and workforce demographics.</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "#1A2B4A" }} />
+                            <span className="text-xs font-medium" style={{ color: "#374151" }}>Target agricultural harvest seasons to maximize POSA savings enrollments.</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "#1A2B4A" }} />
+                            <span className="text-xs font-medium" style={{ color: "#374151" }}>Evaluate suitability ratios and run direct outreach campaign calendars.</span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 flex-wrap mt-5">
+                      <button
+                        onClick={handleExploreClick}
+                        className="flex items-center gap-1.5 h-9 px-4 rounded-lg text-xs font-bold text-white transition-all duration-150"
+                        style={{
+                          background: "linear-gradient(135deg, #1A2B4A 0%, #2A3F66 100%)",
+                          boxShadow: "0 2px 8px rgba(26,43,74,0.25)",
+                        }}
+                      >
+                        <ChevronRight size={13} />
+                        Select Location
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
-              <CardContent className="p-4 space-y-4 divide-y divide-slate-100">
-                <div className="pt-2">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Opportunity Score</span>
-                  <h4 className="text-2xl font-extrabold text-slate-900 mt-1 flex items-baseline gap-1">
-                    {currentRec.opportunityScore}
-                    <span className="text-xs font-semibold text-slate-400">/ 100</span>
-                  </h4>
-                </div>
-                <div className="pt-3">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Eligible Citizens</span>
-                  <h4 className="text-base font-bold text-slate-800 mt-1">
-                    {currentRec.estimatedEligibleCitizens} Citizens
-                  </h4>
-                </div>
-                <div className="pt-3">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Campaign Readiness</span>
-                  <div className="mt-1">
-                    <Badge className="bg-[#2E7D32] text-white hover:bg-[#2E7D32] text-[10px] rounded">High Readiness</Badge>
+
+              {/* Column span 1: Supporting Metrics (KPIs grid) */}
+              <div className="md:col-span-1">
+                <div className="grid grid-cols-2 gap-4 h-full items-stretch">
+                  {/* KPI 1: Population */}
+                  <div
+                    className="relative flex flex-col justify-between p-4 rounded-xl overflow-hidden transition-all duration-250 cursor-default min-h-[128px]"
+                    style={{
+                      background: "#fff",
+                      border: "1px solid #E8EDF5",
+                      boxShadow: "0 1px 4px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.03)",
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.07)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 1px 4px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.03)"; e.currentTarget.style.transform = "translateY(0)"; }}
+                  >
+                    <div
+                      className="absolute top-0 left-0 right-0 h-[3px] opacity-0 transition-opacity duration-200 rounded-t-xl"
+                      style={{ background: "linear-gradient(90deg, #1A2B4A, #2A3F66)" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
+                    />
+                    <div className="flex items-start justify-between">
+                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Population</span>
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "rgba(26,43,74,0.08)" }}>
+                        <Users className="h-3.5 w-3.5" style={{ color: "#1A2B4A" }} />
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <h4 className="text-xl font-extrabold" style={{ color: "#1A2B4A", letterSpacing: "-0.02em" }}>
+                        {demographicData?.totP ? demographicData.totP.toLocaleString() : "—"}
+                      </h4>
+                      <p className="text-xs text-muted-foreground font-semibold mt-0.5">
+                        {demographicData?.noHh ? `${demographicData.noHh.toLocaleString()} Households` : "Calculating..."}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* KPI 2: Workforce */}
+                  <div
+                    className="relative flex flex-col justify-between p-4 rounded-xl overflow-hidden transition-all duration-250 cursor-default min-h-[128px]"
+                    style={{
+                      background: "#fff",
+                      border: "1px solid #E8EDF5",
+                      boxShadow: "0 1px 4px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.03)",
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.07)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 1px 4px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.03)"; e.currentTarget.style.transform = "translateY(0)"; }}
+                  >
+                    <div className="flex items-start justify-between">
+                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Workforce</span>
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "rgba(26,43,74,0.08)" }}>
+                        <TrendingUp className="h-3.5 w-3.5" style={{ color: "#1A2B4A" }} />
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <h4 className="text-xl font-extrabold" style={{ color: "#1A2B4A", letterSpacing: "-0.02em" }}>
+                        {demographicData?.totWorkP ? `${((demographicData.totWorkP / (demographicData.totP || 1)) * 100).toFixed(1)}%` : "—"}
+                      </h4>
+                      <p className="text-xs text-muted-foreground font-semibold mt-0.5">
+                        {demographicData?.totWorkP ? `${demographicData.totWorkP.toLocaleString()} Active` : "Calculating..."}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* KPI 3: Literacy */}
+                  <div
+                    className="relative flex flex-col justify-between p-4 rounded-xl overflow-hidden transition-all duration-250 cursor-default min-h-[128px]"
+                    style={{
+                      background: "#fff",
+                      border: "1px solid #E8EDF5",
+                      boxShadow: "0 1px 4px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.03)",
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.07)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 1px 4px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.03)"; e.currentTarget.style.transform = "translateY(0)"; }}
+                  >
+                    <div className="flex items-start justify-between">
+                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Literacy</span>
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "rgba(200,16,46,0.08)" }}>
+                        <NotebookTabs className="h-3.5 w-3.5" style={{ color: "#C8102E" }} />
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <h4 className="text-xl font-extrabold" style={{ color: "#1A2B4A", letterSpacing: "-0.02em" }}>
+                        {demographicData?.fLit && demographicData?.mLit ? `${((demographicData.fLit + demographicData.mLit) / 2).toFixed(1)}%` : "—"}
+                      </h4>
+                      <p className="text-xs text-muted-foreground font-semibold mt-0.5">
+                        M: {demographicData?.mLit || 0}% &nbsp;|&nbsp; F: {demographicData?.fLit || 0}%
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* KPI 4: POs Network */}
+                  <div
+                    className="relative flex flex-col justify-between p-4 rounded-xl overflow-hidden transition-all duration-250 cursor-default min-h-[128px]"
+                    style={{
+                      background: "#fff",
+                      border: "1px solid #E8EDF5",
+                      boxShadow: "0 1px 4px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.03)",
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.boxShadow = "0 4px 16px rgba(0,0,0,0.07)"; e.currentTarget.style.transform = "translateY(-2px)"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 1px 4px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.03)"; e.currentTarget.style.transform = "translateY(0)"; }}
+                  >
+                    <div className="flex items-start justify-between">
+                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">POs Network</span>
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "rgba(26,43,74,0.08)" }}>
+                        <MapPin className="h-3.5 w-3.5" style={{ color: "#1A2B4A" }} />
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <h4 className="text-xl font-extrabold truncate" style={{ color: "#1A2B4A", letterSpacing: "-0.02em" }}>
+                        {postofficesCount && postofficesCount.length > 0
+                          ? `${postofficesCount.length} Branch`
+                          : postOfficesCount
+                          ? `${postOfficesCount.length} Branch`
+                          : "1.55+ Lakh"}
+                      </h4>
+                      <p className="text-xs text-muted-foreground font-semibold mt-0.5">
+                        {village ? "Village" : postoffice ? "Sub-Office" : District ? "District" : "National"}
+                      </p>
+                    </div>
                   </div>
                 </div>
-                <div className="pt-3">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Active Enrollments</span>
-                  <h4 className="text-base font-bold text-slate-800 mt-1">
-                    {loading ? <Skeleton className="h-5 w-16" /> : `${liveEnrollmentCount} Accounts`}
-                  </h4>
+              </div>
+            </div>
+
+            {/* Middle Section: Demographics Breakdowns Workspace */}
+            {demographicData && (
+              <Card className="border border-border bg-card shadow-sm rounded-xl p-6 space-y-6">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-muted rounded-lg text-primary shrink-0">
+                      <Users className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Demographics Visualizer & Insights</h3>
+                      <p className="text-xs text-muted-foreground font-semibold mt-0.5">
+                        Detailed breakdowns, literacy gaps, and worker classifications.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Census segment selector */}
+                  {totalDemographicData && Array.isArray(totalDemographicData) && (
+                    <div className="flex items-center gap-1.5 bg-muted p-1 rounded-lg border border-border shrink-0">
+                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-2 hidden md:inline">Segment:</span>
+                      {totalDemographicData.map((item, index) => {
+                        const isSelected = selectedData === item || (index === 0 && selectedData === null);
+                        return (
+                          <button
+                            key={index}
+                            type="button"
+                            onClick={() => handleRadioChange(index)}
+                            className={cn(
+                              "px-3 py-1.5 text-xs font-bold rounded-md transition-all duration-150 cursor-pointer uppercase tracking-wider",
+                              isSelected
+                                ? "bg-white text-primary shadow-sm"
+                                : "text-muted-foreground hover:text-foreground"
+                            )}
+                          >
+                            {item.tru || `Segment ${index + 1}`}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
-                <div className="pt-3">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block">Recommended Scheme</span>
-                  <p className="text-xs font-bold text-slate-700 mt-1">
-                    {currentRec.recommendedScheme}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  
+                  {/* Visualizer 1: Gender split */}
+                  <div className="bg-muted/30 p-5 rounded-xl border border-border flex flex-col justify-between space-y-4">
+                    <div>
+                      <div className="flex justify-between items-start">
+                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Gender Balance & Density</span>
+                        <Badge variant="outline" className="border-border text-xs font-bold rounded">Ratio</Badge>
+                      </div>
+                      <div className="mt-3 flex items-baseline gap-2">
+                        <span className="text-2xl font-extrabold text-secondary">
+                          {demographicData.totM && demographicData.totF
+                            ? ((demographicData.totF / demographicData.totM) * 1000).toFixed(0)
+                            : "942"
+                          }
+                        </span>
+                        <span className="text-xs text-muted-foreground">Females per 1000 Males</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-xs font-bold text-muted-foreground">
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 bg-secondary rounded-full" /> Male: {((demographicData.totM / (demographicData.totP || 1)) * 100).toFixed(1)}%</span>
+                        <span className="flex items-center gap-1"><span className="w-2 h-2 bg-primary rounded-full" /> Female: {((demographicData.totF / (demographicData.totP || 1)) * 100).toFixed(1)}%</span>
+                      </div>
+                      <div className="w-full h-2.5 bg-muted rounded-full overflow-hidden flex">
+                        <div className="bg-secondary h-full" style={{ width: `${(demographicData.totM / (demographicData.totP || 1)) * 100}%` }} />
+                        <div className="bg-primary h-full" style={{ width: `${(demographicData.totF / (demographicData.totP || 1)) * 100}%` }} />
+                      </div>
+                    </div>
+                    
+                    <div className="bg-white p-3 rounded-lg border border-border text-xs text-muted-foreground font-medium">
+                      🏠 Household density: <strong className="text-foreground">{(demographicData.totP / (demographicData.noHh || 1)).toFixed(1)}</strong> people/house.
+                    </div>
+                  </div>
+
+                  {/* Visualizer 2: Literacy Gap */}
+                  <div className="bg-muted/30 p-5 rounded-xl border border-border flex flex-col justify-between space-y-4">
+                    <div>
+                      <div className="flex justify-between items-start">
+                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Education & Literacy Gap</span>
+                        {(() => {
+                          const gap = (demographicData.mLit || 0) - (demographicData.fLit || 0);
+                          let badgeStyle = "border-emerald-500/20 bg-emerald-500/10 text-emerald-700";
+                          let label = "Low Gap";
+                          if (gap > 15) {
+                            badgeStyle = "border-destructive/20 bg-destructive/10 text-destructive";
+                            label = "Critical Gap";
+                          } else if (gap > 5) {
+                            badgeStyle = "border-amber-500/20 bg-amber-500/10 text-amber-700";
+                            label = "Moderate Gap";
+                          }
+                          return <Badge variant="outline" className={cn("text-xs font-bold rounded", badgeStyle)}>{label}</Badge>;
+                        })()}
+                      </div>
+                      <div className="mt-3 flex items-baseline gap-2">
+                        <span className="text-2xl font-extrabold text-secondary">
+                          {((demographicData.mLit - demographicData.fLit) || 0).toFixed(1)}%
+                        </span>
+                        <span className="text-xs text-muted-foreground">Gender Literacy Gap</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold text-muted-foreground">
+                          <span>Male Literacy</span>
+                          <span>{demographicData.mLit}%</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div className="bg-secondary h-full" style={{ width: `${demographicData.mLit}%` }} />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold text-muted-foreground">
+                          <span>Female Literacy</span>
+                          <span>{demographicData.fLit}%</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div className="bg-primary h-full" style={{ width: `${demographicData.fLit}%` }} />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-white p-3 rounded-lg border border-border text-xs text-muted-foreground font-medium">
+                      {demographicData.mLit - demographicData.fLit > 10 ? (
+                        <span>💡 <strong className="text-primary">Target girls outreach:</strong> SSA savings scheme is highly recommended.</span>
+                      ) : (
+                        <span>💡 <strong className="text-emerald-700">Balanced literacy:</strong> RD/PPF retail options are primary.</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Visualizer 3: Workforce Profile */}
+                  <div className="bg-muted/30 p-5 rounded-xl border border-border flex flex-col justify-between space-y-4">
+                    <div>
+                      <div className="flex justify-between items-start">
+                        <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Labor & Livelihood Profile</span>
+                        <Badge variant="outline" className="border-border text-xs font-bold rounded">Workers</Badge>
+                      </div>
+                      <div className="mt-3 flex items-baseline gap-2">
+                        <span className="text-2xl font-extrabold text-secondary">
+                          {((demographicData.totWorkP / (demographicData.totP || 1)) * 100).toFixed(1)}%
+                        </span>
+                        <span className="text-xs text-muted-foreground">Participation Rate</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold text-muted-foreground">
+                          <span>Main Workers</span>
+                          <span>{((demographicData.mainworkP / (demographicData.totWorkP || 1)) * 100).toFixed(0)}%</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div className="bg-secondary h-full" style={{ width: `${(demographicData.mainworkP / (demographicData.totWorkP || 1)) * 100}%` }} />
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs font-bold text-muted-foreground">
+                          <span>Marginal Workers</span>
+                          <span>{((demographicData.margworkP / (demographicData.totWorkP || 1)) * 100).toFixed(0)}%</span>
+                        </div>
+                        <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                          <div className="bg-primary h-full" style={{ width: `${(demographicData.margworkP / (demographicData.totWorkP || 1)) * 100}%` }} />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-white p-3 rounded-lg border border-border text-xs text-muted-foreground space-y-0.5 font-medium">
+                      <div className="flex justify-between">
+                        <span>Cultivators:</span>
+                        <strong className="text-foreground">{demographicData.mainClP?.toLocaleString() || "N/A"}</strong>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Agri Labor:</span>
+                        <strong className="text-foreground">{demographicData.mainAlP?.toLocaleString() || "N/A"}</strong>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </Card>
+            )}
+
+            {/* Bottom Row: Tabbed Demographic Chart Card */}
+            <Card className="border border-border bg-card shadow-sm rounded-xl p-6">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border pb-4 mb-4">
+                <div>
+                  <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Demographic Distributions</h3>
+                  <p className="text-xs text-muted-foreground font-semibold mt-0.5">
+                    Click tabs to switch between graphical distribution indicators.
                   </p>
                 </div>
-              </CardContent>
-            </Card>
+                
+                {/* Visualizer chart tabs */}
+                <div className="flex items-center gap-1 bg-muted p-1 rounded-lg border border-border shrink-0">
+                  <button
+                    onClick={() => setActiveChartTab("population")}
+                    className={cn(
+                      "px-3 py-1.5 text-xs font-bold rounded-md transition cursor-pointer",
+                      activeChartTab === "population"
+                        ? "bg-white text-primary shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    Growth Trend
+                  </button>
+                  <button
+                    onClick={() => setActiveChartTab("literacy")}
+                    className={cn(
+                      "px-3 py-1.5 text-xs font-bold rounded-md transition cursor-pointer",
+                      activeChartTab === "literacy"
+                        ? "bg-white text-primary shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    Literacy Split
+                  </button>
+                  <button
+                    onClick={() => setActiveChartTab("occupation")}
+                    className={cn(
+                      "px-3 py-1.5 text-xs font-bold rounded-md transition cursor-pointer",
+                      activeChartTab === "occupation"
+                        ? "bg-white text-primary shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    Employment Ratio
+                  </button>
+                  <button
+                    onClick={() => setActiveChartTab("income")}
+                    className={cn(
+                      "px-3 py-1.5 text-xs font-bold rounded-md transition cursor-pointer",
+                      activeChartTab === "income"
+                        ? "bg-white text-primary shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    Income Tiers
+                  </button>
+                </div>
+              </div>
 
-            {/* Quick Actions Panel */}
-            <Card className="border border-slate-200 bg-white shadow-sm rounded-2xl p-4 space-y-3">
-              <h4 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">Quick Navigation</h4>
-              <div className="grid grid-cols-1 gap-2">
-                <Button 
-                  onClick={() => router.push("/compare")}
-                  variant="outline"
-                  className="w-full justify-start text-xs font-semibold h-9 rounded-xl border-slate-200 text-slate-700 hover:bg-slate-50 gap-2"
-                >
-                  <Layers size={14} /> Compare Villages
-                </Button>
-                <Button 
-                  onClick={() => router.push("/publicInfo")}
-                  variant="outline"
-                  className="w-full justify-start text-xs font-semibold h-9 rounded-xl border-slate-200 text-slate-700 hover:bg-slate-50 gap-2"
-                >
-                  <Users size={14} /> Beneficiary Directory
-                </Button>
-                <Button 
-                  onClick={() => router.push("/recommender")}
-                  variant="outline"
-                  className="w-full justify-start text-xs font-semibold h-9 rounded-xl border-slate-200 text-slate-700 hover:bg-slate-50 gap-2"
-                >
-                  <Sparkles size={14} /> DSS Recommender
-                </Button>
+              {/* Dynamic Chart Area */}
+              <div className="h-[300px] w-full flex items-center justify-center pt-2">
+                {activeChartTab === "population" && <PopulationSpike />}
+                {activeChartTab === "literacy" && <LiteracyPieChart />}
+                {activeChartTab === "occupation" && <Occupation />}
+                {activeChartTab === "income" && <IncomeDistribution />}
               </div>
             </Card>
+
+          </div>
+
+          {/* Right Column (25% width) - Persistent Sidebar */}
+          <div className="lg:col-span-1 space-y-4">
+            
+            {/* Real-time DSS Status Card */}
+            <div
+              className="relative rounded-xl overflow-hidden"
+              style={{
+                background: "linear-gradient(135deg, #0F172A 0%, #1A2B4A 100%)",
+                border: "1px solid rgba(255,255,255,0.08)",
+                boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+                padding: "1.25rem",
+              }}
+            >
+              {/* Decorative glow */}
+              <div
+                className="absolute top-0 right-0 w-24 h-24 rounded-full pointer-events-none"
+                style={{ background: "radial-gradient(circle, rgba(200,16,46,0.15) 0%, transparent 70%)", transform: "translate(30%, -30%)" }}
+              />
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+                  <h4 className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(148,163,184,0.8)" }}>
+                    Live DSS Status
+                  </h4>
+                </div>
+                <div className="space-y-3">
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-wider block" style={{ color: "rgba(100,116,139,0.8)" }}>Active Enrollments</span>
+                    <h4 className="text-xl font-extrabold text-white mt-0.5" style={{ letterSpacing: "-0.02em" }}>
+                      {loading ? <Skeleton className="h-5 w-16" /> : `${liveEnrollmentCount}`}
+                    </h4>
+                    <span className="text-xs" style={{ color: "rgba(148,163,184,0.6)" }}>Accounts registered</span>
+                  </div>
+                  <div
+                    className="w-full h-[1px]"
+                    style={{ background: "rgba(255,255,255,0.06)" }}
+                  />
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-wider block" style={{ color: "rgba(100,116,139,0.8)" }}>Top Scheme</span>
+                    <h4 className="text-xs font-bold mt-0.5" style={{ color: "#F87171" }}>
+                      {isLocationSelected && currentRec ? currentRec.recommendedScheme : "Select location"}
+                    </h4>
+                  </div>
+                  <div
+                    className="w-full h-[1px]"
+                    style={{ background: "rgba(255,255,255,0.06)" }}
+                  />
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(100,116,139,0.8)" }}>Readiness</span>
+                    <span
+                      className="text-xs font-bold px-2 py-0.5 rounded-full"
+                      style={{
+                        background: "rgba(52,211,153,0.15)",
+                        color: "#34D399",
+                        border: "1px solid rgba(52,211,153,0.2)",
+                      }}
+                    >
+                      High
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Navigation Card */}
+            <div
+              className="rounded-xl"
+              style={{
+                background: "#fff",
+                border: "1px solid #E8EDF5",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+                padding: "1.25rem",
+              }}
+            >
+              <h4 className="text-xs font-bold uppercase tracking-wider pb-3 mb-3" style={{ color: "#94A3B8", borderBottom: "1px solid #EEF1F8" }}>
+                Quick Navigation
+              </h4>
+              <div className="grid grid-cols-1 gap-1.5">
+                {[
+                  { label: "Compare Villages", icon: Layers, onClick: () => router.push("/compare") },
+                  { label: "Beneficiary Directory", icon: Users, onClick: () => router.push("/publicInfo") },
+                  { label: "DSS Recommender", icon: Sparkles, onClick: () => router.push("/recommender") },
+                ].map(({ label, icon: Icon, onClick }) => (
+                  <button
+                    key={label}
+                    onClick={onClick}
+                    className="flex items-center gap-2.5 w-full text-xs font-semibold h-9 px-3 rounded-lg text-left transition-all duration-150"
+                    style={{ color: "#374151", background: "transparent", border: "1px solid transparent" }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = "#F8FAFF";
+                      e.currentTarget.style.borderColor = "#E8EDF5";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = "transparent";
+                      e.currentTarget.style.borderColor = "transparent";
+                    }}
+                  >
+                    <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0" style={{ background: "rgba(26,43,74,0.08)" }}>
+                      <Icon size={12} style={{ color: "#1A2B4A" }} />
+                    </div>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* AI Assistant Card */}
+            <div
+              className="rounded-xl overflow-hidden"
+              style={{
+                background: "#fff",
+                border: "1px solid #E8EDF5",
+                boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
+              }}
+            >
+              {/* Gradient header */}
+              <div
+                className="px-4 py-3"
+                style={{ background: "linear-gradient(135deg, #1A2B4A 0%, #2A3F66 100%)" }}
+              >
+                <h4 className="text-xs font-bold uppercase tracking-wider text-white/70">
+                  AI Campaign Assistant
+                </h4>
+                <p className="text-xs font-semibold text-white mt-0.5" style={{ letterSpacing: "-0.01em" }}>
+                  Context-aware AI Scripts
+                </p>
+              </div>
+              <div className="p-4 space-y-2">
+                <p className="text-xs leading-normal" style={{ color: "#64748B" }}>
+                  Trigger operational planning scripts in the AI chatbot.
+                </p>
+                <div className="grid grid-cols-1 gap-1.5 pt-1">
+                  <button
+                    onClick={() => triggerChatbot(`Generate a 10-point campaign organization checklist for promoting ${currentRec?.recommendedScheme || "Sukanya Samriddhi Yojana (SSA)"} in ${regionTitle}.`)}
+                    className="flex items-center gap-2 w-full text-xs font-semibold h-8 px-3 rounded-lg text-left transition-all duration-150"
+                    style={{ color: "#374151", background: "#F8FAFF", border: "1px solid #E8EDF5" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#CBD5E1"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#E8EDF5"; }}
+                  >
+                    📝 Get Campaign Checklist
+                  </button>
+                  <button
+                    onClick={() => triggerChatbot(`Draft an outreach announcement script and localized SMS template for promoting ${currentRec?.recommendedScheme || "Sukanya Samriddhi Yojana (SSA)"} in ${regionTitle}.`)}
+                    className="flex items-center gap-2 w-full text-xs font-semibold h-8 px-3 rounded-lg text-left transition-all duration-150"
+                    style={{ color: "#374151", background: "#F8FAFF", border: "1px solid #E8EDF5" }}
+                    onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#CBD5E1"; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#E8EDF5"; }}
+                  >
+                    📢 Draft Outreach Scripts
+                  </button>
+                </div>
+              </div>
+            </div>
+
           </div>
 
         </div>

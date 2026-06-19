@@ -28,93 +28,93 @@ export default function VillageIntelligenceView() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-[#F8F9FB]">
-        <div className="page-container space-y-5">
+      <div className="min-h-screen bg-background text-foreground">
+        <div className="page-container space-y-6">
         
         {/* Navigation Breadcrumbs */}
-        <Breadcrumb>
+        <Breadcrumb className="text-xs">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
+              <BreadcrumbLink href="/" className="font-semibold text-muted-foreground hover:text-primary">Dashboard</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Village Intelligence</BreadcrumbPage>
+              <BreadcrumbPage className="font-extrabold text-secondary">Village Intelligence</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
 
         {/* Back Link and Badge */}
         <div className="flex justify-between items-center border-b pb-4 border-border">
-          <Link href="/" className="flex items-center space-x-2 text-primary hover:underline font-bold transition">
-            <ArrowLeft size={16} />
-            <span className="text-sm">Back to Regional Intelligence</span>
+          <Link href="/" className="flex items-center space-x-2 text-primary hover:text-primary/90 font-bold transition text-xs">
+            <ArrowLeft size={14} />
+            <span>Back to Regional Intelligence</span>
           </Link>
-          <span className="text-xs font-bold text-primary uppercase tracking-wider bg-primary/10 border border-primary/20 px-3 py-1 rounded-full">
+          <Badge className="bg-primary/10 text-primary border border-primary/20 text-xs font-bold rounded-full px-3 py-1">
             Village Intelligence Module
-          </span>
+          </Badge>
         </div>
 
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <Target className="text-primary h-8 w-8" /> Village Intelligence
+          <h1 className="text-2xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
+            <Target className="text-primary h-6 w-6" /> Village Intelligence
           </h1>
-          <p className="text-muted-foreground text-sm mt-1">
+          <p className="text-muted-foreground text-xs font-semibold mt-1">
             Detailed demographic insights, local agricultural harvest seasons, and dynamic campaign heuristics for the currently selected village.
           </p>
         </div>
 
-        <Card className="overflow-hidden border-border bg-card">
+        <Card className="overflow-hidden border border-border bg-card shadow-sm rounded-xl">
           <div className="bg-secondary text-secondary-foreground p-6 flex justify-between items-center">
             <div>
-              <span className="text-xs font-bold text-secondary-foreground/75 uppercase tracking-widest">Active Target</span>
-              <h2 className="text-2xl font-bold mt-1 text-secondary-foreground">{village || "No Village Selected"}</h2>
+              <span className="text-xs font-bold text-secondary-foreground/70 uppercase tracking-widest">Active Target</span>
+              <h2 className="text-xl font-extrabold mt-1 text-secondary-foreground">{village || "No Village Selected"}</h2>
             </div>
-            <Badge variant="outline" className="border-secondary-foreground/20 text-secondary-foreground">
+            <Badge variant="outline" className="border-secondary-foreground/20 text-secondary-foreground text-xs">
               {demographicData?.district || "Erode Region"}
             </Badge>
           </div>
 
-          <CardContent className="p-8 space-y-6">
+          <CardContent className="p-6 space-y-6">
             <div className="grid sm:grid-cols-2 gap-6">
-              <div className="border border-border rounded-xl p-5 bg-muted/10">
+              <div className="border border-border rounded-xl p-5 bg-muted/20">
                 <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Female Literacy Index</span>
-                <div className="text-3xl font-extrabold text-foreground mt-2">
+                <div className="text-2xl font-extrabold text-foreground mt-2">
                   {demographicData?.fLit ? `${demographicData.fLit}%` : "N/A"}
                 </div>
-                <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                <p className="text-xs text-muted-foreground mt-2 leading-relaxed font-semibold">
                   Percentage of literate females in the village. Indicates potential outreach scope for female education savings (SSA).
                 </p>
               </div>
 
-              <div className="border border-border rounded-xl p-5 bg-muted/10">
+              <div className="border border-border rounded-xl p-5 bg-muted/20">
                 <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Workforce Participation Rate</span>
-                <div className="text-3xl font-extrabold text-foreground mt-2">
+                <div className="text-2xl font-extrabold text-foreground mt-2">
                   {demographicData?.totWorkP ? `${((demographicData.totWorkP / (demographicData.totP || 1)) * 100).toFixed(1)}%` : "N/A"}
                 </div>
-                <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                <p className="text-xs text-muted-foreground mt-2 leading-relaxed font-semibold">
                   Ratio of active workers to total population. High worker presence signifies a strong audience for pension planning (APY).
                 </p>
               </div>
 
-              <div className="border border-border rounded-xl p-5 bg-muted/10">
+              <div className="border border-border rounded-xl p-5 bg-muted/20">
                 <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Harvest Calendar Season</span>
-                <div className="text-3xl font-extrabold text-green-600 dark:text-green-400 mt-2">
+                <div className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-2">
                   Turmeric (Jan - Feb)
                 </div>
-                <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                <p className="text-xs text-muted-foreground mt-2 leading-relaxed font-semibold">
                   Identified crop harvest interval. Matches periods of high liquidity when savings accounts (POSA) can be promoted.
                 </p>
               </div>
 
-              <div className="border border-border rounded-xl p-5 bg-muted/10 flex flex-col justify-between">
+              <div className="border border-border rounded-xl p-5 bg-muted/20 flex flex-col justify-between">
                 <div>
                   <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Campaign Recommendation Heuristic</span>
-                  <div className="text-xs font-semibold text-foreground mt-2 leading-relaxed">
+                  <div className="text-xs font-bold text-foreground mt-2 leading-relaxed">
                     Sowing starts in July for cotton. Setup Kisan Credit Card (KCC) kiosks at local village centers.
                   </div>
                 </div>
-                <div className="text-xs text-muted-foreground font-medium mt-4">
+                <div className="text-xs text-muted-foreground font-bold mt-4 uppercase tracking-widest">
                   Deterministic Heuristic Index #V04
                 </div>
               </div>
@@ -124,13 +124,13 @@ export default function VillageIntelligenceView() {
               {village ? (
                 <Button
                   onClick={askAIAboutVillage}
-                  className="w-full py-6 text-sm font-bold flex items-center justify-center gap-2"
+                  className="w-full py-5 text-xs font-bold flex items-center justify-center gap-2 rounded-lg"
                 >
-                  <Sparkles size={16} />
+                  <Sparkles size={14} />
                   <span>Ask AI About This Village</span>
                 </Button>
               ) : (
-                <div className="text-center text-muted-foreground py-6 text-sm font-semibold border border-dashed border-border rounded-xl">
+                <div className="text-center text-muted-foreground py-6 text-xs font-bold border border-dashed border-border rounded-xl">
                   Choose a village from the search bar to generate AI insights.
                 </div>
               )}

@@ -73,10 +73,8 @@ export async function POST(req) {
 
     // Case 2: If State is not null but others are null, match Query with districts in MongoDB
     if (step==2) {
-        // correct one but i dont have the data yet
-    //   filter = { state: State, district: { $regex: Query, $options: "i" } };
-    const filter = { District: { $regex: Query, $options: "i" } };
-    const districts = await Village.find(filter).distinct("District"); // Fetch unique districts
+      const filter = { district: { $regex: Query, $options: "i" } };
+      const districts = await Village.find(filter).distinct("district"); // Fetch unique districts
 
       return new Response(
         JSON.stringify({ matches: districts }),
@@ -89,15 +87,12 @@ export async function POST(req) {
 
     // Case 3: If nothing is null, match Query with names in MongoDB
     if (step==3) {
-        console.log("iam here")
+      console.log("iam here")
       filter = {
-        District: text.District,
+        district: { $regex: new RegExp(`^${text.District || text.district}$`, "i") },
         name: { $regex: Query, $options: "i" },
-        // tru: "Total"
       };
       const villages = await Village.find(filter).distinct("name"); // Fetch unique village names
-    //   uncomment if nessary 
-    //   const villages = await Village.find(filter);
 
       return new Response(
         JSON.stringify({ matches: villages }),

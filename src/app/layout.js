@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
   variable: "--font-inter",
 });
 
@@ -14,6 +15,7 @@ export const metadata = {
   title: "India Post DSS — Decision Support System",
   description:
     "A decision support system for India Post field officers to analyze demographics, recommend postal schemes, and plan outreach campaigns.",
+  keywords: "India Post, DSS, Decision Support, Postal Schemes, Demographics",
 };
 
 export const viewport = {
@@ -29,9 +31,9 @@ export default function RootLayout({ children }) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body>
+      <body className={inter.className}>
         <TooltipProvider>
-          <div className="flex flex-col min-h-screen bg-[#F8F9FB]">
+          <div className="flex flex-col min-h-screen" style={{ background: "#F6F8FC" }}>
             <ClientHeader />
             <div className="flex-1">
               {children}

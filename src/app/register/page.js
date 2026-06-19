@@ -1,113 +1,289 @@
 "use client";
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Mail, Lock } from 'lucide-react';
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Mail, Lock, UserPlus, ArrowRight, CheckCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Register() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
-    const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setError('');
-        setSuccess('');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setSuccess("");
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Something went wrong");
+      }
+      const data = await res.json();
+      setSuccess(data.message);
+      setTimeout(() => router.push("/login"), 1000);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-        try {
-            const res = await fetch('/api/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password }),
-            });
+  return (
+    <div className="min-h-screen relative flex items-center justify-center overflow-hidden">
+      {/* Rich gradient background */}
+      <div
+        className="absolute inset-0"
+        style={{ background: "linear-gradient(135deg, #0B1120 0%, #1A2B4A 45%, #0F1E35 100%)" }}
+      />
+      {/* Decorative glows */}
+      <div
+        className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full pointer-events-none"
+        style={{ background: "radial-gradient(circle, rgba(200,16,46,0.1) 0%, transparent 70%)", transform: "translate(25%, -30%)" }}
+      />
+      <div
+        className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full pointer-events-none"
+        style={{ background: "radial-gradient(circle, rgba(42,63,102,0.35) 0%, transparent 70%)", transform: "translate(-25%, 25%)" }}
+      />
+      {/* Grid */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.03]"
+        style={{
+          backgroundImage: "linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+        }}
+      />
 
-            if (!res.ok) {
-                const data = await res.json();
-                throw new Error(data.error || 'Something went wrong');
-            }
+      <motion.div
+        initial={{ opacity: 0, y: 24, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="relative w-full max-w-[400px] mx-4 z-10"
+      >
+        <div
+          className="relative rounded-2xl overflow-hidden"
+          style={{
+            background: "rgba(255, 255, 255, 0.06)",
+            backdropFilter: "blur(24px) saturate(180%)",
+            WebkitBackdropFilter: "blur(24px) saturate(180%)",
+            border: "1px solid rgba(255, 255, 255, 0.12)",
+            boxShadow: "0 32px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.06) inset",
+          }}
+        >
+          {/* Top accent bar */}
+          <div
+            className="absolute top-0 left-0 right-0 h-[2px]"
+            style={{ background: "linear-gradient(90deg, #1A2B4A 0%, #2A3F66 50%, #1A2B4A 100%)" }}
+          />
 
-            const data = await res.json();
-            setSuccess(data.message);
-            setTimeout(() => {
-                router.push('/login');
-            }, 1000);
-        } catch (err) {
-            setError(err.message);
-        }
-    };
-
-    return (
-        <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-            <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="bg-white shadow-xl rounded-xl px-8 py-10 sm:px-10">
-                    <h1 className="text-center text-4xl font-extrabold text-gray-900 mb-8 tracking-tight">
-                        Create an Account
-                    </h1>
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                Email address
-                            </label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Mail className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    id="email"
-                                    type="email"
-                                    required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out sm:text-sm"
-                                    placeholder="you@example.com"
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                                Password
-                            </label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Lock className="h-5 w-5 text-gray-400" />
-                                </div>
-                                <input
-                                    id="password"
-                                    type="password"
-                                    required
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out sm:text-sm"
-                                    placeholder="Enter your password"
-                                />
-                            </div>
-                        </div>
-
-                        {error && (
-                            <div className="bg-red-50 border border-red-300 text-red-800 px-4 py-3 rounded-md">
-                                <p className="text-sm">{error}</p>
-                            </div>
-                        )}
-
-                        {success && (
-                            <div className="bg-green-50 border border-green-300 text-green-800 px-4 py-3 rounded-md">
-                                <p className="text-sm">{success}</p>
-                            </div>
-                        )}
-
-                        <div>
-                            <button
-                                type="submit"
-                                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
-                            >
-                                Register
-                            </button>
-                        </div>
-                    </form>
+          <div className="p-8 pt-10">
+            {/* Logo */}
+            <div className="flex flex-col items-center mb-8">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.15, duration: 0.4 }}
+                className="mb-5"
+              >
+                <div
+                  className="w-14 h-14 rounded-2xl flex items-center justify-center"
+                  style={{
+                    background: "rgba(26, 43, 74, 0.4)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    boxShadow: "0 0 24px rgba(26, 43, 74, 0.3)",
+                  }}
+                >
+                  <UserPlus className="w-6 h-6 text-white" />
                 </div>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="text-center"
+              >
+                <h1
+                  className="text-2xl font-extrabold text-white tracking-tight"
+                  style={{ letterSpacing: "-0.03em" }}
+                >
+                  Create Account
+                </h1>
+                <p className="text-xs font-semibold mt-1.5" style={{ color: "rgba(148,163,184,0.9)" }}>
+                  Join the Postal Services DSS Platform
+                </p>
+              </motion.div>
             </div>
+
+            {/* Form */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label
+                  className="block text-xs font-bold uppercase tracking-widest mb-1.5"
+                  style={{ color: "rgba(148, 163, 184, 0.8)" }}
+                >
+                  Email Address
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none z-10">
+                    <Mail className="w-4 h-4" style={{ color: "rgba(148,163,184,0.7)" }} />
+                  </div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    required
+                    className="w-full pl-10 pr-4 py-3 text-sm rounded-lg transition-all duration-200"
+                    style={{
+                      background: "rgba(255, 255, 255, 0.06)",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      color: "rgba(226, 232, 240, 0.95)",
+                      outline: "none",
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = "rgba(26, 43, 74, 0.8)";
+                      e.target.style.boxShadow = "0 0 0 3px rgba(26, 43, 74, 0.2)";
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                      e.target.style.boxShadow = "none";
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  className="block text-xs font-bold uppercase tracking-widest mb-1.5"
+                  style={{ color: "rgba(148, 163, 184, 0.8)" }}
+                >
+                  Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none z-10">
+                    <Lock className="w-4 h-4" style={{ color: "rgba(148,163,184,0.7)" }} />
+                  </div>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Create a password"
+                    required
+                    className="w-full pl-10 pr-4 py-3 text-sm rounded-lg transition-all duration-200"
+                    style={{
+                      background: "rgba(255, 255, 255, 0.06)",
+                      border: "1px solid rgba(255, 255, 255, 0.1)",
+                      color: "rgba(226, 232, 240, 0.95)",
+                      outline: "none",
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = "rgba(26, 43, 74, 0.8)";
+                      e.target.style.boxShadow = "0 0 0 3px rgba(26, 43, 74, 0.2)";
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "rgba(255, 255, 255, 0.1)";
+                      e.target.style.boxShadow = "none";
+                    }}
+                  />
+                </div>
+              </div>
+
+              <AnimatePresence>
+                {error && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="text-xs font-semibold px-3 py-2 rounded-lg"
+                    style={{
+                      color: "#F87171",
+                      background: "rgba(239, 68, 68, 0.1)",
+                      border: "1px solid rgba(239, 68, 68, 0.2)",
+                    }}
+                  >
+                    {error}
+                  </motion.div>
+                )}
+                {success && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="text-xs font-semibold px-3 py-2 rounded-lg flex items-center gap-2"
+                    style={{
+                      color: "#34D399",
+                      background: "rgba(52, 211, 153, 0.1)",
+                      border: "1px solid rgba(52, 211, 153, 0.2)",
+                    }}
+                  >
+                    <CheckCircle size={13} />
+                    {success}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <motion.button
+                type="submit"
+                disabled={isLoading}
+                whileTap={{ scale: 0.98 }}
+                className="w-full flex items-center justify-center gap-2 py-3 text-sm font-bold rounded-lg transition-all duration-200 mt-2"
+                style={{
+                  background: isLoading
+                    ? "rgba(26, 43, 74, 0.6)"
+                    : "linear-gradient(135deg, #1A2B4A 0%, #2A3F66 100%)",
+                  color: "#fff",
+                  boxShadow: isLoading
+                    ? "none"
+                    : "0 4px 16px rgba(26, 43, 74, 0.35), 0 1px 4px rgba(0,0,0,0.2)",
+                  cursor: isLoading ? "not-allowed" : "pointer",
+                }}
+              >
+                {isLoading ? (
+                  <span className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                ) : (
+                  <>
+                    Create Account
+                    <ArrowRight size={15} />
+                  </>
+                )}
+              </motion.button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <p className="text-xs" style={{ color: "rgba(100, 116, 139, 0.8)" }}>
+                Already have an account?{" "}
+                <Link
+                  href="/login"
+                  className="font-bold transition-colors"
+                  style={{ color: "rgba(200, 16, 46, 0.8)" }}
+                >
+                  Sign In
+                </Link>
+              </p>
+            </div>
+          </div>
         </div>
-    );
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="text-center mt-5 text-xs font-bold uppercase tracking-widest"
+          style={{ color: "rgba(100, 116, 139, 0.5)" }}
+        >
+          India Post DSS &bull; Secured Admin Portal
+        </motion.p>
+      </motion.div>
+    </div>
+  );
 }

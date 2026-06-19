@@ -65,7 +65,7 @@ Note: Ensure all advice is:
 - Optimized for different financial goals like saving, tax planning, or long-term investments`;
 
     const { text } = await generateText({
-      model: google('gemini-1.5-flash-latest'),
+      model: google('gemini-2.0-flash'),
       prompt: enhancedPrompt,
     });
 

@@ -354,7 +354,7 @@ const SearchPostOffice = () => {
 
       {/* Error Handling */}
       {error && (
-        <div className="text-center text-red-500 py-2 mt-2">
+        <div className="text-center text-destructive py-2 mt-2">
           {error}
         </div>
       )}

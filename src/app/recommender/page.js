@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import axios from "axios";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -107,92 +107,92 @@ function RecommenderForm() {
   };
 
   return (
-    <div className="page-container space-y-5">
+    <div className="page-container max-w-[900px] mx-auto w-full space-y-6">
       
       {/* Navigation Breadcrumbs */}
-      <Breadcrumb>
+      <Breadcrumb className="text-xs">
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/" className="font-semibold text-slate-500 hover:text-[#C8102E]">Dashboard</BreadcrumbLink>
+            <BreadcrumbLink href="/" className="font-semibold text-muted-foreground hover:text-primary">Dashboard</BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage className="font-extrabold text-[#1A2B4A]">Beneficiary DSS Recommender</BreadcrumbPage>
+            <BreadcrumbPage className="font-extrabold text-secondary">DSS Recommender</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
 
       {/* Back Link and Badge */}
-      <div className="flex justify-between items-center border-b pb-4 border-slate-100">
-        <Link href="/" className="flex items-center space-x-2 text-[#C8102E] hover:underline font-bold transition">
-          <ArrowLeft size={16} />
-          <span className="text-xs">Back to Regional Intelligence</span>
+      <div className="flex justify-between items-center border-b pb-4 border-border">
+        <Link href="/" className="flex items-center space-x-2 text-primary hover:text-primary/90 font-bold transition text-xs">
+          <ArrowLeft size={14} />
+          <span>Back to Regional Intelligence</span>
         </Link>
-        <span className="text-[10px] font-bold text-[#C8102E] uppercase tracking-wider bg-red-50 border border-red-100 px-3 py-1 rounded-full">
+        <Badge className="bg-primary/10 text-primary border border-primary/20 text-xs font-bold rounded-full px-3 py-1">
           DSS Recommender
-        </span>
+        </Badge>
       </div>
 
-      <div className="flex justify-between items-center border-b border-slate-100 pb-4">
+      <div className="flex justify-between items-center border-b border-border pb-4">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
+          <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
             Quick Beneficiary Recommender
           </h1>
-          <p className="text-xs text-slate-500 font-semibold mt-1">
+          <p className="text-xs text-muted-foreground font-semibold mt-1">
             Calculate suitability scores and evaluate eligibility parameters dynamically.
           </p>
         </div>
-        <Badge className="bg-[#1A2B4A] text-white py-1 px-3 rounded-full text-xs font-semibold">
-          Which scheme fits best?
+        <Badge className="bg-secondary text-secondary-foreground py-1 px-3 rounded-full text-xs font-semibold">
+          Scheme Finder
         </Badge>
       </div>
 
       <div className="grid md:grid-cols-5 gap-6">
         {/* Form Side (40% width) */}
-        <Card className="md:col-span-2 border border-slate-200 bg-white shadow-sm h-fit rounded-2xl p-5">
-          <CardHeader className="p-0 pb-4 border-b border-slate-100 mb-4">
-            <CardTitle className="flex items-center gap-2 text-sm text-slate-800 font-bold uppercase tracking-wider">
-              <User className="text-[#C8102E] h-4 w-4" /> Beneficiary Criteria
+        <Card className="md:col-span-2 border border-border bg-card shadow-sm h-fit rounded-xl p-5">
+          <CardHeader className="p-0 pb-4 border-b border-border mb-4">
+            <CardTitle className="flex items-center gap-2 text-xs text-foreground font-bold uppercase tracking-wider">
+              <User className="text-primary h-4 w-4" /> Beneficiary Criteria
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
             <form onSubmit={handleSubmit} className="space-y-4">
             
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Aadhaar ID</label>
+                <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Aadhaar ID</label>
                 <Input 
                   type="text" 
                   name="aadhaarId" 
                   value={form.aadhaarId} 
                   onChange={handleInputChange}
                   placeholder="Enter 12-digit Aadhaar"
-                  className="border-border text-xs rounded-xl h-9 animate-none"
+                  className="border-border text-xs rounded-lg h-10"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Full Name</label>
+                  <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Full Name</label>
                   <Input 
                     type="text" 
                     name="name" 
                     value={form.name} 
                     onChange={handleInputChange}
                     placeholder="Beneficiary Name"
-                    className="border-border text-xs rounded-xl h-9"
+                    className="border-border text-xs rounded-lg h-10"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Phone Number</label>
+                  <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Phone Number</label>
                   <Input 
                     type="text" 
                     name="phoneNumber" 
                     value={form.phoneNumber} 
                     onChange={handleInputChange}
                     placeholder="10-digit Phone"
-                    className="border-border text-xs rounded-xl h-9"
+                    className="border-border text-xs rounded-lg h-10"
                     required
                   />
                 </div>
@@ -200,7 +200,7 @@ function RecommenderForm() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Age</label>
+                  <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Age</label>
                   <Input 
                     type="number" 
                     name="age" 
@@ -208,19 +208,19 @@ function RecommenderForm() {
                     onChange={handleInputChange}
                     placeholder="Age"
                     required
-                    className="border-border text-xs rounded-xl h-9"
+                    className="border-border text-xs rounded-lg h-10"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Gender</label>
+                  <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Gender</label>
                   <Select
                     value={form.gender}
                     onValueChange={(val) => handleSelectChange("gender", val)}
                   >
-                    <SelectTrigger className="w-full text-xs border-border rounded-xl h-9 bg-white text-slate-800">
+                    <SelectTrigger className="w-full text-xs border-border rounded-lg h-10 bg-card text-foreground">
                       <SelectValue placeholder="Gender" />
                     </SelectTrigger>
-                    <SelectContent className="border-border bg-white text-slate-800">
+                    <SelectContent className="border-border bg-card text-foreground z-50">
                       <SelectItem value="Female" className="text-xs">Female</SelectItem>
                       <SelectItem value="Male" className="text-xs">Male</SelectItem>
                       <SelectItem value="Other" className="text-xs">Other</SelectItem>
@@ -231,7 +231,7 @@ function RecommenderForm() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Monthly Income (₹)</label>
+                  <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Monthly Income (₹)</label>
                   <Input 
                     type="number" 
                     name="monthlyIncome" 
@@ -239,19 +239,19 @@ function RecommenderForm() {
                     onChange={handleInputChange}
                     placeholder="Monthly income"
                     required
-                    className="border-border text-xs rounded-xl h-9"
+                    className="border-border text-xs rounded-lg h-10"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Occupation</label>
+                  <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Occupation</label>
                   <Select
                     value={form.occupation}
                     onValueChange={(val) => handleSelectChange("occupation", val)}
                   >
-                    <SelectTrigger className="w-full text-xs border-border rounded-xl h-9 bg-white text-slate-800">
+                    <SelectTrigger className="w-full text-xs border-border rounded-lg h-10 bg-card text-foreground">
                       <SelectValue placeholder="Select Occupation" />
                     </SelectTrigger>
-                    <SelectContent className="border-border bg-white text-slate-800">
+                    <SelectContent className="border-border bg-card text-foreground z-50">
                       <SelectItem value="Agriculture" className="text-xs">Agriculture</SelectItem>
                       <SelectItem value="Salaried" className="text-xs">Salaried</SelectItem>
                       <SelectItem value="Self-Employed" className="text-xs">Self-Employed</SelectItem>
@@ -265,26 +265,26 @@ function RecommenderForm() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Land Owned (Acres)</label>
+                  <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Land Owned (Acres)</label>
                   <Input 
                     type="number" 
                     name="landOwnershipAcres" 
                     value={form.landOwnershipAcres} 
                     onChange={handleInputChange}
                     placeholder="Acres"
-                    className="border-border text-xs rounded-xl h-9"
+                    className="border-border text-xs rounded-lg h-10"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Digital Usage</label>
+                  <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Digital Usage</label>
                   <Select
                     value={form.digitalUsage}
                     onValueChange={(val) => handleSelectChange("digitalUsage", val)}
                   >
-                    <SelectTrigger className="w-full text-xs border-border rounded-xl h-9 bg-white text-slate-800">
+                    <SelectTrigger className="w-full text-xs border-border rounded-lg h-10 bg-card text-foreground">
                       <SelectValue placeholder="Digital Usage" />
                     </SelectTrigger>
-                    <SelectContent className="border-border bg-white text-slate-800">
+                    <SelectContent className="border-border bg-card text-foreground z-50">
                       <SelectItem value="Low" className="text-xs">Low</SelectItem>
                       <SelectItem value="Medium" className="text-xs">Medium</SelectItem>
                       <SelectItem value="High" className="text-xs">High</SelectItem>
@@ -295,23 +295,23 @@ function RecommenderForm() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Children Count</label>
+                  <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Children Count</label>
                   <Input 
                     type="number" 
                     name="numberOfChildren" 
                     value={form.numberOfChildren} 
                     onChange={handleInputChange}
-                    className="border-border text-xs rounded-xl h-9"
+                    className="border-border text-xs rounded-lg h-10"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Girl Children (&lt;10 Yrs)</label>
+                  <label className="block text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Girl Children (&lt;10 Yrs)</label>
                   <Input 
                     type="number" 
                     name="numberOfGirlChildrenUnder10" 
                     value={form.numberOfGirlChildrenUnder10} 
                     onChange={handleInputChange}
-                    className="border-border text-xs rounded-xl h-9"
+                    className="border-border text-xs rounded-lg h-10"
                   />
                 </div>
               </div>
@@ -319,11 +319,11 @@ function RecommenderForm() {
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full h-10 text-xs font-bold bg-[#C8102E] hover:bg-[#A00D24] text-white rounded-full transition shadow-sm mt-2"
+                className="w-full h-10 text-xs font-bold bg-primary hover:bg-primary/95 text-white rounded-lg transition shadow-sm mt-2"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="animate-spin mr-2 h-4 w-4" /> Evaluating...
+                    <Loader2 className="animate-spin mr-2 h-3.5 w-3.5" /> Evaluating...
                   </>                   
                 ) : (
                   "Evaluate Eligibility"
@@ -336,26 +336,26 @@ function RecommenderForm() {
         {/* Results Side (60% width) */}
         <div className="md:col-span-3 space-y-6">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl text-xs font-semibold">
+            <div className="bg-destructive/10 border border-destructive/20 text-destructive p-4 rounded-xl text-xs font-semibold">
               {error}
             </div>
           )}
 
           {!result && !error && !loading && (
-            <Card className="flex flex-col justify-center items-center text-center p-12 text-slate-400 min-h-[500px] border border-slate-200 bg-white shadow-sm rounded-2xl">
-              <HelpCircle size={48} className="text-slate-200 mb-4" />
-              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Ready for Eligibility Evaluation</h3>
-              <p className="text-xs text-slate-400 mt-2 max-w-sm font-medium">
+            <Card className="flex flex-col justify-center items-center text-center p-12 text-muted-foreground min-h-[500px] border border-border bg-card shadow-sm rounded-xl">
+              <HelpCircle size={48} className="text-muted-foreground/30 mb-4" />
+              <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">Ready for Eligibility Evaluation</h3>
+              <p className="text-xs text-muted-foreground mt-2 max-w-sm font-semibold">
                 Fill in the beneficiary details on the left and submit to process suitability metrics.
               </p>
             </Card>
           )}
 
           {loading && (
-            <Card className="flex flex-col justify-center items-center text-center p-12 space-y-4 min-h-[500px] border border-slate-200 bg-white shadow-sm rounded-2xl">
-              <Loader2 size={48} className="text-[#C8102E] animate-spin" />
-              <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Generating DSS Fit Matrix</h3>
-              <p className="text-xs text-slate-400 max-w-sm font-medium">
+            <Card className="flex flex-col justify-center items-center text-center p-12 space-y-4 min-h-[500px] border border-border bg-card shadow-sm rounded-xl">
+              <Loader2 size={48} className="text-primary animate-spin" />
+              <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">Generating DSS Fit Matrix</h3>
+              <p className="text-xs text-muted-foreground max-w-sm font-semibold">
                 Mapping rules and requesting context explanations.
               </p>
             </Card>
@@ -369,8 +369,8 @@ function RecommenderForm() {
                 exit={{ opacity: 0, y: -10 }}
                 className="space-y-4"
               >
-                <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-2 uppercase tracking-wider">
-                  <Award className="text-green-600 h-5 w-5" /> Optimal Scheme Fits
+                  <h2 className="text-xs font-bold text-foreground flex items-center gap-2 uppercase tracking-wider">
+                  <Award className="text-primary h-4 w-4" /> Optimal Scheme Fits
                 </h2>
 
                 <div className="space-y-4">
@@ -379,43 +379,43 @@ function RecommenderForm() {
                       key={scheme.schemeCode || index}
                       initial={{ opacity: 0, x: 10 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
+                      transition={{ delay: index * 0.05 }}
                     >
-                      <Card className="relative overflow-hidden hover:shadow-md transition rounded-2xl">
-                        <CardHeader className="flex justify-between items-start flex-row pb-0">
+                      <Card className="relative overflow-hidden hover:shadow-md transition rounded-xl border border-border bg-card p-6 flex flex-col justify-between">
+                        <CardHeader className="flex justify-between items-start flex-row pb-0 p-0">
                           <div>
-                            <Badge className="bg-red-50 text-[#C8102E] hover:bg-red-50 border border-red-100 text-[10px] font-bold rounded-md px-2 py-0.5 uppercase tracking-wider">
+                            <Badge className="bg-primary/10 text-primary hover:bg-primary/15 border border-primary/20 text-xs font-bold rounded px-2 py-0.5 uppercase tracking-wider">
                               Rank {index + 1}
                             </Badge>
-                            <CardTitle className="font-extrabold text-[#1A2B4A] mt-3 text-base leading-snug">{scheme.name}</CardTitle>
+                            <CardTitle className="font-extrabold text-secondary mt-3 text-base leading-snug">{scheme.name}</CardTitle>
                           </div>
                           <div className="text-right shrink-0">
-                            <span className="text-2xl font-extrabold text-[#C8102E] block">
+                            <span className="text-xl font-extrabold text-primary block">
                               {scheme.score}
                             </span>
-                            <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">Suitability Score</span>
+                            <span className="text-xs text-muted-foreground block font-bold uppercase tracking-wider">Fit Score</span>
                           </div>
                         </CardHeader>
 
-                        <CardContent className="space-y-4 pt-4">
-                          {/* Progress Bar Score Dominance */}
-                          <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <CardContent className="space-y-4 pt-4 p-0">
+                          {/* Progress Bar Fit Score */}
+                          <div className="w-full bg-muted rounded-full h-1.5 overflow-hidden">
                             <div 
-                              className="bg-[#C8102E] h-full rounded-full transition-all duration-500"
+                              className="bg-primary h-full rounded-full transition-all duration-500"
                               style={{ width: `${scheme.score}%` }}
                             />
                           </div>
 
                           {/* Match Factors */}
-                          <div className="space-y-2 pt-2 border-t border-slate-100">
-                            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Match Factors</span>
+                          <div className="space-y-2 pt-2 border-t border-border">
+                            <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest block">Match Factors</span>
                             <div className="flex flex-wrap gap-1.5">
                               {scheme.drivers?.map((drv, i) => (
                                 <Badge 
-                                  key={i} 
-                                  variant="outline" 
-                                  className="border-emerald-200 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-md px-2 py-0.5"
-                                >
+                                   key={i} 
+                                   variant="outline" 
+                                   className="border-primary/20 bg-primary/10 text-primary text-xs font-bold rounded"
+                                 >
                                   {drv}
                                 </Badge>
                               ))}
@@ -424,7 +424,7 @@ function RecommenderForm() {
 
                           {/* Explanation text */}
                           {scheme.explanation && (
-                            <div className="text-xs text-slate-600 italic mt-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                            <div className="text-xs text-muted-foreground italic mt-3 bg-muted/30 p-3 rounded-lg border border-border">
                               💡 {scheme.explanation}
                             </div>
                           )}
@@ -434,8 +434,8 @@ function RecommenderForm() {
                   ))}
                 </div>
 
-                <div className="bg-green-50/50 border border-green-200 p-4 rounded-xl flex items-center space-x-3 text-green-800 text-xs">
-                  <Check size={18} className="text-green-600 shrink-0" />
+                <div className="bg-primary/10 border border-primary/20 p-4 rounded-xl flex items-center space-x-3 text-primary text-xs">
+                  <Check size={16} className="text-primary shrink-0" />
                   <span>
                     <strong>Audit Log:</strong> Evaluation logged and indexed in `postal_service.personal_info`.
                   </span>
@@ -452,9 +452,9 @@ function RecommenderForm() {
 export default function QuickRecommender() {
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-[#F8F9FB] py-6 text-slate-800">
+      <div className="min-h-screen bg-background py-6 text-foreground">
         <Suspense fallback={
-          <div className="w-full max-w-[1200px] mx-auto p-12 text-center text-xs text-slate-400 font-semibold uppercase tracking-wider">
+          <div className="w-full max-w-[1200px] mx-auto p-12 text-center text-xs text-muted-foreground font-bold uppercase tracking-wider">
             Loading DSS Recommender...
           </div>
         }>

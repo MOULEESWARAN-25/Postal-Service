@@ -118,8 +118,8 @@ export default function ModernCalendar() {
         {sidebarOpen && (
           <aside className="w-[280px] bg-card border-r border-border shrink-0 p-6 flex flex-col justify-between">
             <div className="space-y-6">
-              <h2 className="text-lg font-bold text-foreground flex items-center gap-2">
-                <CalendarIcon className="text-primary h-5 w-5" />
+              <h2 className="text-sm font-bold text-foreground flex items-center gap-2 uppercase tracking-wider">
+                <CalendarIcon className="text-primary h-4 w-4" />
                 Districts Filter
               </h2>
               <div className="space-y-2">
@@ -128,7 +128,7 @@ export default function ModernCalendar() {
                     key={district}
                     onClick={() => setSelectedDistrict(district)}
                     variant={selectedDistrict === district ? "default" : "outline"}
-                    className="w-full justify-start text-xs font-semibold h-10"
+                    className="w-full justify-start text-xs font-semibold h-9 rounded-lg"
                   >
                     {district}
                   </Button>
@@ -138,9 +138,9 @@ export default function ModernCalendar() {
 
             <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
               <h3 className="font-bold text-primary text-xs flex items-center gap-1">
-                <Sparkles size={14} className="text-primary animate-pulse" /> AI Opportunity
+                <Sparkles size={12} className="text-primary animate-pulse" /> AI Crawler Opportunity
               </h3>
-              <p className="text-xs text-foreground mt-1.5 leading-relaxed">
+              <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed font-semibold">
                 Select <strong>Erode</strong> to view active festival crowds and local farmer meets detected by our AI event crawler.
               </p>
             </div>
@@ -157,11 +157,11 @@ export default function ModernCalendar() {
                 variant="outline"
                 size="icon"
                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                className="h-9 w-9 text-muted-foreground hover:bg-muted"
+                className="h-8 w-8 text-muted-foreground hover:bg-muted"
               >
-                <SlidersHorizontal size={16} />
+                <SlidersHorizontal size={14} />
               </Button>
-              <h1 className="text-lg font-bold text-foreground">Campaign Opportunity Calendar</h1>
+              <h1 className="text-base font-extrabold text-foreground">Campaign Opportunity Calendar</h1>
             </div>
 
             {/* Month selector */}
@@ -176,10 +176,10 @@ export default function ModernCalendar() {
                 }
                 className="h-8 w-8 rounded-full"
               >
-                <ChevronLeft size={16} />
+                <ChevronLeft size={14} />
               </Button>
 
-              <h2 className="text-sm font-bold text-foreground min-w-[140px] text-center">
+              <h2 className="text-xs font-bold text-foreground min-w-[120px] text-center">
                 {months[currentMonth.getMonth()]} {currentMonth.getFullYear()}
               </h2>
 
@@ -193,7 +193,7 @@ export default function ModernCalendar() {
                 }
                 className="h-8 w-8 rounded-full"
               >
-                <ChevronRight size={16} />
+                <ChevronRight size={14} />
               </Button>
             </div>
 
@@ -201,9 +201,9 @@ export default function ModernCalendar() {
             <div className="flex items-center gap-2">
               <Popover>
                 <PopoverTrigger render={
-                  <button className="w-[180px] justify-start text-left font-normal text-xs h-9 border border-border bg-background hover:bg-muted/50 rounded-lg px-3 py-1.5 flex items-center transition-colors" />
+                  <button className="w-[180px] justify-start text-left font-normal text-xs h-8 border border-border bg-card hover:bg-muted/50 rounded-lg px-3 py-1.5 flex items-center transition-colors text-foreground" />
                 }>
-                  <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground animate-pulse" />
+                  <CalendarIcon className="mr-2 h-3.5 w-3.5 text-muted-foreground" />
                   {goToDate ? format(new Date(goToDate), "PPP") : <span className="text-muted-foreground">Jump to Date</span>}
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0 border-border bg-card" align="end">
@@ -223,13 +223,13 @@ export default function ModernCalendar() {
           <ScrollArea className="flex-grow p-6">
             {loading ? (
               <div className="flex justify-center items-center h-64">
-                <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-primary"></div>
+                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-primary"></div>
               </div>
             ) : (
-              <Card className="border border-slate-200 bg-white shadow-sm rounded-2xl p-6">
+              <Card className="border border-border bg-card shadow-sm rounded-xl p-6">
                 <div className="grid grid-cols-7 gap-4 mb-4">
                   {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day) => (
-                    <div key={day} className="text-center font-bold text-slate-500 text-xs uppercase tracking-wider">
+                    <div key={day} className="text-center font-bold text-muted-foreground text-xs uppercase tracking-wider">
                       {day}
                     </div>
                   ))}
@@ -238,7 +238,7 @@ export default function ModernCalendar() {
                 <div className="grid grid-cols-7 gap-4">
                   {/* Blank spaces for days before month start */}
                   {Array.from({ length: correctedStartDay }).map((_, index) => (
-                    <div key={`blank-${index}`} className="h-28 bg-slate-50/50 rounded-xl border border-dashed border-slate-100"></div>
+                    <div key={`blank-${index}`} className="h-28 bg-muted/20 rounded-xl border border-dashed border-border/50"></div>
                   ))}
 
                   {/* Days of the month */}
@@ -253,11 +253,11 @@ export default function ModernCalendar() {
                         className={`h-28 relative flex flex-col justify-between rounded-xl p-2.5 cursor-pointer transition-colors border
                           ${
                             isToday
-                              ? "bg-red-50/50 border-[#C8102E] text-[#C8102E] shadow-sm"
-                              : "bg-white border-slate-100 text-slate-800 hover:bg-slate-50"
+                               ? "bg-primary/5 border-primary text-primary shadow-sm"
+                              : "bg-card border-border text-foreground hover:bg-slate-50"
                           }`}
                       >
-                        <span className={`font-bold text-xs ${isToday ? "text-[#C8102E]" : "text-slate-500"}`}>
+                        <span className={`font-bold text-xs ${isToday ? "text-primary" : "text-muted-foreground"}`}>
                           {day.getDate()}
                         </span>
 
@@ -266,7 +266,7 @@ export default function ModernCalendar() {
                             {dayEvents.map((evt, i) => (
                               <div 
                                 key={i} 
-                                className="text-[10px] font-bold truncate bg-red-50 text-[#C8102E] px-1.5 py-0.5 rounded border border-red-100 flex items-center gap-0.5"
+                                className="text-xs font-bold truncate bg-primary/10 text-primary px-1.5 py-0.5 rounded border border-primary/20 flex items-center gap-0.5"
                                 title={evt.eventName}
                               >
                                 <Sparkles size={8} className="shrink-0" />
@@ -287,9 +287,9 @@ export default function ModernCalendar() {
         {/* Day Details Dialog */}
         {selectedDay && (
           <Dialog open={!!selectedDay} onOpenChange={() => setSelectedDay(null)}>
-            <DialogContent className="max-w-lg w-full max-h-[85vh] overflow-y-auto border border-slate-200 bg-white rounded-2xl p-6 shadow-xl">
-              <DialogHeader className="border-b border-border pb-3">
-                <DialogTitle className="text-lg font-bold text-foreground">
+            <DialogContent className="max-w-lg w-full max-h-[85vh] overflow-y-auto border border-border bg-card rounded-xl p-6 shadow-xl">
+              <DialogHeader className="border-b border-border pb-3 mb-4">
+                <DialogTitle className="text-base font-extrabold text-foreground">
                   {selectedDay.toLocaleDateString("en-US", {
                     weekday: "long",
                     year: "numeric",
@@ -303,51 +303,51 @@ export default function ModernCalendar() {
               </DialogHeader>
 
               {getEventsForDay(selectedDay).length > 0 ? (
-                <div className="space-y-4 pt-4">
-                  <h4 className="font-semibold text-muted-foreground text-xs uppercase tracking-wider">
+                <div className="space-y-4">
+                   <h4 className="font-bold text-muted-foreground text-xs uppercase tracking-wider">
                     Detected AI Event Opportunities
                   </h4>
                   <div className="space-y-4">
                     {getEventsForDay(selectedDay).map((event, index) => (
                       <div
                         key={index}
-                        className="bg-muted/20 border border-border rounded-lg p-4 space-y-3 relative"
+                        className="bg-muted/30 border border-border rounded-xl p-4 space-y-3 relative"
                       >
                         <div className="flex justify-between items-start">
                           <div>
-                            <h5 className="font-bold text-foreground text-sm">{event.eventName}</h5>
+                            <h5 className="font-bold text-secondary text-sm">{event.eventName}</h5>
                             <p className="text-xs text-muted-foreground mt-0.5">{event.location}</p>
                           </div>
-                          <Badge variant="outline" className="text-xs font-semibold border-orange-500 bg-orange-500/10 text-orange-700">
+                           <Badge variant="outline" className="text-xs font-bold border-border bg-muted text-foreground rounded">
                             {event.expectedCrowd || "High"} Crowd
                           </Badge>
                         </div>
 
-                        <p className="text-xs text-foreground/80 leading-relaxed">
+                        <p className="text-xs text-muted-foreground leading-normal font-semibold">
                           {event.description}
                         </p>
 
-                        <div className="flex flex-wrap gap-2 text-xs">
-                          <span className="bg-muted text-muted-foreground px-2 py-0.5 rounded font-medium flex items-center gap-1">
-                            <Users size={10} /> Source: {event.scrapedSource || 'Scraped'}
-                          </span>
-                          <Badge variant="outline" className="border-green-500 bg-green-500/10 text-green-700 dark:text-green-400">
-                            Status: {event.status || 'Planned'}
-                          </Badge>
-                        </div>
+                          <div className="flex flex-wrap gap-2 text-xs">
+                           <span className="bg-muted text-muted-foreground px-2 py-0.5 rounded font-bold flex items-center gap-1">
+                             <Users size={10} /> Source: {event.scrapedSource || 'Scraped'}
+                           </span>
+                           <Badge variant="outline" className="border-primary/20 bg-primary/10 text-primary rounded text-xs font-bold">
+                             Status: {event.status || 'Planned'}
+                           </Badge>
+                         </div>
 
-                        <div className="bg-primary/10 border border-primary/20 rounded-lg p-3">
-                          <span className="text-xs font-bold text-primary uppercase tracking-widest block mb-1">
+                        <div className="bg-primary/5 border border-primary/15 rounded-lg p-3">
+                           <span className="text-xs font-bold text-primary uppercase tracking-widest block mb-1">
                             Recommended Promotion Schemes
                           </span>
-                          <p className="text-xs text-foreground font-semibold">{event.suggestedSchemes || "POSA, APY"}</p>
+                          <p className="text-xs text-foreground font-bold">{event.suggestedSchemes || "POSA, APY"}</p>
                         </div>
 
                         <Button
                           onClick={() => handleSuggestCampaign(event)}
-                          className="w-full h-9 flex items-center justify-center gap-1 text-xs"
+                          className="w-full h-8 flex items-center justify-center gap-1 text-xs rounded-lg font-bold"
                         >
-                          <Sparkles size={14} />
+                          <Sparkles size={12} />
                           <span>Suggest Campaign Plan</span>
                           <ArrowRight size={12} />
                         </Button>
@@ -356,13 +356,13 @@ export default function ModernCalendar() {
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-12 text-muted-foreground text-sm font-medium">
+                <div className="text-center py-12 text-muted-foreground text-xs font-semibold">
                   No festival or community events logged for this date.
                 </div>
               )}
 
               <div className="pt-4 flex justify-end">
-                <Button onClick={() => setSelectedDay(null)} size="sm" className="w-full md:w-auto font-bold">
+                <Button onClick={() => setSelectedDay(null)} size="sm" className="w-full md:w-auto font-bold text-xs h-8 px-4 rounded-lg">
                   Close
                 </Button>
               </div>

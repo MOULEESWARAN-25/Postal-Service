@@ -131,7 +131,7 @@ const SubPostOfficeSearch = () => {
       </label>
 
       {error && (
-        <div className="text-center py-2 text-red-500 mt-4">{error}</div>
+        <div className="text-center py-2 text-destructive mt-4">{error}</div>
       )}
 
       {/* Scrollable List */}

@@ -158,8 +158,8 @@ const Header = () => {
   return (
     <header className="flex items-center sticky top-0 z-50 justify-between px-5 py-4 shadow-md bg-white">
       <div className="flex items-center gap-5 justify-center">
-        <Building2 className="h-9 w-9 text-[#C8102E]" />
-        <h1 className="font-bold text-3xl text-[#C8102E] tracking-wide">
+        <Building2 className="h-9 w-9 text-primary" />
+        <h1 className="font-bold text-3xl text-primary tracking-wide">
           HeadPostData
         </h1>
       </div>
@@ -193,7 +193,7 @@ const Header = () => {
                   ref={modalRefs.state}
                   className={`relative text-xs p-5 font-semibold flex items-center gap-4 w-full h-full justify-start hover:shadow-2xl rounded-full cursor-pointer ${
                     activeTab === "state"
-                      ? "bg-white text-[#C8102E] shadow-2xl"
+                      ? "bg-white text-primary shadow-2xl"
                       : "text-black"
                   }`}
                   onClick={(e) => {
@@ -208,7 +208,7 @@ const Header = () => {
                   <Map className="w-5 h-5 shrink-0" />
                   <div className="flex flex-col truncate">
                     <span className="text-xs text-gray-500">Select State</span>
-                    <p className="text-xs text-[#C8102E] font-semibold truncate">
+                    <p className="text-xs text-primary font-semibold truncate">
                       {State?.name || "Choose State"}
                     </p>
                   </div>
@@ -221,7 +221,7 @@ const Header = () => {
                   ref={modalRefs.district}
                   className={`relative text-xs p-5 font-semibold flex items-center gap-4 w-full h-full justify-start hover:shadow-2xl rounded-full cursor-pointer ${
                     activeTab === "district"
-                      ? "bg-white text-[#C8102E] font-semibold shadow-2xl"
+                      ? "bg-white text-primary font-semibold shadow-2xl"
                       : "text-black"
                   }`}
                   onClick={(e) => {
@@ -240,7 +240,7 @@ const Header = () => {
                       Select District
                     </span>
 
-                    <p className="text-xs text-[#C8102E] font-semibold truncate">
+                    <p className="text-xs text-primary font-semibold truncate">
                       {District || "Select?"}
                     </p>
                   </div>
@@ -254,7 +254,7 @@ const Header = () => {
                   ref={modalRefs.subPostOffice}
                   className={` relative text-xs p-5 font-semibold flex items-center gap-4 w-full h-full justify-start hover:shadow-2xl rounded-full cursor-pointer ${
                     activeTab === "subpostoffice"
-                      ? "bg-white text-[#C8102E] font-semibold shadow-2xl"
+                      ? "bg-white text-primary font-semibold shadow-2xl"
                       : "text-black"
                   }`}
                   onClick={(e) => {
@@ -271,7 +271,7 @@ const Header = () => {
                   <div className="flex flex-col truncate">
                     <span className="text-xs text-gray-500">Select SP</span>
 
-                    <p className="text-xs text-[#C8102E] font-semibold truncate">
+                    <p className="text-xs text-primary font-semibold truncate">
                       {subpostoffice?.name || "Select?"}
                     </p>
                   </div>

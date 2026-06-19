@@ -106,7 +106,7 @@ export function DataTable<TData, TValue>({
     <div className="space-y-4 w-full">
       {/* Search Filter and Column Visibility Controls */}
       {showHeaderToolbar && (
-        <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center justify-between gap-4 flex-wrap px-6 pt-6">
           {searchKey && (
             <Input
               placeholder={searchPlaceholder}
@@ -211,7 +211,7 @@ export function DataTable<TData, TValue>({
 
       {/* Pagination Controls */}
       {showPagination && (
-        <div className="flex items-center justify-between gap-4 flex-wrap">
+        <div className="flex items-center justify-between gap-4 flex-wrap px-6 pb-6">
           <div className="text-xs text-muted-foreground font-medium">
             Page {currentPage + 1} of {totalPages || 1}
           </div>

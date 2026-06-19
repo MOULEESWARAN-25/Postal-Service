@@ -38,9 +38,9 @@ const NAV_LINKS = [
   { href: "/compare",     label: "Compare Regions", icon: Globe },
   { href: "/publicInfo",  label: "Beneficiaries",   icon: Users },
   { href: "/calender",    label: "Campaigns",       icon: CalendarDays },
-  { href: "/recommender",    label: "Recommender",      icon: Sparkles },
-  { href: "/analytics",      label: "Analytics",        icon: TrendingUp },
-  { href: "/query-resolver", label: "Assistant",        icon: MessageSquare },
+  { href: "/recommender", label: "Recommender",     icon: Sparkles },
+  { href: "/analytics",   label: "Analytics",       icon: TrendingUp },
+  { href: "/query-resolver", label: "Assistant",    icon: MessageSquare },
 ];
 
 const Header = () => {
@@ -61,7 +61,7 @@ const Header = () => {
     setSchemePerformanceVisible,
   } = useDashboardStore();
 
-  const [isShrink, setIsShrink] = useState(true);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const modalRefs = {
     state:       useRef(null),
@@ -71,12 +71,16 @@ const Header = () => {
     postOffice:  useRef(null),
   };
 
+  const searchDropdownRef = useRef(null);
+  const searchButtonRef = useRef(null);
+
   const handleTabClick = (tabName) => {
     setActiveTab(tabName === activeTab ? "" : tabName);
   };
 
   const handleClick = () => {
-    setIsShrink(!isShrink);
+    setSearchOpen(false);
+    setActiveTab("");
     if (!State && !District && !village && !subpostoffice && !postoffice) return;
     setLoading(true);
 
@@ -110,326 +114,258 @@ const Header = () => {
     getDemographics();
   };
 
-  // Animation variants for smooth shrink / expand transition
-  const containerVariants = {
-    expanded: { width: "100%", transition: { duration: 0.3, ease: "easeInOut" } },
-    shrunk:   { width: "auto", transition: { duration: 0.3, ease: "easeInOut" } },
-  };
-
-  const contentVariants = {
-    expanded: { opacity: 1, x: 0,   transition: { duration: 0.3 } },
-    shrunk:   { opacity: 1, x: 0,   transition: { duration: 0.3 } },
-    exit:     { opacity: 0, x: -20, transition: { duration: 0.2 } },
-  };
-
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       const isInsideModal = Object.values(modalRefs).some(
         (ref) => ref.current && ref.current.contains(event.target)
       );
-      if (!isInsideModal) setActiveTab("");
+      const isInsideDropdown = searchDropdownRef.current && searchDropdownRef.current.contains(event.target);
+      const isInsideButton = searchButtonRef.current && searchButtonRef.current.contains(event.target);
+
+      if (!isInsideModal && !isInsideDropdown && !isInsideButton) {
+        setSearchOpen(false);
+        setActiveTab("");
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // Common tab button styles
-  const tabBase = `relative text-xs p-5 font-semibold flex items-center gap-4 w-full h-full justify-start hover:shadow-2xl rounded-full cursor-pointer transition-colors`;
-  const tabActive = `bg-white text-[#C8102E] shadow-2xl`;
-  const tabInactive = `text-[#1A2B4A]`;
+  const tabBase = `relative text-xs p-4 font-semibold flex items-center gap-3 w-full h-full justify-start rounded-xl cursor-pointer transition-colors`;
+  const tabActive = `bg-muted text-primary border border-border shadow-sm`;
+  const tabInactive = `text-foreground hover:bg-slate-50`;
+
+  // Get active location title for navigation pill display
+  const activeLocationTitle = village || (typeof postoffice === "object" ? postoffice?.name : postoffice) || subpostoffice?.name || District || State?.name || "India (National)";
 
   return (
-    <header
-      className={`flex ${isShrink ? "items-center" : "items-start"} sticky top-0 z-50 justify-between px-8 py-4 shadow-md bg-white`}
-    >
-      {/* Left side: Logo Section (fixed width for perfect centering) */}
-      <div className="flex items-center space-x-2 w-[260px] shrink-0 justify-start">
-        <img src="/postoffice.png" alt="India Post" className="h-10" />
-        <div className="leading-tight">
-          <p className="text-base font-bold text-[#C8102E] leading-none">Postal Service</p>
-          <p className="text-xs font-semibold text-[#1A2B4A] uppercase tracking-wide leading-none">DSS Portal</p>
+    <header className="sticky top-0 z-50 h-16 border-b border-border bg-white flex items-center justify-between px-8">
+      {/* Left side: Logo Section */}
+      <div className="flex items-center space-x-2.5 w-[240px] shrink-0 justify-start">
+        <img src="/postoffice.png" alt="India Post" className="h-8" />
+        <div className="leading-none">
+          <p className="text-sm font-extrabold text-primary tracking-tight">Postal Service</p>
+          <p className="text-xs font-bold text-secondary uppercase tracking-wider mt-0.5">DSS Portal</p>
         </div>
       </div>
 
-      {/* Center side: Search/Navigation Section */}
-      <motion.div
-        className="flex flex-col justify-center items-center flex-1 mx-4"
-        layout
-      >
-        {/* Navigation Section (visible above expanded search bar) */}
-        <AnimatePresence mode="wait">
-          {!isShrink && (
-            <motion.nav
-              key="nav"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="hidden md:flex items-center space-x-6 mb-4 text-sm font-medium text-gray-700"
-            >
-              {NAV_LINKS.map(({ href, label }) => {
-                const active = pathname === href || (href !== "/" && pathname?.startsWith(href));
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    className={`hover:text-[#C8102E] transition-colors ${
-                      active ? "text-[#C8102E] font-semibold" : "text-[#374151]"
-                    }`}
-                  >
-                    {label}
-                  </Link>
-                );
-              })}
-            </motion.nav>
-          )}
-        </AnimatePresence>
+      {/* Center side: Unified Navigation and Search Trigger Pill */}
+      <div className="flex-1 max-w-4xl mx-4 flex justify-center relative">
+        <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-full border border-border">
+          {/* Navigation Links inside capsule */}
+          <nav className="hidden lg:flex items-center gap-1 pl-2">
+            {NAV_LINKS.map(({ href, label }) => {
+              const active = pathname === href || (href !== "/" && pathname?.startsWith(href));
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`px-3 py-1.5 text-xs font-semibold rounded-full hover:text-primary transition-colors ${
+                    active ? "text-primary bg-white shadow-sm" : "text-muted-foreground"
+                  }`}
+                >
+                  {label}
+                </Link>
+              );
+            })}
+          </nav>
 
-        {/* Search Bar Section */}
-        <motion.div
-          layout
-          variants={containerVariants}
-          animate={isShrink ? "shrunk" : "expanded"}
-          className={`flex items-center max-w-5xl ${
-            activeTab ? "bg-gray-100" : "bg-white"
-          } border rounded-full shadow-md overflow-hidden`}
-        >
-          <AnimatePresence mode="wait">
-            {!isShrink ? (
-              <motion.div
-                key="expanded-search"
-                layout
-                initial="exit"
-                animate="expanded"
-                exit="exit"
-                variants={contentVariants}
-                className="flex w-full items-center"
-              >
-                <div className="flex w-full items-center">
-                  {/* State */}
-                  <motion.div
-                    ref={modalRefs.state}
-                    className={`${tabBase} ${activeTab === "state" ? tabActive : tabInactive}`}
-                    onClick={(e) => { e.stopPropagation(); handleTabClick("state"); }}
-                    initial={{ x: -100 }} animate={{ x: 0 }} exit={{ x: 100 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  >
-                    <Map className="w-5 h-5 shrink-0" />
-                    <div className="flex flex-col truncate">
-                      <span className="text-xs text-gray-500">Select State</span>
-                      <p className="text-xs text-[#C8102E] font-semibold truncate">{State?.name || "Choose State"}</p>
-                    </div>
-                    {activeTab === "state" && <RegionSearch />}
-                  </motion.div>
-
-                  <div className="divider lg:divider-horizontal py-2" />
-
-                  {/* District */}
-                  <motion.div
-                    ref={modalRefs.district}
-                    className={`${tabBase} ${activeTab === "district" ? tabActive : tabInactive}`}
-                    onClick={(e) => { e.stopPropagation(); handleTabClick("district"); }}
-                    initial={{ x: -100 }} animate={{ x: 0 }} exit={{ x: 100 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  >
-                    <LandPlot className="w-5 h-5 shrink-0" />
-                    <div className="flex flex-col truncate">
-                      <span className="text-xs text-gray-500">Select District</span>
-                      <p className="text-xs text-[#C8102E] font-semibold truncate">{District || "Select?"}</p>
-                    </div>
-                    {activeTab === "district" && <DistrictSearch />}
-                  </motion.div>
-
-                  <div className="divider lg:divider-horizontal py-2 m-0" />
-
-                  {/* Sub Post Office */}
-                  <motion.div
-                    ref={modalRefs.subPostOffice}
-                    className={`${tabBase} ${activeTab === "subpostoffice" ? tabActive : tabInactive}`}
-                    onClick={(e) => { e.stopPropagation(); handleTabClick("subpostoffice"); }}
-                    initial={{ x: -100 }} animate={{ x: 0 }} exit={{ x: 100 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  >
-                    <MapPinned className="w-5 h-5 shrink-0" />
-                    <div className="flex flex-col truncate">
-                      <span className="text-xs text-gray-500">Select SP</span>
-                      <p className="text-xs text-[#C8102E] font-semibold truncate">{subpostoffice?.name || "Select?"}</p>
-                    </div>
-                    {activeTab === "subpostoffice" && <SubPostOfficeSearch />}
-                  </motion.div>
-
-                  <div className="divider lg:divider-horizontal py-2 m-0" />
-
-                  {/* Post Office */}
-                  <motion.div
-                    ref={modalRefs.postOffice}
-                    className={`${tabBase} ${activeTab === "postoffice" ? tabActive : tabInactive}`}
-                    onClick={(e) => { e.stopPropagation(); handleTabClick("postoffice"); }}
-                    initial={{ x: -100 }} animate={{ x: 0 }} exit={{ x: 100 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  >
-                    <Signpost className="w-5 h-5 shrink-0" />
-                    <div className="flex flex-col truncate">
-                      <span className="text-xs text-gray-500">Select Post Office</span>
-                      <p className="text-xs text-[#C8102E] font-semibold truncate">
-                        {typeof postoffice === "object" ? (postoffice?.name || "Select?") : (postoffice || "Select?")}
-                      </p>
-                    </div>
-                    {activeTab === "postoffice" && <SearchPostOffice />}
-                  </motion.div>
-
-                  <div className="divider lg:divider-horizontal py-2 m-0" />
-
-                  {/* Village */}
-                  <motion.div
-                    ref={modalRefs.village}
-                    className={`${tabBase} ${activeTab === "village" ? tabActive : tabInactive}`}
-                    onClick={(e) => { e.stopPropagation(); handleTabClick("village"); }}
-                    initial={{ x: -100 }} animate={{ x: 0 }} exit={{ x: 100 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                  >
-                    <MapPinHouse className="w-5 h-5 shrink-0" />
-                    <div className="flex flex-col truncate">
-                      <span className="text-xs text-gray-500">Select Village</span>
-                      <p className="text-xs text-[#C8102E] font-semibold truncate">{village || "Select?"}</p>
-                    </div>
-                    {activeTab === "village" && <VillageSearch />}
-                  </motion.div>
-
-                  {/* Search / Analyse button */}
-                  <div className="flex items-center justify-center p-2">
-                    <motion.button
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.9 }}
-                      onClick={handleClick}
-                      className="flex items-center justify-center w-10 h-10 text-white rounded-full shrink-0"
-                      style={{ background: "#C8102E" }}
-                      title="Analyse"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                        strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                        <path strokeLinecap="round" strokeLinejoin="round"
-                          d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803a7.5 7.5 0 0010.607 0z" />
-                      </svg>
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
-            ) : (
-              /* Shrunk state — Navigation links inside the compact pill */
-              <motion.div
-                key="shrunk-search"
-                initial="exit"
-                animate="shrunk"
-                exit="exit"
-                variants={contentVariants}
-                className="p-2 flex items-center gap-4 shrink-0"
-              >
-                <div className="hidden md:flex items-center gap-2 pl-2">
-                  {NAV_LINKS.map(({ href, label }) => {
+          {/* Mobile Navigation Sheet Trigger */}
+          <div className="flex lg:hidden items-center pl-2">
+            <Sheet>
+              <SheetTrigger render={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Open navigation menu"
+                  className="h-8 w-8 text-secondary hover:bg-slate-100 rounded-full flex items-center justify-center transition-colors"
+                >
+                  <Menu size={16} />
+                </Button>
+              } />
+              <SheetContent side="left" className="w-[280px] bg-white">
+                <SheetHeader className="border-b pb-4 mb-4">
+                  <SheetTitle className="text-left text-base font-extrabold text-primary">Navigation</SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col gap-1">
+                  {NAV_LINKS.map(({ href, label, icon: Icon }) => {
                     const active = pathname === href || (href !== "/" && pathname?.startsWith(href));
                     return (
                       <Link
                         key={href}
                         href={href}
-                        className={`px-3 py-1.5 text-xs font-semibold rounded-full hover:text-[#C8102E] transition-colors ${
-                          active ? "text-[#C8102E] bg-red-50" : "text-[#374151]"
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-semibold transition-colors ${
+                          active ? "bg-red-50/50 text-primary" : "text-foreground hover:bg-slate-50"
                         }`}
                       >
-                        {label}
+                        <Icon size={14} />
+                        <span>{label}</span>
                       </Link>
                     );
                   })}
                 </div>
-                <div className="flex md:hidden items-center gap-2 pl-2">
-                  <Sheet>
-                    <SheetTrigger
-                      render={
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          aria-label="Open navigation menu"
-                          className="h-8 w-8 text-[#1A2B4A] hover:bg-muted/50 rounded-lg flex items-center justify-center transition-colors"
-                        >
-                          <Menu size={18} />
-                        </Button>
-                      }
-                    />
-                    <SheetContent side="left" className="w-[280px] bg-white">
-                      <SheetHeader className="border-b pb-4 mb-4">
-                        <SheetTitle className="text-left text-lg font-bold text-[#C8102E]">Navigation</SheetTitle>
-                      </SheetHeader>
-                      <div className="flex flex-col gap-2">
-                        {NAV_LINKS.map(({ href, label, icon: Icon }) => {
-                          const active = pathname === href || (href !== "/" && pathname?.startsWith(href));
-                          return (
-                            <Link
-                              key={href}
-                              href={href}
-                              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
-                                active ? "bg-red-50 text-[#C8102E]" : "text-[#374151] hover:bg-slate-50"
-                              }`}
-                            >
-                              <Icon size={14} />
-                              <span>{label}</span>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </SheetContent>
-                  </Sheet>
-                </div>
-                <div className="w-[1px] h-6 bg-gray-200" />
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => setIsShrink(!isShrink)}
-                  className="flex items-center justify-center w-8 h-8 text-white rounded-full bg-[#C8102E] shrink-0 mr-1"
-                  title="Search Location"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={2}
-                    stroke="currentColor"
-                    className="w-4 h-4"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M21 21l-4.35-4.35M16.65 10.35a6.35 6.35 0 11-12.7 0 6.35 6.35 0 0112.7 0z"
-                    />
-                  </svg>
-                </motion.button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-      </motion.div>
+              </SheetContent>
+            </Sheet>
+          </div>
 
-      {/* Right side: Menu Section (fixed width for perfect centering) */}
-      <div className="flex items-center space-x-4 w-[260px] shrink-0 justify-end">
+          <div className="w-[1px] h-5 bg-border mx-1" />
+
+          {/* Location Selector Trigger Button */}
+          <button
+            ref={searchButtonRef}
+            onClick={() => setSearchOpen(!searchOpen)}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-full bg-white border border-border text-foreground hover:bg-slate-50 shadow-sm shrink-0 mr-0.5 transition"
+            title="Choose Analysis Region"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2.5}
+              stroke="currentColor"
+              className="w-3.5 h-3.5 text-primary shrink-0 animate-pulse"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 21l-4.35-4.35M16.65 10.35a6.35 6.35 0 11-12.7 0 6.35 6.35 0 0112.7 0z"
+              />
+            </svg>
+            <span className="truncate max-w-[150px]">{activeLocationTitle}</span>
+          </button>
+        </div>
+
+        {/* Dropdown Floating Overlay Location Filter Selector Panel */}
+        <AnimatePresence>
+          {searchOpen && (
+            <motion.div
+              ref={searchDropdownRef}
+              initial={{ opacity: 0, y: -10, x: "-50%" }}
+              animate={{ opacity: 1, y: 0, x: "-50%" }}
+              exit={{ opacity: 0, y: -10, x: "-50%" }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+              className="absolute top-14 left-1/2 w-full max-w-4xl bg-white border border-border shadow-xl rounded-2xl p-4 flex items-center gap-3 z-50"
+            >
+              {/* State */}
+              <div
+                ref={modalRefs.state}
+                className={`${tabBase} ${activeTab === "state" ? tabActive : tabInactive}`}
+                onClick={(e) => { e.stopPropagation(); handleTabClick("state"); }}
+              >
+                <Map className="w-4 h-4 shrink-0 text-muted-foreground" />
+                <div className="flex flex-col truncate text-left">
+                  <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">State</span>
+                  <p className="text-xs text-primary font-bold truncate">{State?.name || "Select State"}</p>
+                </div>
+                {activeTab === "state" && <RegionSearch />}
+              </div>
+
+              <div className="w-[1px] h-8 bg-border shrink-0" />
+
+              {/* District */}
+              <div
+                ref={modalRefs.district}
+                className={`${tabBase} ${activeTab === "district" ? tabActive : tabInactive}`}
+                onClick={(e) => { e.stopPropagation(); handleTabClick("district"); }}
+              >
+                <LandPlot className="w-4 h-4 shrink-0 text-muted-foreground" />
+                <div className="flex flex-col truncate text-left">
+                  <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">District</span>
+                  <p className="text-xs text-primary font-bold truncate">{District || "Select"}</p>
+                </div>
+                {activeTab === "district" && <DistrictSearch />}
+              </div>
+
+              <div className="w-[1px] h-8 bg-border shrink-0" />
+
+              {/* Sub Post Office */}
+              <div
+                ref={modalRefs.subPostOffice}
+                className={`${tabBase} ${activeTab === "subpostoffice" ? tabActive : tabInactive}`}
+                onClick={(e) => { e.stopPropagation(); handleTabClick("subpostoffice"); }}
+              >
+                <MapPinned className="w-4 h-4 shrink-0 text-muted-foreground" />
+                <div className="flex flex-col truncate text-left">
+                  <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Sub PO</span>
+                  <p className="text-xs text-primary font-bold truncate">{subpostoffice?.name || "Select"}</p>
+                </div>
+                {activeTab === "subpostoffice" && <SubPostOfficeSearch />}
+              </div>
+
+              <div className="w-[1px] h-8 bg-border shrink-0" />
+
+              {/* Post Office */}
+              <div
+                ref={modalRefs.postOffice}
+                className={`${tabBase} ${activeTab === "postoffice" ? tabActive : tabInactive}`}
+                onClick={(e) => { e.stopPropagation(); handleTabClick("postoffice"); }}
+              >
+                <Signpost className="w-4 h-4 shrink-0 text-muted-foreground" />
+                <div className="flex flex-col truncate text-left">
+                  <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Post Office</span>
+                  <p className="text-xs text-primary font-bold truncate">
+                    {typeof postoffice === "object" ? (postoffice?.name || "Select") : (postoffice || "Select")}
+                  </p>
+                </div>
+                {activeTab === "postoffice" && <SearchPostOffice />}
+              </div>
+
+              <div className="w-[1px] h-8 bg-border shrink-0" />
+
+              {/* Village */}
+              <div
+                ref={modalRefs.village}
+                className={`${tabBase} ${activeTab === "village" ? tabActive : tabInactive}`}
+                onClick={(e) => { e.stopPropagation(); handleTabClick("village"); }}
+              >
+                <MapPinHouse className="w-4 h-4 shrink-0 text-muted-foreground" />
+                <div className="flex flex-col truncate text-left">
+                  <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Village</span>
+                  <p className="text-xs text-primary font-bold truncate">{village || "Select"}</p>
+                </div>
+                {activeTab === "village" && <VillageSearch />}
+              </div>
+
+              {/* Analyse button */}
+              <div className="p-1 shrink-0">
+                <Button
+                  onClick={handleClick}
+                  className="flex items-center justify-center w-10 h-10 text-white rounded-full bg-primary hover:bg-primary/95 shrink-0 shadow-sm"
+                  title="Analyse"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round"
+                      d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803a7.5 7.5 0 0010.607 0z" />
+                  </svg>
+                </Button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Right side: Language and profile */}
+      <div className="flex items-center space-x-3 w-[240px] shrink-0 justify-end">
         {/* Globe/Language Selection Dropdown */}
         <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                variant="ghost"
-                size="icon"
-                className="w-8 h-8 bg-gray-100 rounded-full hover:bg-gray-200 flex items-center justify-center"
-                aria-label="Select language"
-              >
-                <Globe className="w-4 h-4 text-[#1A2B4A]" />
-              </Button>
-            }
-          />
-          <DropdownMenuContent align="end" className="w-32 bg-white border border-gray-100 z-50">
-            <DropdownMenuItem className="font-semibold text-[#1A2B4A] cursor-pointer">
+          <DropdownMenuTrigger render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className="w-8 h-8 bg-slate-100 rounded-full hover:bg-slate-200 flex items-center justify-center transition-colors"
+              aria-label="Select language"
+            >
+              <Globe className="w-4 h-4 text-secondary" />
+            </Button>
+          } />
+          <DropdownMenuContent align="end" className="w-32 bg-white border border-border z-50">
+            <DropdownMenuItem className="font-bold text-secondary cursor-pointer">
               English
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-gray-600 cursor-pointer">
+            <DropdownMenuItem className="text-muted-foreground cursor-pointer">
               हिन्दी
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -437,30 +373,28 @@ const Header = () => {
 
         {/* Profile Dropdown */}
         <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                variant="ghost"
-                size="icon"
-                className="w-8 h-8 bg-[#1A2B4A] hover:bg-[#15223b] rounded-full cursor-pointer flex items-center justify-center text-white"
-                aria-label="User profile menu"
-              >
-                <Users className="w-4 h-4 text-white" />
-              </Button>
-            }
-          />
-          <DropdownMenuContent align="end" className="w-48 bg-white border border-gray-100 z-50">
+          <DropdownMenuTrigger render={
+            <Button
+              variant="ghost"
+              size="icon"
+              className="w-8 h-8 bg-secondary hover:bg-secondary/90 rounded-full cursor-pointer flex items-center justify-center text-white transition-colors"
+              aria-label="User profile menu"
+            >
+              <Users className="w-4 h-4 text-white" />
+            </Button>
+          } />
+          <DropdownMenuContent align="end" className="w-48 bg-white border border-border z-50">
             <DropdownMenuItem asChild>
-              <Link href="/profile" className="text-[#374151] w-full cursor-pointer">
+              <Link href="/profile" className="text-foreground w-full cursor-pointer">
                 Profile
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/register" className="text-[#374151] w-full cursor-pointer">
+              <Link href="/register" className="text-foreground w-full cursor-pointer">
                 Create User
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-red-600 font-semibold cursor-pointer">
+            <DropdownMenuItem className="text-destructive font-bold cursor-pointer">
               Logout
             </DropdownMenuItem>
           </DropdownMenuContent>

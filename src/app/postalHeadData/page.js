@@ -17,6 +17,7 @@ import useheaddata from "@/store/headpostdata";
 import axios from "axios";
 import { toast } from "sonner";
 import useDashboardStore from "@/store/dashboardStore";
+import { Button } from "@/components/ui/button";
 const PostOfficeDashboard = () => {
   const{headData}=useDashboardStore();
   console.log(headData)
@@ -130,80 +131,81 @@ const PostOfficeDashboard = () => {
   return (
     <div>
       <Header />
-      <div className="min-h-screen bg-[#F8F9FB]">
-        <div className="page-container space-y-5">
-          <div className="bg-white border border-neutral-200 rounded-lg shadow-sm mb-6">
-            <div className="bg-[#ef4444] text-white p-4 rounded-t-lg flex justify-between items-center">
-              <div className="flex items-center">
-                <Building2 className="mr-3" size={24} />
-                <h2 className="text-xl font-semibold">Head Office Details</h2>
+      <div className="min-h-screen bg-background text-foreground py-6">
+        <div className="page-container max-w-[1440px] mx-auto w-full space-y-6">
+          <div className="border border-border bg-card shadow-sm rounded-xl overflow-hidden mb-6">
+            <div className="bg-secondary text-secondary-foreground p-5 flex justify-between items-center flex-wrap gap-4">
+              <div className="flex items-center gap-3">
+                <Building2 className="text-primary h-6 w-6" />
+                <h2 className="text-xl font-extrabold tracking-tight">Head Office Details</h2>
               </div>
 
-              <button
-                onClick={click}
-                disabled={isLoading}
-                className="flex items-center bg-[#952929] text-white px-4 py-2 rounded-lg hover:bg-[#ff0000] transition-colors disabled:opacity-50"
-              >
-                {isLoading ? (
-                  <span className="flex items-center">
-                    <RefreshCw className="mr-2 animate-spin" size={16} />
-                    Updating...
-                  </span>
-                ) : (
-                  <span className="flex items-center">
-                    <RefreshCw className="mr-2" size={16} />
-                    After Mela
-                  </span>
-                )}
-              </button>
-
-              <div className="relative">
-                <select
-                  className="flex items-center bg-white justify-center w-full text-black text-sm px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2"
-                  onChange={(e) => setsch(e.target.value)}
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={click}
+                  disabled={isLoading}
+                  className="flex items-center gap-1.5 h-10 px-4 rounded-lg font-bold"
                 >
-                  <option value="">Select Scheme</option>
-                  <option value="Sukanya Samriddhi Yojana (SSA)">
-                    Sukanya Samriddhi Yojana (SSA)
-                  </option>
-                </select>
+                  {isLoading ? (
+                    <>
+                      <RefreshCw className="mr-1 h-3.5 w-3.5 animate-spin" />
+                      <span>Updating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <RefreshCw className="mr-1 h-3.5 w-3.5" />
+                      <span>After Mela</span>
+                    </>
+                  )}
+                </Button>
+
+                <div className="relative">
+                  <select
+                    className="flex items-center bg-card border border-border text-foreground text-xs px-3 py-2 h-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary w-[220px] font-semibold"
+                    onChange={(e) => setsch(e.target.value)}
+                  >
+                    <option value="" className="text-xs">Select Scheme</option>
+                    <option value="Sukanya Samriddhi Yojana (SSA)" className="text-xs">
+                      Sukanya Samriddhi Yojana (SSA)
+                    </option>
+                  </select>
+                </div>
               </div>
             </div>
 
             {/* Post Office Details Section */}
-            <div className="p-3 grid md:grid-cols-2 gap-4">
-              <h3 className="font-semibold text-neutral-800 flex items-center">
-                <MapPin className="mr-2" size={30} />
+            <div className="p-5 space-y-4">
+              <h3 className="font-bold text-foreground text-sm flex items-center gap-2">
+                <MapPin className="text-primary h-5 w-5" />
                 Post Office Details
               </h3>
-              <div className="bg-white text-md text-black grid md:grid-cols-3 border w-full col-span-2 rounded-md border-neutral-200  shadow-sm ">
-                <li className=" p-5 flex items-center justify-center">
-                  <Package className="mr-2 text-blue-500" size={30} />
-                  Post Office: {sub?.name || "Sub Post Office"}
-                </li>
-                <li className="border p-5 flex items-center justify-center">
-                  <FileText className="mr-2 text-green-500" size={30} />
-                  Pin Code: {sub?.pincode || "Sub Post Pincode"}
-                </li>
-                <li className=" p-5 flex items-center justify-center">
-                  <Map className="mr-2 text-yellow-500" size={30} />
-                  District: {Dis || "District"}
-                </li>
-                <li className="border p-5 flex items-center justify-center">
-                  <MapPin className="mr-2 text-red-500" size={30} />
-                  State: {Sta?.name || "State"}
-                </li>
-                <li className=" p-5 flex items-center justify-center">
-                  <RefreshCw className="mr-2 text-purple-500" size={30} />
-                  Type: {sub ? "Sub PostOffice Branch" : "Branch Type"}
-                </li>
-                
+              <div className="bg-muted/10 text-xs text-foreground grid grid-cols-1 sm:grid-cols-3 border border-border w-full rounded-xl overflow-hidden shadow-sm">
+                <div className="p-5 flex items-center justify-center gap-3 border-b sm:border-b-0 sm:border-r border-border">
+                  <Package className="text-muted-foreground h-5 w-5 shrink-0" />
+                  <span><strong>Post Office:</strong> {sub?.name || "Sub Post Office"}</span>
+                </div>
+                <div className="p-5 flex items-center justify-center gap-3 border-b sm:border-b-0 sm:border-r border-border">
+                  <FileText className="text-muted-foreground h-5 w-5 shrink-0" />
+                  <span><strong>Pin Code:</strong> {sub?.pincode || "Sub Post Pincode"}</span>
+                </div>
+                <div className="p-5 flex items-center justify-center gap-3 border-b sm:border-b-0 border-border">
+                  <Map className="text-muted-foreground h-5 w-5 shrink-0" />
+                  <span><strong>District:</strong> {Dis || "District"}</span>
+                </div>
+                <div className="p-5 flex items-center justify-center gap-3 border-t border-b sm:border-b-0 sm:border-r border-border col-span-1 sm:col-span-2 bg-muted/5">
+                  <MapPin className="text-primary h-5 w-5 shrink-0" />
+                  <span><strong>State:</strong> {Sta?.name || "State"}</span>
+                </div>
+                <div className="p-5 flex items-center justify-center gap-3 border-t border-border bg-muted/5">
+                  <RefreshCw className="text-muted-foreground h-5 w-5 shrink-0" />
+                  <span><strong>Type:</strong> {sub ? "Sub PostOffice Branch" : "Branch Type"}</span>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Branch Offices Section with Donut Chart */}
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-6 items-stretch">
             {donutChartData.length > 0 ? (
               donutChartData.map((branchData, index) => {
                 const registrationProbability = branchData.probability;
@@ -212,87 +214,85 @@ const PostOfficeDashboard = () => {
                 return (
                   <div
                     key={`branch-${index}`}
-                    className="bg-white border  flex flex-col items-center border-neutral-200 rounded-lg shadow-sm p-4"
+                    className="bg-card border border-border flex flex-col justify-between items-center rounded-xl shadow-sm p-5 h-full"
                   >
-                    <h3 className="font-semibold text-neutral-800 flex items-center mb-4">
-                      <MapPin className="mr-2 text-blue-500" size={24} />
-                      Branch PostOffice {index + 1}: {branchData.name}
-                    </h3>
+                    <div className="w-full flex flex-col items-center">
+                      <h3 className="font-extrabold text-foreground text-sm flex items-center gap-2 mb-4 text-center justify-center">
+                        <MapPin className="text-primary h-4 w-4 shrink-0" />
+                        BO {index + 1}: {branchData.name}
+                      </h3>
 
-                    {/* Donut Chart with Click Handler */}
-                    <div 
-                      className="cursor-pointer" 
-                    >
-                      <PieChart width={200} height={200}>
-                        <Pie
-                          data={[
-                            { 
-                              name: 'Registered', 
-                              value: branchData.registeredCount 
-                            },
-                            { 
-                              name: 'Pending', 
-                              value: pendingRegistrations 
-                            }
-                          ]}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={50}
-                          outerRadius={70}
-                          paddingAngle={5}
-                          dataKey="value"
-                        >
-                          {[
-                            { name: 'Registered', value: branchData.registeredCount },
-                            { name: 'Pending', value: pendingRegistrations }
-                          ].map((entry, index) => (
-                            <Cell 
-                              key={`cell-${index}`} 
-                              fill={index === 0 ? '#00C49F' : '#FF8042'} 
-                            />
-                          ))}
-                        </Pie>
-                        <Tooltip />
-                        <Legend />
-                      </PieChart>
+                      {/* Donut Chart with Click Handler */}
+                      <div className="cursor-pointer my-2">
+                        <PieChart width={180} height={180}>
+                          <Pie
+                            data={[
+                              { 
+                                name: 'Registered', 
+                                value: branchData.registeredCount 
+                              },
+                              { 
+                                name: 'Pending', 
+                                value: pendingRegistrations 
+                              }
+                            ]}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={45}
+                            outerRadius={65}
+                            paddingAngle={5}
+                            dataKey="value"
+                          >
+                            {[
+                              { name: 'Registered', value: branchData.registeredCount },
+                              { name: 'Pending', value: pendingRegistrations }
+                            ].map((entry, idx) => (
+                              <Cell 
+                                key={`cell-${idx}`} 
+                                fill={idx === 0 ? '#10B981' : '#F59E0B'} 
+                              />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                          <Legend />
+                        </PieChart>
+                      </div>
                     </div>
 
                     {/* Detailed Metrics */}
-                    <div className="w-full grid grid-cols-2 gap-2 mt-4 text-sm">
-                      <p className="text-neutral-600 flex items-center">
-                        <Users className="mr-2 text-green-500" size={20} />
-                        Total Persons: {branchData.value}
-                      </p>
-                      <p className="text-neutral-600 flex items-center">
-                        <Award className="mr-2 text-blue-500" size={20} />
-                        Registered: {branchData.registeredCount}
-                      </p>
-                      <p className="text-neutral-600 flex items-center">
-                        <Award className="mr-2 text-red-500" size={20} />
-                        Pending: {pendingRegistrations}
-                      </p>
-                      <p className="text-neutral-600 flex items-center">
-                        <Award className="mr-2 text-purple-500" size={20} />
-                        Probability: {registrationProbability}%
-                      </p>
-                      <p className="text-neutral-600 flex items-center">
-                        <BarChart2 className="mr-2 text-orange-500" size={20} />
-                        Failure Probaility: {(100 - Number(registrationProbability)).toFixed(2)}%
-                      </p>
-                      <p className="text-neutral-600 flex items-center">
-                        <Award className="mr-2 text-cyan-500" size={20} />
-                        Total: {branchData.registeredCount + pendingRegistrations}
-                      </p>
-                      <p className="text-neutral-600 flex items-center">
-                  <BarChart2 className="mr-2 text-cyan-500" size={30} />
-                  Reason: {headData?.negativeFeedback|| "Reason"}
-                  </p>
-                  </div>
+                    <div className="w-full grid grid-cols-2 gap-3 mt-5 pt-4 border-t border-border text-xs">
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Users className="text-muted-foreground h-4 w-4 shrink-0" />
+                        <span>Total: <strong className="text-foreground">{branchData.value}</strong></span>
+                      </div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Award className="text-primary h-4 w-4 shrink-0" />
+                        <span>Enrolled: <strong className="text-foreground">{branchData.registeredCount}</strong></span>
+                      </div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Award className="text-muted-foreground h-4 w-4 shrink-0" />
+                        <span>Pending: <strong className="text-foreground">{pendingRegistrations}</strong></span>
+                      </div>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <Award className="text-muted-foreground h-4 w-4 shrink-0" />
+                        <span>Success %: <strong className="text-foreground">{registrationProbability}%</strong></span>
+                      </div>
+                      <div className="flex items-center gap-2 text-muted-foreground col-span-2">
+                        <BarChart2 className="text-muted-foreground h-4 w-4 shrink-0" />
+                        <span>Failure Prob: <strong className="text-foreground">{(100 - Number(registrationProbability)).toFixed(2)}%</strong></span>
+                      </div>
+                      <div className="flex items-center gap-2 text-muted-foreground col-span-2 border-t border-dashed border-border pt-2 mt-1">
+                        <BarChart2 className="text-muted-foreground h-4 w-4 shrink-0" />
+                        <span>Reason: <span className="text-foreground font-bold">{headData?.negativeFeedback || "General low awareness"}</span></span>
+                      </div>
+                    </div>
                   </div>
                 );
               })
             ) : (
-              <p>No data available</p>
+              <div className="col-span-full py-16 text-center text-muted-foreground font-bold border border-border bg-card shadow-sm rounded-xl">
+                No branch office data available for this selection.
+              </div>
             )}
           </div>
         </div>

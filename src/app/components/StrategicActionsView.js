@@ -53,46 +53,46 @@ export default function StrategicActionsView() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-[#F8F9FB]">
-        <div className="page-container space-y-5">
+      <div className="min-h-screen bg-background text-foreground">
+        <div className="page-container space-y-6">
         
         {/* Navigation Breadcrumbs */}
-        <Breadcrumb>
+        <Breadcrumb className="text-xs">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/">Dashboard</BreadcrumbLink>
+              <BreadcrumbLink href="/" className="font-semibold text-muted-foreground hover:text-primary">Dashboard</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbPage>Strategic Action Center</BreadcrumbPage>
+              <BreadcrumbPage className="font-extrabold text-secondary">Strategic Action Center</BreadcrumbPage>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
 
         {/* Back Link and Badge */}
         <div className="flex justify-between items-center border-b pb-4 border-border">
-          <Link href="/" className="flex items-center space-x-2 text-primary hover:underline font-bold transition">
-            <ArrowLeft size={16} />
-            <span className="text-sm">Back to Regional Intelligence</span>
+          <Link href="/" className="flex items-center space-x-2 text-primary hover:text-primary/95 font-bold transition text-xs">
+            <ArrowLeft size={14} />
+            <span>Back to Regional Intelligence</span>
           </Link>
-          <span className="text-xs font-bold text-primary uppercase tracking-wider bg-primary/10 border border-primary/20 px-3 py-1 rounded-full">
+          <Badge className="bg-primary/10 text-primary border border-primary/20 text-xs font-bold rounded-full px-3 py-1">
             Strategic Actions
-          </span>
+          </Badge>
         </div>
 
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-2">
-            <Award className="text-primary h-8 w-8" /> Strategic Action Center
+          <h1 className="text-2xl font-extrabold tracking-tight text-foreground flex items-center gap-2">
+            <Award className="text-primary h-6 w-6" /> Strategic Action Center
           </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            AI-generated campaign priorities, opportunity scores, and reach analysis based on regional census statistics and timing indexes.
+          <p className="text-muted-foreground text-xs font-semibold mt-1">
+            AI-generated campaign priorities, opportunity scores, and reach analysis based on regional census statistics.
           </p>
         </div>
 
         {village && (
-          <div className="bg-primary/5 border border-primary/10 text-foreground rounded-lg px-4 py-3 text-xs flex items-center justify-between">
+          <div className="bg-primary/5 border border-primary/10 text-foreground rounded-lg px-4 py-2 text-xs flex items-center justify-between">
             <span>Filtering opportunities for active village: <strong>{village}</strong></span>
-            <Button onClick={() => fetchRecommendations()} variant="outline" size="sm" className="text-xs font-bold">
+            <Button onClick={() => fetchRecommendations()} variant="outline" size="sm" className="text-xs font-bold h-7 px-2.5">
               Clear Filter
             </Button>
           </div>
@@ -101,17 +101,17 @@ export default function StrategicActionsView() {
         {loading ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, idx) => (
-              <Card className="border-border bg-card" key={idx}>
-                <CardHeader className="flex justify-between items-center flex-row pb-3 border-b border-border mb-4">
+              <Card className="border-border bg-card shadow-sm rounded-xl p-5" key={idx}>
+                <div className="flex justify-between items-center border-b border-border pb-3 mb-4">
                   <Skeleton className="h-5 w-20" />
                   <Skeleton className="h-4 w-24" />
-                </CardHeader>
-                <CardContent className="space-y-4">
+                </div>
+                <div className="space-y-4">
                   <Skeleton className="h-6 w-32" />
                   <Skeleton className="h-4 w-44" />
                   <Skeleton className="h-3 w-full" />
                   <Skeleton className="h-8 w-full mt-4" />
-                </CardContent>
+                </div>
               </Card>
             ))}
           </div>
@@ -121,40 +121,42 @@ export default function StrategicActionsView() {
               recommendations.map((action, i) => (
                 <Card 
                   key={i} 
-                  className="flex flex-col justify-between border-border bg-card hover:shadow-md transition-shadow"
+                  className="flex flex-col justify-between border border-border bg-card shadow-sm rounded-xl p-6"
                 >
-                  <CardHeader className="flex justify-between items-center flex-row border-b border-border pb-3 px-6 pt-6">
-                    <Badge variant="secondary" className="font-bold text-xs">
-                      Score: {action.opportunityScore}/100
-                    </Badge>
-                    <span className="text-xs text-muted-foreground font-semibold">{action.campaignWindow}</span>
-                  </CardHeader>
-
-                  <CardContent className="space-y-4 flex-1 p-6">
-                    <div>
-                      <h3 className="font-bold text-foreground text-lg leading-tight">{action.village}</h3>
-                      <p className="text-xs text-primary font-bold mt-1">🎯 {action.recommendedScheme}</p>
+                  <div>
+                    <div className="flex justify-between items-center border-b border-border pb-3 mb-4">
+                      <Badge variant="secondary" className="font-extrabold text-xs rounded px-2 py-0.5">
+                        Score: {action.opportunityScore}/100
+                      </Badge>
+                      <span className="text-xs text-muted-foreground font-bold">{action.campaignWindow}</span>
                     </div>
 
-                    <div className="space-y-2 pt-2">
-                      <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Opportunity Drivers</h4>
-                      <ul className="text-xs text-muted-foreground space-y-1.5">
-                        {action.keyDrivers?.map((drv, idx) => (
-                          <li key={idx} className="flex items-start gap-1">
-                            <span className="text-primary font-bold">•</span>
-                            <span className="text-xs font-medium text-foreground">{drv}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </CardContent>
+                    <div className="space-y-4">
+                      <div>
+                        <h3 className="font-extrabold text-secondary text-base leading-tight">{action.village}</h3>
+                        <p className="text-xs text-primary font-bold mt-1">🎯 {action.recommendedScheme}</p>
+                      </div>
 
-                  <div className="p-6 pt-0 border-t border-border flex justify-between items-center text-xs mt-auto">
+                      <div className="space-y-2 pt-2">
+                        <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Opportunity Drivers</h4>
+                        <ul className="text-xs space-y-1.5">
+                          {action.keyDrivers?.map((drv, idx) => (
+                            <li key={idx} className="flex items-start gap-1">
+                              <span className="text-primary font-bold select-none">•</span>
+                              <span className="text-xs font-semibold text-muted-foreground">{drv}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 mt-6 border-t border-border flex justify-between items-center text-xs">
                     <span className="text-muted-foreground font-semibold">Reach: <strong className="text-foreground font-extrabold">{action.estimatedEligibleCitizens}</strong></span>
                     <Button 
                       onClick={() => askAIAboutAction(action)}
                       size="sm"
-                      className="font-bold flex items-center gap-1.5 h-8"
+                      className="font-bold flex items-center gap-1.5 h-8 px-3 rounded-lg"
                     >
                       <Sparkles size={12} />
                       <span>Action Plan</span>
@@ -163,7 +165,7 @@ export default function StrategicActionsView() {
                 </Card>
               ))
             ) : (
-              <Card className="col-span-full py-16 text-center text-muted-foreground font-semibold border-border bg-card">
+              <Card className="col-span-full py-16 text-center text-muted-foreground font-bold border border-border bg-card shadow-sm rounded-xl">
                 No priority actions found for this selection. Try changing the active region in the search bar.
               </Card>
             )}
