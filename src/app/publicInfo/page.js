@@ -345,8 +345,8 @@ const PublicInfo = () => {
 
   return (
     <ErrorBoundary>
-      <div className="bg-[#F8F9FB] min-h-screen py-6">
-        <div className="max-w-[1600px] mx-auto px-4 md:px-6 space-y-6">
+      <div className="bg-[#F8F9FB] min-h-screen">
+        <div className="page-container space-y-5">
           
           {/* Breadcrumbs */}
           <Breadcrumb>

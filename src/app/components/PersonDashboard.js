@@ -100,8 +100,8 @@ export default function PersonDashboard() {
 
   return (
     <ErrorBoundary>
-      <div className="w-full min-h-screen bg-background py-6 text-foreground">
-        <div className="max-w-[1440px] mx-auto space-y-6 px-4 md:px-6">
+      <div className="w-full min-h-screen bg-background text-foreground">
+        <div className="page-container space-y-5">
           
           {/* Breadcrumb Navigation */}
           <Breadcrumb>
@@ -323,46 +323,42 @@ export default function PersonDashboard() {
               ))
             ) : recommendations.length > 0 ? (
               recommendations.map((rec, index) => (
-                <div
+                <Card
                   key={rec.schemeCode || index}
-                  className="bg-card rounded-xl border border-border p-5 shadow-sm hover:shadow-md transition relative flex flex-col justify-between"
+                  className="bg-card hover:shadow-md transition relative flex flex-col justify-between overflow-hidden"
                 >
-                  <div className="absolute top-0 left-0 w-1.5 h-full bg-primary rounded-l-xl" />
-
-                  <div className="space-y-3 pl-2">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <span className="text-xs font-bold bg-primary/10 text-primary px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                          Fit Rank {index + 1}
-                        </span>
-                        <h4 className="font-bold text-foreground mt-2 text-base leading-snug">{rec.name}</h4>
-                      </div>
-                      <div className="text-right">
-                        <div className="flex items-center gap-0.5 justify-end">
-                          <span className="text-2xl font-extrabold text-primary">{rec.score}</span>
-                          <Tooltip>
-                            <TooltipTrigger render={
-                              <button className="h-5 w-5 flex items-center justify-center text-muted-foreground hover:bg-muted rounded transition-colors" aria-label="Score Explanation Tooltip" />
-                            }>
-                              <HelpCircle className="h-3.5 w-3.5" />
-                            </TooltipTrigger>
-                            <TooltipContent className="bg-card border border-border text-foreground text-xs p-2.5 max-w-xs shadow-md">
-                              Suitability Score based on age, gender, occupation, income brackets, and household composition rules.
-                            </TooltipContent>
-                          </Tooltip>
-                        </div>
-                        <span className="text-xs font-bold text-muted-foreground block uppercase tracking-wider">Fit Score</span>
-                      </div>
+                  <CardHeader className="flex justify-between items-start flex-row pb-0">
+                    <div>
+                      <Badge className="bg-red-50 text-[#C8102E] hover:bg-red-50 border border-red-100 text-[10px] font-bold rounded-md px-2 py-0.5 uppercase tracking-wider">
+                        Rank {index + 1}
+                      </Badge>
+                      <CardTitle className="font-extrabold text-[#1A2B4A] mt-3 text-base leading-snug">{rec.name}</CardTitle>
                     </div>
+                    <div className="text-right shrink-0">
+                      <div className="flex items-center gap-0.5 justify-end">
+                        <span className="text-2xl font-extrabold text-[#C8102E]">{rec.score}</span>
+                        <Tooltip>
+                          <TooltipTrigger className="h-5 w-5 flex items-center justify-center text-muted-foreground hover:bg-muted rounded transition-colors" aria-label="Score Explanation Tooltip">
+                            <HelpCircle className="h-3.5 w-3.5" />
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-card border border-border text-foreground text-xs p-2.5 max-w-xs shadow-md">
+                            Suitability Score based on age, gender, occupation, income brackets, and household composition rules.
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                      <span className="text-[10px] font-bold text-muted-foreground block uppercase tracking-wider">Fit Score</span>
+                    </div>
+                  </CardHeader>
 
-                    <div className="space-y-1.5 pt-2 border-t border-border">
-                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest block">Match Factors</span>
+                  <CardContent className="space-y-4 pt-4 flex-grow">
+                    <div className="space-y-2 pt-2 border-t border-slate-100">
+                      <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Match Factors</span>
                       <div className="flex flex-wrap gap-1.5">
                         {rec.drivers?.map((drv, idx) => (
                           <Badge 
                             key={idx} 
                             variant="outline" 
-                            className="border-green-500 bg-green-500/10 text-green-700 dark:text-green-400 text-xs font-medium"
+                            className="border-emerald-200 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-md px-2 py-0.5"
                           >
                             {drv}
                           </Badge>
@@ -371,21 +367,23 @@ export default function PersonDashboard() {
                     </div>
 
                     {rec.explanation && (
-                      <div className="text-xs text-muted-foreground italic mt-3 bg-muted/30 p-2.5 rounded-lg border border-border">
+                      <div className="text-xs text-slate-600 italic mt-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
                         💡 {rec.explanation}
                       </div>
                     )}
-                  </div>
+                  </CardContent>
 
-                  <Button
-                    onClick={() => handleAskAI(rec.name)}
-                    variant="outline"
-                    className="mt-6 w-full flex items-center justify-center gap-1.5 border-border hover:bg-muted"
-                  >
-                    <Sparkles size={14} className="text-primary animate-pulse" />
-                    <span className="text-xs">Explain Recommendation</span>
-                  </Button>
-                </div>
+                  <CardFooter className="pt-0 border-0 bg-transparent px-6 pb-6">
+                    <Button
+                      onClick={() => handleAskAI(rec.name)}
+                      variant="outline"
+                      className="w-full flex items-center justify-center gap-1.5 border-slate-200 text-slate-700 hover:bg-slate-50 rounded-full h-10 font-bold"
+                    >
+                      <Sparkles size={14} className="text-[#C8102E] animate-pulse" />
+                      <span className="text-xs">Explain Recommendation</span>
+                    </Button>
+                  </CardFooter>
+                </Card>
               ))
             ) : (
               <div className="col-span-3 text-center py-12 text-muted-foreground font-medium">

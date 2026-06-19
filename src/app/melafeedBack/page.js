@@ -167,8 +167,8 @@ const FeedbackForm = () => {
   ];
 
   return (
-    <div className="bg-background min-h-screen py-6 text-foreground">
-      <div className="w-full max-w-[900px] mx-auto space-y-6 px-4 md:px-6">
+    <div className="bg-background min-h-screen text-foreground">
+      <div className="page-container space-y-5">
         
         {/* Navigation Breadcrumbs */}
         <Breadcrumb>

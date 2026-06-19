@@ -331,7 +331,7 @@ function DashboardView() {
 
   return (
     <main className="flex-1 bg-[#F8F9FB] min-h-screen text-slate-800">
-      <div className="max-w-[1440px] mx-auto p-6 space-y-6">
+      <div className="page-container space-y-5">
         
         {/* Breadcrumbs */}
         <Breadcrumb className="text-xs">
@@ -449,123 +449,346 @@ function DashboardView() {
           </CardContent>
         </Card>
 
-        {/* Census PCA Segment bar */}
-        {totalDemographicData && Array.isArray(totalDemographicData) && (
-          <Card className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 border border-slate-200 bg-white shadow-sm rounded-xl">
-            <CardContent className="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full gap-4 p-0">
-              <div className="flex flex-wrap items-center gap-3">
-                <Badge className="bg-[#C8102E] text-white hover:bg-[#A30D24] text-[10px] py-1 px-2.5 rounded-full font-bold">Census PCA Segment</Badge>
-                <form className="flex items-center gap-6 flex-wrap">
-                  {totalDemographicData.map((item, index) => (
-                    <div key={index} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`seg-${index}`}
-                        checked={selectedData === item || (index === 0 && selectedData === null)}
-                        onCheckedChange={() => handleRadioChange(index)}
-                        aria-label={item.tru || `Segment ${index + 1}`}
-                      />
-                      <label
-                        htmlFor={`seg-${index}`}
-                        className="text-xs font-bold text-slate-700 cursor-pointer select-none"
+        {/* Key Demographics Overview KPI Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Card className="border-0 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.025)] rounded-2xl p-6 flex items-start gap-4">
+            <div className="p-3 bg-indigo-50 rounded-xl shrink-0">
+              <Users className="h-6 w-6 text-indigo-600" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Total Population</span>
+              <h3 className="text-2xl font-extrabold text-slate-900 mt-1">
+                {demographicData?.totP ? demographicData.totP.toLocaleString() : "Loading..."}
+              </h3>
+              <p className="text-xs text-slate-500 font-semibold mt-1">
+                {demographicData?.noHh ? `${demographicData.noHh.toLocaleString()} Households` : "Calculating..."}
+              </p>
+            </div>
+          </Card>
+
+          <Card className="border-0 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.025)] rounded-2xl p-6 flex items-start gap-4">
+            <div className="p-3 bg-emerald-50 rounded-xl shrink-0">
+              <TrendingUp className="h-6 w-6 text-emerald-600" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Workforce Participation</span>
+              <h3 className="text-2xl font-extrabold text-slate-900 mt-1">
+                {demographicData?.totWorkP ? `${((demographicData.totWorkP / (demographicData.totP || 1)) * 100).toFixed(1)}%` : "Loading..."}
+              </h3>
+              <p className="text-xs text-slate-500 font-semibold mt-1">
+                {demographicData?.totWorkP ? `${demographicData.totWorkP.toLocaleString()} Active Workers` : "Calculating..."}
+              </p>
+            </div>
+          </Card>
+
+          <Card className="border-0 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.025)] rounded-2xl p-6 flex items-start gap-4">
+            <div className="p-3 bg-amber-50 rounded-xl shrink-0">
+              <NotebookTabs className="h-6 w-6 text-amber-600" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Avg Literacy Index</span>
+              <h3 className="text-2xl font-extrabold text-slate-900 mt-1">
+                {demographicData?.fLit && demographicData?.mLit ? `${((demographicData.fLit + demographicData.mLit) / 2).toFixed(1)}%` : "Loading..."}
+              </h3>
+              <p className="text-xs text-slate-500 font-semibold mt-1">
+                M: {demographicData?.mLit || 0}% | F: {demographicData?.fLit || 0}%
+              </p>
+            </div>
+          </Card>
+
+          <Card className="border-0 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.025)] rounded-2xl p-6 flex items-start gap-4">
+            <div className="p-3 bg-red-50 rounded-xl shrink-0">
+              <MapPin className="h-6 w-6 text-[#C8102E]" />
+            </div>
+            <div>
+              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">Service Network</span>
+              <h3 className="text-2xl font-extrabold text-slate-900 mt-1 truncate max-w-[180px]">
+                {postofficesCount && postofficesCount.length > 0
+                  ? `${postofficesCount.length} POs`
+                  : postOfficesCount
+                  ? `${postOfficesCount.length} POs`
+                  : "1.55+ Lakhs"}
+              </h3>
+              <p className="text-xs text-slate-500 font-semibold mt-1">
+                {village ? "Village Level" : postoffice ? "Sub-Office" : District ? "District Level" : "National Level"}
+              </p>
+            </div>
+          </Card>
+        </div>
+
+        {/* Demographics Visualizer & Insights Workspace */}
+        {demographicData && (
+          <Card className="border-0 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.025)] rounded-2xl overflow-hidden p-6 space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4">
+              <div>
+                <h2 className="text-xl font-extrabold text-[#1A2B4A] flex items-center gap-2">
+                  <Users className="text-[#C8102E] h-5 w-5" />
+                  Demographics Visualizer & Insights Workspace
+                </h2>
+                <p className="text-xs text-slate-500 font-semibold mt-0.5">
+                  Detailed distribution breakdowns, literacy gap computations, and worker classifications for {regionTitle}.
+                </p>
+              </div>
+              {/* Census PCA Segment Selector as Premium Pill button group */}
+              {totalDemographicData && Array.isArray(totalDemographicData) && (
+                <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-full border border-slate-100 shrink-0">
+                  <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest px-2 hidden md:inline">Segment:</span>
+                  {totalDemographicData.map((item, index) => {
+                    const isSelected = selectedData === item || (index === 0 && selectedData === null);
+                    return (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => handleRadioChange(index)}
+                        className={cn(
+                          "px-3.5 py-1.5 text-[10px] font-bold rounded-full transition-all duration-200 cursor-pointer uppercase tracking-wider",
+                          isSelected
+                            ? "bg-[#C8102E] text-white shadow-sm"
+                            : "text-[#1A2B4A] hover:text-[#C8102E] hover:bg-slate-100"
+                        )}
                       >
                         {item.tru || `Segment ${index + 1}`}
-                      </label>
-                    </div>
-                  ))}
-                </form>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              
+              {/* Card 1: Gender Split & Household Density */}
+              <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100 flex flex-col justify-between space-y-4">
+                <div>
+                  <div className="flex justify-between items-start">
+                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Gender Balance & Density</span>
+                    <Badge className="bg-indigo-50 text-indigo-700 hover:bg-indigo-50 border border-indigo-100 text-[10px] font-bold rounded-md">Gender Ratio</Badge>
+                  </div>
+                  
+                  {/* Stats */}
+                  <div className="mt-3 flex items-baseline gap-2">
+                    <span className="text-3xl font-extrabold text-[#1A2B4A]">
+                      {demographicData.totM && demographicData.totF
+                        ? ((demographicData.totF / demographicData.totM) * 1000).toFixed(0)
+                        : ((587584719 / 623270258) * 1000).toFixed(0)
+                      }
+                    </span>
+                    <span className="text-xs font-semibold text-slate-400">Females per 1000 Males</span>
+                  </div>
+                </div>
+
+                {/* Progress bar split */}
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs font-bold text-slate-600">
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-indigo-600 rounded-full inline-block"></span> Male: {((demographicData.totM / (demographicData.totP || 1)) * 100).toFixed(1)}%</span>
+                    <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-rose-500 rounded-full inline-block"></span> Female: {((demographicData.totF / (demographicData.totP || 1)) * 100).toFixed(1)}%</span>
+                  </div>
+                  <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden flex">
+                    <div 
+                      className="bg-indigo-600 h-full transition-all duration-500" 
+                      style={{ width: `${(demographicData.totM / (demographicData.totP || 1)) * 100}%` }}
+                    />
+                    <div 
+                      className="bg-rose-500 h-full transition-all duration-500" 
+                      style={{ width: `${(demographicData.totF / (demographicData.totP || 1)) * 100}%` }}
+                    />
+                  </div>
+                  <div className="flex justify-between text-[10px] font-semibold text-slate-400 pt-1">
+                    <span>{demographicData.totM?.toLocaleString()} Males</span>
+                    <span>{demographicData.totF?.toLocaleString()} Females</span>
+                  </div>
+                </div>
+
+                <div className="bg-white p-3 rounded-xl border border-slate-100 text-xs text-slate-500 font-medium">
+                  🏠 Average household density is <strong className="text-slate-800">{(demographicData.totP / (demographicData.noHh || 1)).toFixed(1)}</strong> people per house.
+                </div>
               </div>
-            </CardContent>
+
+              {/* Card 2: Literacy & Education Gap */}
+              <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100 flex flex-col justify-between space-y-4">
+                <div>
+                  <div className="flex justify-between items-start">
+                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Education & Literacy Gap</span>
+                    {(() => {
+                      const gap = (demographicData.mLit || 0) - (demographicData.fLit || 0);
+                      let variant = "bg-emerald-50 text-emerald-700 border-emerald-100";
+                      let label = "Low Gap";
+                      if (gap > 15) {
+                        variant = "bg-rose-50 text-rose-700 border-rose-100";
+                        label = "Critical Gap";
+                      } else if (gap > 5) {
+                        variant = "bg-amber-50 text-amber-700 border-amber-100";
+                        label = "Moderate Gap";
+                      }
+                      return <Badge className={`${variant} border text-[10px] font-bold rounded-md`}>{label}</Badge>;
+                    })()}
+                  </div>
+
+                  <div className="mt-3 flex items-baseline gap-2">
+                    <span className="text-3xl font-extrabold text-[#1A2B4A]">
+                      {((demographicData.mLit - demographicData.fLit) || 0).toFixed(1)}%
+                    </span>
+                    <span className="text-xs font-semibold text-slate-400">Gender Literacy Gap</span>
+                  </div>
+                </div>
+
+                {/* Progress bars for male/female literacy */}
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs font-bold text-slate-600">
+                      <span>Male Literacy</span>
+                      <span>{demographicData.mLit}%</span>
+                    </div>
+                    <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                      <div className="bg-indigo-600 h-full transition-all duration-500" style={{ width: `${demographicData.mLit}%` }} />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs font-bold text-slate-600">
+                      <span>Female Literacy</span>
+                      <span>{demographicData.fLit}%</span>
+                    </div>
+                    <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                      <div className="bg-rose-500 h-full transition-all duration-500" style={{ width: `${demographicData.fLit}%` }} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Recommendations Note based on Literacy Gap */}
+                <div className="bg-white p-3 rounded-xl border border-slate-100 text-xs text-slate-500 leading-relaxed font-medium">
+                  {demographicData.mLit - demographicData.fLit > 10 ? (
+                    <span>💡 <strong className="text-[#C8102E]">Target girls outreach:</strong> Promoting Sukanya Samriddhi Yojana (SSA) is a priority to boost female financial inclusion.</span>
+                  ) : (
+                    <span>💡 <strong className="text-[#2E7D32]">Balanced literacy profile:</strong> Focus on retail savings plans like Recurring Deposit (RD) and PPF.</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Card 3: Labor & Livelihood Profile */}
+              <div className="bg-slate-50/50 p-5 rounded-2xl border border-slate-100 flex flex-col justify-between space-y-4">
+                <div>
+                  <div className="flex justify-between items-start">
+                    <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Labor & Livelihood Profile</span>
+                    <Badge className="bg-emerald-50 text-emerald-700 hover:bg-emerald-50 border border-emerald-100 text-[10px] font-bold rounded-md">Workforce mix</Badge>
+                  </div>
+
+                  <div className="mt-3 flex items-baseline gap-2">
+                    <span className="text-3xl font-extrabold text-[#1A2B4A]">
+                      {((demographicData.totWorkP / (demographicData.totP || 1)) * 100).toFixed(1)}%
+                    </span>
+                    <span className="text-xs font-semibold text-slate-400">Participation Rate</span>
+                  </div>
+                </div>
+
+                {/* Main vs Marginal Workers Progress bar */}
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs font-bold text-slate-600">
+                      <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-[#1A2B4A] rounded-full inline-block"></span> Main Workers (6+ mo)</span>
+                      <span>{((demographicData.mainworkP / (demographicData.totWorkP || 1)) * 100).toFixed(0)}%</span>
+                    </div>
+                    <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                      <div 
+                        className="bg-[#1A2B4A] h-full transition-all duration-500" 
+                        style={{ width: `${(demographicData.mainworkP / (demographicData.totWorkP || 1)) * 100}%` }} 
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs font-bold text-slate-600">
+                      <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 bg-amber-500 rounded-full inline-block"></span> Marginal Workers (&lt;6 mo)</span>
+                      <span>{((demographicData.margworkP / (demographicData.totWorkP || 1)) * 100).toFixed(0)}%</span>
+                    </div>
+                    <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                      <div 
+                        className="bg-amber-500 h-full transition-all duration-500" 
+                        style={{ width: `${(demographicData.margworkP / (demographicData.totWorkP || 1)) * 100}%` }} 
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Worker Classification counts */}
+                <div className="bg-white p-3 rounded-xl border border-slate-100 text-[11px] text-slate-500 space-y-1">
+                  <div className="flex justify-between">
+                    <span>Cultivators:</span>
+                    <strong className="text-slate-800">{demographicData.mainClP?.toLocaleString() || 'N/A'}</strong>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Agri Laborers:</span>
+                    <strong className="text-slate-800">{demographicData.mainAlP?.toLocaleString() || 'N/A'}</strong>
+                  </div>
+                  {demographicData.margworkP > demographicData.mainworkP * 0.3 && (
+                    <div className="text-[10px] text-amber-600 font-bold mt-1">
+                      ⚠️ High seasonal worker count. APY (Atal Pension) outreach recommended.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+            </div>
           </Card>
         )}
 
         {/* 70/30 Split Layout (Visual Hierarchy Grid) */}
         <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
           
-          {/* Left Column (70% - Tabbed Supporting Evidence) */}
+          {/* Left Column (70% - Demographics Open Evidence Grid) */}
           <div className="lg:col-span-7 space-y-6">
-            <Card className="border border-slate-200 bg-white shadow-sm rounded-2xl p-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               
-              {/* Tab Selector */}
-              <div className="flex border-b border-slate-100 mb-6 gap-2">
-                {["demographics", "economics", "workforce"].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveChartTab(tab)}
-                    className={`pb-3 px-4 text-xs font-bold border-b-2 uppercase tracking-wider transition-all ${
-                      activeChartTab === tab 
-                        ? "border-[#C8102E] text-[#C8102E]" 
-                        : "border-transparent text-slate-400 hover:text-slate-700"
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                ))}
-              </div>
+              {/* Card 1: Population Trend */}
+              <Card className="border-0 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.025)] rounded-2xl p-6 flex flex-col justify-between">
+                <CardHeader className="p-0 pb-4 border-b border-slate-50">
+                  <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-wider">Population Growth & Trend Projections</CardTitle>
+                  <CardDescription className="text-[10px] text-slate-400 font-semibold mt-0.5">Historical & projected regional population growth metrics</CardDescription>
+                </CardHeader>
+                <CardContent className="p-0 pt-4 h-[300px] w-full flex items-center justify-center">
+                  <PopulationSpike />
+                </CardContent>
+              </Card>
 
-              {/* Tab Content */}
-              {activeChartTab === "demographics" && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <div className="border-b border-slate-100 pb-2">
-                      <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Population Distribution</h4>
-                      <p className="text-[10px] text-slate-400 font-semibold">Historical and projected demographics</p>
-                    </div>
-                    <div className="h-[280px] w-full flex items-center justify-center p-1">
-                      <PopulationSpike />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="border-b border-slate-100 pb-2">
-                      <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Literacy Rates</h4>
-                      <p className="text-[10px] text-slate-400 font-semibold">Visual distribution of literate population</p>
-                    </div>
-                    <div className="h-[280px] w-full flex items-center justify-center p-1">
-                      <LiteracyPieChart />
-                    </div>
-                  </div>
-                </div>
-              )}
+              {/* Card 2: Literacy Distribution */}
+              <Card className="border-0 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.025)] rounded-2xl p-6 flex flex-col justify-between">
+                <CardHeader className="p-0 pb-4 border-b border-slate-50">
+                  <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-wider">Literacy & Education Distribution</CardTitle>
+                  <CardDescription className="text-[10px] text-slate-400 font-semibold mt-0.5">Literacy index by gender categories</CardDescription>
+                </CardHeader>
+                <CardContent className="p-0 pt-4 h-[300px] w-full flex items-center justify-center">
+                  <LiteracyPieChart />
+                </CardContent>
+              </Card>
 
-              {activeChartTab === "economics" && (
-                <div className="space-y-2 max-w-md mx-auto">
-                  <div className="border-b border-slate-100 pb-2 text-center">
-                    <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Income Distribution</h4>
-                    <p className="text-[10px] text-slate-400 font-semibold">Percentage representation of households by income tier</p>
-                  </div>
-                  <div className="h-[320px] w-full flex items-center justify-center p-1">
-                    <IncomeDistribution />
-                  </div>
-                </div>
-              )}
+              {/* Card 3: Sectoral Occupation */}
+              <Card className="border-0 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.025)] rounded-2xl p-6 flex flex-col justify-between">
+                <CardHeader className="p-0 pb-4 border-b border-slate-50">
+                  <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-wider">Sectoral Employment breakdown</CardTitle>
+                  <CardDescription className="text-[10px] text-slate-400 font-semibold mt-0.5">Working vs. non-working gender participation ratio</CardDescription>
+                </CardHeader>
+                <CardContent className="p-0 pt-4 h-[300px] w-full flex items-center justify-center">
+                  <Occupation />
+                </CardContent>
+              </Card>
 
-              {activeChartTab === "workforce" && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <div className="border-b border-slate-100 pb-2">
-                      <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Occupation Breakdown</h4>
-                      <p className="text-[10px] text-slate-400 font-semibold">Employment distribution across agricultural and industrial sectors</p>
-                    </div>
-                    <div className="h-[280px] w-full flex items-center justify-center p-1">
-                      <Occupation />
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="border-b border-slate-100 pb-2">
-                      <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Worker Classification</h4>
-                      <p className="text-[10px] text-slate-400 font-semibold">Main vs. marginal worker categories</p>
-                    </div>
-                    <div className="h-[280px] w-full flex items-center justify-center p-1">
-                      <WorkerClassification />
-                    </div>
-                  </div>
-                </div>
-              )}
-            </Card>
+              {/* Card 4: Income tiers */}
+              <Card className="border-0 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.025)] rounded-2xl p-6 flex flex-col justify-between">
+                <CardHeader className="p-0 pb-4 border-b border-slate-50">
+                  <CardTitle className="text-sm font-bold text-slate-800 uppercase tracking-wider">Income Tier & Economic Profile</CardTitle>
+                  <CardDescription className="text-[10px] text-slate-400 font-semibold mt-0.5">Household economic and class segmentation</CardDescription>
+                </CardHeader>
+                <CardContent className="p-0 pt-4 h-[300px] w-full flex items-center justify-center">
+                  <IncomeDistribution />
+                </CardContent>
+              </Card>
+
+            </div>
 
             {/* Note on data density */}
             <div className="text-[11px] text-slate-400 font-medium italic flex items-center gap-1">
               <span>ℹ️</span>
-              <span>Charts represent supporting evidence. The primary operational decisions are prioritized at the top of the interface.</span>
+              <span>Demographic visualizations dynamically update with the selected administrative region above.</span>
             </div>
           </div>
 

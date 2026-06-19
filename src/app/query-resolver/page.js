@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { 
   Bot, Send, BookOpen, AlertCircle, ArrowRight
 } from "lucide-react";
-import Markdown from "markdown-to-jsx";
+import dynamic from "next/dynamic";
 import useDashboardStore from "@/store/dashboardStore";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,50 +15,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
-// Custom Markdown components with brand styling
-const MarkdownCustom = ({ children }) => {
-  const options = {
-    overrides: {
-      h2: {
-        component: ({ children }) => (
-          <h2 className="text-sm font-bold text-foreground mt-4 mb-2 flex items-center gap-1.5 border-b pb-1 border-border">
-            {children}
-          </h2>
-        ),
-      },
-      h3: {
-        component: ({ children }) => (
-          <h3 className="text-xs font-bold text-primary mt-3 mb-1.5">{children}</h3>
-        ),
-      },
-      strong: {
-        component: ({ children }) => (
-          <strong className="text-foreground font-semibold">{children}</strong>
-        ),
-      },
-      p: {
-        component: ({ children }) => (
-          <p className="my-1.5 leading-relaxed text-muted-foreground text-xs">{children}</p>
-        ),
-      },
-      ul: {
-        component: ({ children }) => (
-          <ul className="space-y-1 my-2 list-none">{children}</ul>
-        ),
-      },
-      li: {
-        component: ({ children }) => (
-          <li className="flex items-start gap-1.5 text-muted-foreground text-xs">
-            <span className="text-primary font-bold">•</span>
-            <span>{children}</span>
-          </li>
-        ),
-      },
-    },
-  };
-
-  return <Markdown options={options}>{children}</Markdown>;
-};
+const MarkdownCustom = dynamic(() => import("./MarkdownCustomWrapper"), {
+  ssr: false,
+});
 
 export default function PostOfficeChatbot() {
   const { chatbotQuery, triggerChatbot } = useDashboardStore();
@@ -131,8 +90,8 @@ export default function PostOfficeChatbot() {
 
   return (
     <ErrorBoundary>
-      <div className="bg-background min-h-[calc(100vh-80px)] text-foreground py-6 flex flex-col justify-start">
-        <div className="w-full max-w-[1100px] mx-auto flex flex-col flex-grow space-y-6 px-4 md:px-6">
+      <div className="bg-background min-h-[calc(100vh-80px)] text-foreground flex flex-col justify-start">
+        <div className="page-container flex flex-col flex-grow space-y-5">
           
           {/* Page Header */}
           <div className="border-b pb-4 border-border">

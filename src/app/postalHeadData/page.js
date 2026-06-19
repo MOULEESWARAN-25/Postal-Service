@@ -130,8 +130,8 @@ const PostOfficeDashboard = () => {
   return (
     <div>
       <Header />
-      <div className="min-h-screen overflow-hidden bg-neutral-100 py-8">
-        <div className="mx-auto px-4">
+      <div className="min-h-screen bg-[#F8F9FB]">
+        <div className="page-container space-y-5">
           <div className="bg-white border border-neutral-200 rounded-lg shadow-sm mb-6">
             <div className="bg-[#ef4444] text-white p-4 rounded-t-lg flex justify-between items-center">
               <div className="flex items-center">

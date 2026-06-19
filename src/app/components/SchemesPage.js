@@ -1,10 +1,22 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, TrendingUp, Target } from "lucide-react";
+import { ChevronDown, TrendingUp, Target, ArrowLeft, Sparkles } from "lucide-react";
 import axios from "axios";
 import SuccessRateChart from "./Charts/SuccessRateChart";
 import Location from "./shemeTime/location";
+import Link from "next/link";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 export default function SchemesPage() {
   const [responseData, setResponseData] = useState(" ");
@@ -245,96 +257,114 @@ export default function SchemesPage() {
   };
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className=" bg-gradient-to-br p-3 flex gap-3 from-blue-50 to-indigo-100 w-screen h-screen"
-    >
-      <motion.div 
-        initial={{ x: -50, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-        className="flex w-[40%] flex-col gap-3 rounded-xl  overflow-hidden"
-      >
-        <SuccessRateChart scheme={selectedSchemeName} />  
-        <Location timingData={responseData} scheme={selectedSchemeName} areaType={type}/>
-      </motion.div> 
+    <ErrorBoundary>
+      <div className="min-h-screen bg-[#F8F9FB]">
+        <div className="page-container space-y-5">
+          {/* Breadcrumbs */}
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink href="/" className="font-semibold text-slate-500 hover:text-[#C8102E]">Dashboard</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                <BreadcrumbPage className="font-extrabold text-[#1A2B4A]">Schemes Calendar</BreadcrumbPage>
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
 
-      {/* Right Side - Schemes Table */}
-      <motion.div 
-        initial={{ x: 50, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.4 }}
-        className="w-[60%] bg-white rounded-xl shadow-lg overflow-hidden"
-      >
-        <div className="flex justify-between items-center p-4 bg-indigo-50 border-b">
-          <h3 className="text-2xl font-bold text-indigo-800">Available Schemes</h3>
-          <motion.button
-            onClick={() => setIsTableExpanded(!isTableExpanded)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex items-center text-indigo-600 hover:text-indigo-800"
-          >
-            <ChevronDown 
-              className={`mr-2 transition-transform ${isTableExpanded ? 'rotate-180' : ''}`} 
-            />
-            {isTableExpanded ? 'Collapse' : 'Expand'}
-          </motion.button>
+          {/* Back link */}
+          <div className="flex justify-between items-center border-b pb-4 border-slate-100">
+            <Link href="/" className="flex items-center space-x-2 text-[#C8102E] hover:underline font-bold transition">
+              <ArrowLeft size={16} />
+              <span className="text-xs">Back to Regional Intelligence</span>
+            </Link>
+            <span className="text-[10px] font-bold text-[#C8102E] uppercase tracking-wider bg-red-50 border border-red-100 px-3 py-1 rounded-full">
+              Harvest Calendar
+            </span>
+          </div>
+
+          <div className="border-b border-slate-100 pb-4">
+            <h1 className="text-3xl font-extrabold tracking-tight text-slate-900 flex items-center gap-2">
+              <Target className="text-[#C8102E]" /> Schemes Harvest & Sowing Heuristics
+            </h1>
+            <p className="text-xs text-slate-500 font-semibold mt-1">
+              Synchronize scheme campaigns with local agricultural harvest and sowing patterns for Erode region.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Left side info: SuccessRateChart & Location details */}
+            <div className="lg:col-span-5 flex flex-col gap-6 w-full">
+              <SuccessRateChart scheme={selectedSchemeName} />
+              <Location timingData={responseData} scheme={selectedSchemeName} areaType={type}/>
+            </div>
+
+            {/* Right side info: Available Schemes Table */}
+            <Card className="lg:col-span-7 bg-white shadow-sm rounded-xl overflow-hidden border border-slate-200">
+              <CardHeader className="flex justify-between items-center flex-row bg-slate-50 border-b border-slate-100 p-4">
+                <div>
+                  <CardTitle className="text-lg font-bold text-[#1A2B4A]">Available Schemes</CardTitle>
+                </div>
+                <button
+                  onClick={() => setIsTableExpanded(!isTableExpanded)}
+                  className="flex items-center text-slate-600 hover:text-slate-800 text-xs font-semibold"
+                >
+                  <ChevronDown 
+                    className={`mr-1 transition-transform h-4 w-4 ${isTableExpanded ? 'rotate-180' : ''}`} 
+                  />
+                  {isTableExpanded ? 'Collapse' : 'Expand'}
+                </button>
+              </CardHeader>
+
+              <AnimatePresence>
+                {isTableExpanded && (
+                  <CardContent className="p-0">
+                    <div className="overflow-x-auto max-h-[500px]">
+                      <table className="w-full text-xs text-left text-slate-600">
+                        <thead className="sticky top-0 bg-slate-100 text-[#1A2B4A] z-10 border-b border-slate-200">
+                          <tr>
+                            <th className="p-4 w-12 text-center">Select</th>
+                            <th className="px-4 py-3 font-bold">Scheme</th>
+                            <th className="px-4 py-3 font-bold">Target Audience</th>
+                            <th className="px-4 py-3 font-bold">Purpose</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                          {schemes.map((scheme) => (
+                            <tr
+                              key={scheme.id}
+                              className={`hover:bg-slate-50 transition-colors ${
+                                selectedScheme === scheme.id 
+                                  ? 'bg-slate-50/80' 
+                                  : 'bg-white'
+                              }`}
+                            >
+                              <td className="p-4 text-center">
+                                <input
+                                  type="radio"
+                                  checked={selectedScheme === scheme.id}
+                                  onChange={() => handleSchemeSelect(scheme.id)}
+                                  className="text-[#C8102E] focus:ring-[#C8102E] h-4 w-4 cursor-pointer"
+                                />
+                              </td>
+                              <td className="px-4 py-3 font-bold text-[#1A2B4A]">
+                                {scheme.name}
+                              </td>
+                              <td className="px-4 py-3 text-slate-600 font-medium">{scheme.targetAudience}</td>
+                              <td className="px-4 py-3 text-slate-500 font-medium">{scheme.purpose}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </CardContent>
+                )}
+              </AnimatePresence>
+            </Card>
+          </div>
         </div>
-
-        <AnimatePresence>
-          {isTableExpanded && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="overflow-x-auto max-h-[500px]"
-            >
-              <table className="w-full text-sm text-left text-gray-600">
-                <thead className="sticky top-0 bg-indigo-100 text-indigo-800 z-10">
-                  <tr>
-                    <th className="p-4 w-16">Select</th>
-                    <th className="px-6 py-3">Scheme</th>
-                    <th className="px-6 py-3">Target Audience</th>
-                    <th className="px-6 py-3">Purpose</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {schemes.map((scheme) => (
-                    <motion.tr
-                      key={scheme.id}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.2 }}
-                      className={`border-b hover:bg-indigo-50 transition-colors ${
-                        selectedScheme === scheme.id 
-                          ? 'bg-indigo-100' 
-                          : 'bg-white'
-                      }`}
-                    >
-                      <td className="p-4">
-                        <input
-                          type="radio"
-                          checked={selectedScheme === scheme.id}
-                          onChange={() => handleSchemeSelect(scheme.id)}
-                          className="text-indigo-600 focus:ring-indigo-500"
-                        />
-                      </td>
-                      <td className="px-6 py-4 font-semibold text-gray-900">
-                        {scheme.name}
-                      </td>
-                      <td className="px-6 py-4">{scheme.targetAudience}</td>
-                      <td className="px-6 py-4">{scheme.purpose}</td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    </motion.div>
+      </div>
+    </ErrorBoundary>
   );
 }

@@ -8,6 +8,17 @@ import {
   Thermometer,
   Sprout,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const AgriculturalForm = () => {
   const [weatherData, setWeatherData] = useState({
@@ -79,28 +90,49 @@ const AgriculturalForm = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // Validate form data
     const isValid = Object.values(formData).every((value) => value !== "");
 
     if (isValid) {
-      // Submission logic
-      console.log("Form submitted:", formData);
-      setIsSubmitted(true);
-
-      // Reset form after 3 seconds
-      setTimeout(() => {
-        setIsSubmitted(false);
-        setFormData({
-          areas: "",
-          crop: "",
-          landArea: "",
-          startMonth: "",
-          endMonth: "",
-          amount: "",
+      try {
+        const response = await fetch("/api/crop", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            areas: formData.areas,
+            crop: formData.crop,
+            landArea: Number(formData.landArea),
+            amount: Number(formData.amount),
+            startMonth: formData.startMonth,
+            endMonth: formData.endMonth,
+          }),
         });
-      }, 3000);
+
+        if (!response.ok) {
+          const resData = await response.json();
+          throw new Error(resData.error || "Failed to submit agricultural data");
+        }
+
+        setIsSubmitted(true);
+
+        // Reset form after 3 seconds
+        setTimeout(() => {
+          setIsSubmitted(false);
+          setFormData({
+            areas: "",
+            crop: "",
+            landArea: "",
+            startMonth: "",
+            endMonth: "",
+            amount: "",
+          });
+        }, 3000);
+      } catch (err) {
+        alert(err.message || "An error occurred while submitting data.");
+        console.error("Submission error:", err);
+      }
     }
   };
 
@@ -110,276 +142,257 @@ const AgriculturalForm = () => {
   ];
 
   return (
-    <div className="flex flex-col md:flex-row w-screen min-h-screen bg-slate-50">
-      {/* Left Side - Form */}
-      <div className="w-full md:w-1/2 bg-slate-50 flex items-start justify-center p-4 md:p-8">
-        <div className="w-full max-w-2xl bg-white shadow-2xl rounded-2xl border border-slate-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-slate-700 to-slate-900 p-6 shadow-sm">
-            <h2 className="text-2xl md:text-3xl font-semibold text-center text-white tracking-wide uppercase">
-              Agricultural Data Collection
-            </h2>
+    <div className="w-full min-h-screen bg-[#F8F9FB]">
+      <div className="page-container flex flex-col lg:flex-row gap-6 items-start">
+        {/* Left Side - Form */}
+        <div className="w-full lg:w-1/2 flex justify-center">
+          <Card className="w-full border-0 bg-white shadow-[0_10px_35px_rgba(0,0,0,0.03)] rounded-2xl overflow-hidden">
+            <CardHeader className="bg-[#1A2B4A] text-white p-6 shadow-sm border-0">
+              <CardTitle className="text-xl font-bold tracking-wider uppercase text-center">
+                Agricultural Data Collection
+              </CardTitle>
+            </CardHeader>
+
+            <CardContent className="p-6 md:p-8">
+              {isSubmitted ? (
+                <div className="text-center py-6">
+                  <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 px-6 py-4 rounded-lg">
+                    <p className="text-lg font-semibold">
+                      Data Submitted Successfully
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {/* Areas Input */}
+                    <div className="space-y-2">
+                      <Label htmlFor="areas" className="text-sm font-semibold text-slate-700">
+                        Cultivation Areas
+                      </Label>
+                      <Input
+                        type="text"
+                        id="areas"
+                        name="areas"
+                        value={formData.areas}
+                        onChange={handleInputChange}
+                        placeholder="Enter cultivation areas"
+                        className="w-full px-4 py-3 border border-slate-200 rounded-lg shadow-sm focus-visible:ring-[#C8102E] text-slate-800 bg-white"
+                        required
+                      />
+                    </div>
+
+                    {/* Crop Input */}
+                    <div className="space-y-2">
+                      <Label htmlFor="crop" className="text-sm font-semibold text-slate-700">
+                        Crop Variety
+                      </Label>
+                      <Input
+                        type="text"
+                        id="crop"
+                        name="crop"
+                        value={formData.crop}
+                        onChange={handleInputChange}
+                        placeholder="Enter crop name"
+                        className="w-full px-4 py-3 border border-slate-200 rounded-lg shadow-sm focus-visible:ring-[#C8102E] text-slate-800 bg-white"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {/* Land Area Input */}
+                    <div className="space-y-2">
+                      <Label htmlFor="landArea" className="text-sm font-semibold text-slate-700">
+                        Land Area (sq.km)
+                      </Label>
+                      <Input
+                        type="number"
+                        id="landArea"
+                        name="landArea"
+                        value={formData.landArea}
+                        onChange={handleInputChange}
+                        placeholder="Enter land area"
+                        step="0.01"
+                        className="w-full px-4 py-3 border border-slate-200 rounded-lg shadow-sm focus-visible:ring-[#C8102E] text-slate-800 bg-white"
+                        required
+                      />
+                    </div>
+
+                    {/* Amount Input */}
+                    <div className="space-y-2">
+                      <Label htmlFor="amount" className="text-sm font-semibold text-slate-700">
+                        Estimated Yield/Production
+                      </Label>
+                      <Input
+                        type="number"
+                        id="amount"
+                        name="amount"
+                        value={formData.amount}
+                        onChange={handleInputChange}
+                        placeholder="Enter amount"
+                        step="0.01"
+                        className="w-full px-4 py-3 border border-slate-200 rounded-lg shadow-sm focus-visible:ring-[#C8102E] text-slate-800 bg-white"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {/* Start Month Input */}
+                    <div className="space-y-2">
+                      <Label htmlFor="startMonth" className="text-sm font-semibold text-slate-700">
+                        Cultivation Start Month
+                      </Label>
+                      <Select
+                        value={formData.startMonth}
+                        onValueChange={(val) =>
+                          setFormData((prev) => ({ ...prev, startMonth: val }))
+                        }
+                        required
+                      >
+                        <SelectTrigger id="startMonth" className="w-full px-4 py-6 border border-slate-200 rounded-lg shadow-sm text-slate-700 bg-white focus:ring-[#C8102E]">
+                          <SelectValue placeholder="Select start month" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white border border-slate-200">
+                          {months.map((month) => (
+                            <SelectItem key={month} value={month} className="text-slate-700 focus:bg-slate-100 cursor-pointer">
+                              {month}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* End Month Input */}
+                    <div className="space-y-2">
+                      <Label htmlFor="endMonth" className="text-sm font-semibold text-slate-700">
+                        Cultivation End Month
+                      </Label>
+                      <Select
+                        value={formData.endMonth}
+                        onValueChange={(val) =>
+                          setFormData((prev) => ({ ...prev, endMonth: val }))
+                        }
+                        required
+                      >
+                        <SelectTrigger id="endMonth" className="w-full px-4 py-6 border border-slate-200 rounded-lg shadow-sm text-slate-700 bg-white focus:ring-[#C8102E]">
+                          <SelectValue placeholder="Select end month" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white border border-slate-200">
+                          {months.map((month) => (
+                            <SelectItem key={month} value={month} className="text-slate-700 focus:bg-slate-100 cursor-pointer">
+                              {month}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="pt-2">
+                    <Button
+                      type="submit"
+                      className="w-full bg-[#C8102E] text-white hover:bg-[#A00D24] py-6 rounded-lg font-bold uppercase tracking-wider transition-colors duration-300 shadow-md hover:shadow-lg focus-visible:ring-[#C8102E]"
+                    >
+                      Submit Agricultural Data
+                    </Button>
+                  </div>
+                </form>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Side - Other Data */}
+        <div className="w-full lg:w-1/2 flex flex-col gap-6">
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Seasonal Info Cards */}
+            <Card className="flex items-center p-6 min-h-[90px] flex-1 border-0 shadow-[0_8px_30px_rgba(0,0,0,0.025)] bg-white hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)] hover:translate-y-[-2px] transition-all duration-300 rounded-2xl">
+              <Leaf className="text-emerald-600 mr-4 shrink-0" size={32} />
+              <div className="space-y-0.5">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Sowing Season</h3>
+                <p className="text-lg font-bold text-slate-800">June to July</p>
+              </div>
+            </Card>
+
+            <Card className="flex items-center p-6 min-h-[90px] flex-1 border-0 shadow-[0_8px_30px_rgba(0,0,0,0.025)] bg-white hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)] hover:translate-y-[-2px] transition-all duration-300 rounded-2xl">
+              <Sprout className="text-emerald-600 mr-4 shrink-0" size={32} />
+              <div className="space-y-0.5">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Harvesting Season</h3>
+                <p className="text-lg font-bold text-slate-800">November to January</p>
+              </div>
+            </Card>
           </div>
 
-          {isSubmitted ? (
-            <div className="p-8 text-center">
-              <div className="bg-emerald-100 border border-emerald-300 text-emerald-700 px-6 py-4 rounded-lg">
-                <p className="text-xl font-medium">
-                  Data Submitted Successfully
+          {/* Weather Forecast */}
+          <Card className="border-0 shadow-[0_8px_30px_rgba(0,0,0,0.025)] bg-white rounded-2xl overflow-hidden w-full">
+            <CardHeader className="border-b border-slate-50/50 bg-[#1A2B4A]/5 p-6">
+              <CardTitle className="text-lg font-bold text-[#1A2B4A] tracking-wide uppercase">
+                Weekly Weather Forecast
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              {loading ? (
+                <p className="text-sm text-muted-foreground animate-pulse">Loading weather data...</p>
+              ) : error ? (
+                <p className="text-sm text-destructive">{error}</p>
+              ) : (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {weatherData.daily.map((day, index) => (
+                    <div
+                      key={index}
+                      className="text-center bg-slate-50/50 p-4 rounded-lg border border-slate-100 hover:shadow-sm transition"
+                    >
+                      <p className="text-xs font-semibold text-slate-700">
+                        {new Date(day.date).toLocaleDateString("en-US", {
+                          weekday: "short",
+                        })}
+                      </p>
+                      <div className="flex justify-center items-center my-2 text-slate-700">
+                        <Thermometer className="text-[#C8102E] mr-1 shrink-0" size={16} />
+                        <span className="text-xs font-bold">
+                          {day.max_temp}°C / {day.min_temp}°C
+                        </span>
+                      </div>
+                      <div className="flex justify-center items-center text-slate-700">
+                        <Droplet className="text-sky-600 mr-1 shrink-0" size={16} />
+                        <span className="text-xs font-semibold">
+                          {day.precipitation_probability}%
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {!loading && !error && (
+                <p className="text-center text-xs text-muted-foreground mt-4">
+                  {weatherData.city} - Weekly Forecast
                 </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Additional Info Cards */}
+            <Card className="flex items-center p-6 min-h-[90px] flex-1 border-0 shadow-[0_8px_30px_rgba(0,0,0,0.025)] bg-white hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)] hover:translate-y-[-2px] transition-all duration-300 rounded-2xl">
+              <Mountain className="text-emerald-600 mr-4 shrink-0" size={32} />
+              <div className="space-y-0.5">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Soil Type</h3>
+                <p className="text-lg font-bold text-slate-800">Alluvial Soil</p>
               </div>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="p-6 md:p-10 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Areas Input */}
-                <div>
-                  <label
-                    htmlFor="areas"
-                    className="block text-sm font-medium text-slate-700 mb-2"
-                  >
-                    Cultivation Areas
-                  </label>
-                  <input
-                    type="text"
-                    id="areas"
-                    name="areas"
-                    value={formData.areas}
-                    onChange={handleInputChange}
-                    placeholder="Enter cultivation areas"
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 text-slate-800"
-                    required
-                  />
-                </div>
+            </Card>
 
-                {/* Crop Input */}
-                <div>
-                  <label
-                    htmlFor="crop"
-                    className="block text-sm font-medium text-slate-700 mb-2"
-                  >
-                    Crop Variety
-                  </label>
-                  <input
-                    type="text"
-                    id="crop"
-                    name="crop"
-                    value={formData.crop}
-                    onChange={handleInputChange}
-                    placeholder="Enter crop name"
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 text-slate-800"
-                    required
-                  />
-                </div>
+            <Card className="flex items-center p-6 min-h-[90px] flex-1 border-0 shadow-[0_8px_30px_rgba(0,0,0,0.025)] bg-white hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)] hover:translate-y-[-2px] transition-all duration-300 rounded-2xl">
+              <Cloud className="text-sky-600 mr-4 shrink-0" size={32} />
+              <div className="space-y-0.5">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Underground Water</h3>
+                <p className="text-lg font-bold text-slate-800">Yes</p>
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Land Area Input */}
-                <div>
-                  <label
-                    htmlFor="landArea"
-                    className="block text-sm font-medium text-slate-700 mb-2"
-                  >
-                    Land Area (sq.km)
-                  </label>
-                  <input
-                    type="number"
-                    id="landArea"
-                    name="landArea"
-                    value={formData.landArea}
-                    onChange={handleInputChange}
-                    placeholder="Enter land area"
-                    step="0.01"
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 text-slate-800"
-                    required
-                  />
-                </div>
-
-                {/* Amount Input */}
-                <div>
-                  <label
-                    htmlFor="amount"
-                    className="block text-sm font-medium text-slate-700 mb-2"
-                  >
-                    Estimated Yield/Production
-                  </label>
-                  <input
-                    type="number"
-                    id="amount"
-                    name="amount"
-                    value={formData.amount}
-                    onChange={handleInputChange}
-                    placeholder="Enter amount"
-                    step="0.01"
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 text-slate-800"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Start Month Input */}
-                <div>
-                  <label
-                    htmlFor="startMonth"
-                    className="block text-sm font-medium text-slate-700 mb-2"
-                  >
-                    Cultivation Start Month
-                  </label>
-                  <select
-                    id="startMonth"
-                    name="startMonth"
-                    value={formData.startMonth}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 text-slate-700"
-                    required
-                  >
-                    <option value="" disabled>
-                      Select start month
-                    </option>
-                    {months.map((month, index) => (
-                      <option
-                        key={index}
-                        value={month}
-                        className="text-slate-700"
-                      >
-                        {month}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* End Month Input */}
-                <div>
-                  <label
-                    htmlFor="endMonth"
-                    className="block text-sm font-medium text-slate-700 mb-2"
-                  >
-                    Cultivation End Month
-                  </label>
-                  <select
-                    id="endMonth"
-                    name="endMonth"
-                    value={formData.endMonth}
-                    onChange={handleInputChange}
-                    className="w-full px-4 py-3 border border-slate-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 text-slate-700"
-                    required
-                  >
-                    <option value="" disabled>
-                      Select end month
-                    </option>
-                    {months.map((month, index) => (
-                      <option
-                        key={index}
-                        value={month}
-                        className="text-slate-700"
-                      >
-                        {month}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <div className="pt-4">
-                <button
-                  type="submit"
-                  className="w-full bg-slate-800 text-white py-4 rounded-lg font-semibold uppercase tracking-wide 
-                  hover:bg-slate-900 transition-colors duration-300 
-                  focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2 
-                  shadow-md hover:shadow-lg"
-                >
-                  Submit Agricultural Data
-                </button>
-              </div>
-            </form>
-          )}
-        </div>
-      </div>
-
-      {/* Right Side - Other Data */}
-      <div className="w-full md:w-1/2 p-4 md:p-6 bg-slate-50 flex flex-col gap-6">
-        <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-          {/* Seasonal Info Cards */}
-          <div className="bg-white shadow-md rounded-xl p-5 hover:shadow-xl transition flex items-center min-h-[100px] min-w-[350px] border border-slate-200">
-            <Leaf className="text-emerald-600 mr-4" size={36} />
-            <div>
-              <h2 className="text-xl font-medium text-slate-800">Sowing Season</h2>
-              <p className="text-sm text-slate-600 mt-1">June to July</p>
-            </div>
-          </div>
-          <div className="bg-white shadow-md rounded-xl p-5 hover:shadow-sm transition flex items-center min-h-[100px] min-w-[350px] border border-slate-200">
-            <Sprout className="text-emerald-600 mr-4" size={36} />
-            <div>
-              <h2 className="text-xl font-medium text-slate-800">Harvesting Season</h2>
-              <p className="text-sm text-slate-600 mt-1">November to January</p>
-            </div>
+            </Card>
           </div>
         </div>
-
-        {/* Weather Forecast */}
-        <div className="bg-white shadow-md rounded-xl p-6 min-w-[500px] border border-slate-200">
-          <h2 className="text-2xl font-semibold text-slate-800 mb-4">
-            Weekly Weather Forecast
-          </h2>
-          {loading ? (
-            <p className="text-slate-700">Loading weather data...</p>
-          ) : error ? (
-            <p className="text-red-600">{error}</p>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {weatherData.daily.map((day, index) => (
-                <div
-                  key={index}
-                  className="text-center bg-slate-50 p-4 rounded-lg shadow-sm hover:shadow-md transition border border-slate-200"
-                >
-                  <p className="text-sm font-semibold text-slate-700">
-                    {new Date(day.date).toLocaleDateString("en-US", {
-                      weekday: "short",
-                    })}
-                  </p>
-                  <div className="flex justify-center items-center my-2">
-                    <Thermometer className="text-sky-600 mr-1" size={20} />
-                    <span className="text-slate-800 text-sm">
-                      {day.max_temp}°C / {day.min_temp}°C
-                    </span>
-                  </div>
-                  <div className="flex justify-center items-center">
-                    <Droplet className="text-sky-600 mr-1" size={20} />
-                    <span className="text-slate-800 text-sm">
-                      {day.precipitation_probability}%
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          {!loading && !error && (
-            <p className="text-center text-slate-700 mt-2 text-sm pt-7 pb-0">
-              {weatherData.city} - Weekly Forecast
-            </p>
-          )}
-        </div>
-
-        <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-          {/* Additional Info Cards */}
-          <div className="bg-white shadow-md rounded-xl p-5 hover:shadow-xl transition flex items-center min-h-[100px] min-w-[350px] border border-slate-200">
-            <Mountain className="text-emerald-600 mr-4" size={36} />
-            <div>
-              <h2 className="text-xl font-medium text-slate-800">Soil Type</h2>
-              <p className="text-sm text-slate-600 mt-1">Alluvial Soil</p>
-            </div>
-          </div>
-          <div className="bg-white shadow-md rounded-xl p-5 hover:shadow-xl transition flex items-center min-h-[100px] min-w-[350px] border border-slate-200">
-            <Cloud className="text-sky-600 mr-4" size={36} />
-            <div>
-              <h2 className="text-xl font-medium text-slate-800">Underground Water</h2>
-              <p className="text-sm text-slate-600 mt-1">Yes</p>
-            </div>
-          </div>
-        </div>
-
-      
       </div>
     </div>
   );

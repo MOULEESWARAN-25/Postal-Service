@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import PersonalInfo from '@/models/personalInfo';
 import connectToDatabase from '@/lib/mongoose';
 

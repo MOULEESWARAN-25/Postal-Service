@@ -4,11 +4,15 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Mail, Lock } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [showDemo, setShowDemo] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -55,8 +59,10 @@ export default function Login() {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-md bg-white shadow-2xl rounded-3xl p-8 border-t-4 border-[#C8102E] relative overflow-hidden"
+        className="w-full max-w-md"
       >
+        <Card className="shadow-[0_12px_45px_rgba(0,0,0,0.06)] rounded-2xl p-8 border-0 relative overflow-hidden bg-white">
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#C8102E] to-[#A00D24]" />
         {/* Background Pattern */}
         <div className="absolute top-0 left-0 right-0 bottom-0 opacity-5 pointer-events-none">
           <svg
@@ -91,13 +97,29 @@ export default function Login() {
             Login
           </h3>
 
-          <p className="text-gray-600 text-center text-sm">
+          <p className="text-gray-600 text-center text-sm mb-4">
             Secure Access to Postal Services Decision Support System
           </p>
 
-          <div className="text-xs text-muted-foreground text-center mt-4 p-2 bg-slate-50 border rounded-lg w-full">
-            Use these demo credentials: <br />
-            <strong>Email:</strong> a@g.c | <strong>Password:</strong> 123
+          <div className="w-full flex flex-col items-center">
+            <button
+              type="button"
+              onClick={() => setShowDemo(!showDemo)}
+              className="text-xs font-semibold text-[#C8102E] hover:underline focus:outline-none transition-colors duration-200"
+            >
+              {showDemo ? "Hide Demo Credentials" : "Show Demo Credentials"}
+            </button>
+            
+            {showDemo && (
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-xs text-muted-foreground text-center mt-2.5 p-2 bg-slate-50 border border-slate-100 rounded-lg w-full shadow-inner"
+              >
+                Use these demo credentials: <br />
+                <strong>Email:</strong> <code className="bg-slate-100 px-1 py-0.5 rounded text-[#C8102E]">a@g.c</code> | <strong>Password:</strong> <code className="bg-slate-100 px-1 py-0.5 rounded text-[#C8102E]">123</code>
+              </motion.div>
+            )}
           </div>
         </div>
 
@@ -111,13 +133,13 @@ export default function Login() {
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Mail className="text-slate-400 w-5 h-5" />
             </div>
-            <input
+            <Input
               type="email"
               placeholder="Email Address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full pl-10 p-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C8102E] transition duration-300"
+              className="w-full pl-10 py-6 text-sm border border-gray-300 rounded-lg focus-visible:ring-[#C8102E] transition duration-300"
             />
           </motion.div>
 
@@ -130,13 +152,13 @@ export default function Login() {
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Lock className="text-slate-400 w-5 h-5" />
             </div>
-            <input
+            <Input
               type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full pl-10 p-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#C8102E] transition duration-300"
+              className="w-full pl-10 py-6 text-sm border border-gray-300 rounded-lg focus-visible:ring-[#C8102E] transition duration-300"
             />
           </motion.div>
 
@@ -150,14 +172,17 @@ export default function Login() {
             </motion.p>
           )}
 
-          <motion.button
+          <motion.div
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            type="submit"
-            className="w-full p-3 bg-[#C8102E] text-white rounded-lg hover:bg-[#A30D24] font-bold text-sm transition duration-300 ease-in-out shadow-lg"
           >
-            Sign In
-          </motion.button>
+            <Button
+              type="submit"
+              className="w-full py-6 bg-[#C8102E] text-white hover:bg-[#A30D24] font-bold text-sm transition duration-300 ease-in-out shadow-lg"
+            >
+              Sign In
+            </Button>
+          </motion.div>
         </form>
 
         <div className="mt-6 text-center text-xs">
@@ -168,6 +193,7 @@ export default function Login() {
             </a>
           </p>
         </div>
+      </Card>
       </motion.div>
     </div>
   );

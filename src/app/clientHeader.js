@@ -7,7 +7,7 @@ import Header from "./components/header/header";
 export default function ClientHeader() {
 
   const pathname = usePathname();
-  const routesWithHeader = ["/", "/calender","/publicInfo", "/Schemetime","/dashboard", "/strategic-actions", "/compare", "/village-intelligence", "/recommender", "/query-resolver"];
+  const routesWithHeader = ["/", "/calender", "/publicInfo", "/Schemetime", "/dashboard", "/strategic-actions", "/compare", "/village-intelligence", "/recommender", "/query-resolver", "/farm", "/analytics", "/melafeedBack", "/personalDetails", "/register"];
   const isHeaderVisible = routesWithHeader.includes(pathname);
 
   return isHeaderVisible ? <Header /> : null;

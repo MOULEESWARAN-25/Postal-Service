@@ -241,8 +241,8 @@ export default function CampaignAnalytics() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-[#F8F9FB] p-6 text-slate-800">
-        <div className="max-w-[1440px] mx-auto space-y-6">
+      <div className="min-h-screen bg-[#F8F9FB] text-slate-800">
+        <div className="page-container space-y-5">
 
           {/* Navigation & Header */}
           <Breadcrumb>

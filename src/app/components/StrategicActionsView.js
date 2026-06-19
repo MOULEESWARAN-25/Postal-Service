@@ -53,8 +53,8 @@ export default function StrategicActionsView() {
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-background py-6 text-foreground">
-      <div className="w-full max-w-[1440px] mx-auto space-y-6 px-4 md:px-6">
+      <div className="min-h-screen bg-[#F8F9FB]">
+        <div className="page-container space-y-5">
         
         {/* Navigation Breadcrumbs */}
         <Breadcrumb>

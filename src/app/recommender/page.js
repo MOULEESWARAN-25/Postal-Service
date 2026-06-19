@@ -107,7 +107,7 @@ function RecommenderForm() {
   };
 
   return (
-    <div className="w-full max-w-[1200px] mx-auto space-y-6 px-4 md:px-6">
+    <div className="page-container space-y-5">
       
       {/* Navigation Breadcrumbs */}
       <Breadcrumb>
@@ -381,45 +381,54 @@ function RecommenderForm() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.1 }}
                     >
-                      <Card className="relative overflow-hidden pl-5 pr-5 py-5 border border-slate-200 bg-white hover:shadow-sm transition rounded-2xl">
-                        <div className="absolute top-0 left-0 w-1.5 h-full bg-[#C8102E]" />
-                        
-                        <div className="flex justify-between items-start pl-2">
+                      <Card className="relative overflow-hidden hover:shadow-md transition rounded-2xl">
+                        <CardHeader className="flex justify-between items-start flex-row pb-0">
                           <div>
-                            <span className="text-[10px] font-bold text-[#C8102E] uppercase tracking-widest block">
+                            <Badge className="bg-red-50 text-[#C8102E] hover:bg-red-50 border border-red-100 text-[10px] font-bold rounded-md px-2 py-0.5 uppercase tracking-wider">
                               Rank {index + 1}
-                            </span>
-                            <h3 className="text-sm font-bold text-slate-900 mt-1">{scheme.name}</h3>
+                            </Badge>
+                            <CardTitle className="font-extrabold text-[#1A2B4A] mt-3 text-base leading-snug">{scheme.name}</CardTitle>
                           </div>
-                          <div className="text-right">
-                            <span className="text-2xl font-extrabold text-[#C8102E]">
+                          <div className="text-right shrink-0">
+                            <span className="text-2xl font-extrabold text-[#C8102E] block">
                               {scheme.score}
                             </span>
                             <span className="text-[10px] text-slate-400 block font-bold uppercase tracking-wider">Suitability Score</span>
                           </div>
-                        </div>
+                        </CardHeader>
 
-                        {/* Progress Bar Score Dominance */}
-                        <div className="w-full bg-slate-100 rounded-full h-2 mt-3 pl-2 overflow-hidden">
-                          <div 
-                            className="bg-[#C8102E] h-full rounded-full transition-all duration-500"
-                            style={{ width: `${scheme.score}%` }}
-                          />
-                        </div>
+                        <CardContent className="space-y-4 pt-4">
+                          {/* Progress Bar Score Dominance */}
+                          <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                            <div 
+                              className="bg-[#C8102E] h-full rounded-full transition-all duration-500"
+                              style={{ width: `${scheme.score}%` }}
+                            />
+                          </div>
 
-                        {/* Match Factors */}
-                        <div className="mt-4 flex flex-wrap gap-1.5 pl-2">
-                          {scheme.drivers?.map((drv, i) => (
-                            <Badge key={i} variant="outline" className="border-green-500 bg-green-500/10 text-green-700 dark:text-green-400 text-[10px]">
-                              {drv}
-                            </Badge>
-                          ))}
-                        </div>
+                          {/* Match Factors */}
+                          <div className="space-y-2 pt-2 border-t border-slate-100">
+                            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block">Match Factors</span>
+                            <div className="flex flex-wrap gap-1.5">
+                              {scheme.drivers?.map((drv, i) => (
+                                <Badge 
+                                  key={i} 
+                                  variant="outline" 
+                                  className="border-emerald-200 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-md px-2 py-0.5"
+                                >
+                                  {drv}
+                                </Badge>
+                              ))}
+                            </div>
+                          </div>
 
-                        {/* Explanation text */}
-                        <div className="mt-4 border-t pt-3 border-slate-100 text-xs text-slate-500 italic pl-2">
-                          💡 {scheme.explanation}
-                        </div>
+                          {/* Explanation text */}
+                          {scheme.explanation && (
+                            <div className="text-xs text-slate-600 italic mt-3 bg-slate-50 p-3 rounded-xl border border-slate-100">
+                              💡 {scheme.explanation}
+                            </div>
+                          )}
+                        </CardContent>
                       </Card>
                     </motion.div>
                   ))}
