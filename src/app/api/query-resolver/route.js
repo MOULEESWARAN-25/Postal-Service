@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { generateText } from 'ai';
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 

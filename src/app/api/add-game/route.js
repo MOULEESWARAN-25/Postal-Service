@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import connectToDatabase from "@/lib/mongoose";
 import mongoose from "mongoose";
 

@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 // seperate the modal if have time
 
 import mongoose from "mongoose";

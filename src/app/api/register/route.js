@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import connectToDatabase from '@/lib/mongoose';
 import User from '@/models/User';
 import bcrypt from 'bcryptjs';
