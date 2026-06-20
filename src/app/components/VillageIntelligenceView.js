@@ -177,11 +177,11 @@ export default function VillageIntelligenceView() {
                   disabled={loadingAgri}
                 >
                   <Sparkles size={14} />
-                  <span>Ask AI About This Village</span>
+                  <span>Consult Assistant</span>
                 </Button>
               ) : (
                 <div className="text-center text-muted-foreground py-6 text-xs font-bold border border-dashed border-border rounded-xl">
-                  Choose a village from the search bar to generate AI insights.
+                  Choose a village from the search bar to generate outreach insights.
                 </div>
               )}
             </div>

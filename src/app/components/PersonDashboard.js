@@ -313,7 +313,7 @@ export default function PersonDashboard() {
           <div className="space-y-6">
             <div className="flex justify-between items-center border-b border-border pb-3">
               <h2 className="text-lg font-extrabold tracking-tight text-foreground flex items-center gap-1.5">
-                <Sparkles className="text-primary h-5 w-5" /> AI-Recommended Schemes & Fit Scores
+                <Sparkles className="text-primary h-5 w-5" /> Recommended Schemes & Suitability Scores
               </h2>
               {loading && (
                 <span className="text-xs text-primary font-bold animate-pulse flex items-center gap-1.5 uppercase tracking-wider">

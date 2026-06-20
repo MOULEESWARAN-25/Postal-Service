@@ -305,11 +305,11 @@ export default function CampaignAnalytics() {
                 Scheme & Campaign Analytics
               </h1>
               <p className="text-xs text-muted-foreground font-semibold mt-1">
-                Strategy Audit and campaign logs detailing Reach, Conversion efficiency, and public feedback.
+                Campaign performance analytics and outreach logs detailing Reach, Conversion efficiency, and public feedback.
               </p>
             </div>
             <Badge className="bg-secondary text-secondary-foreground py-1.5 px-3 rounded-full text-xs font-bold">
-              Strategy Audit
+              Outreach Analytics
             </Badge>
           </div>
 
@@ -318,7 +318,7 @@ export default function CampaignAnalytics() {
           <div className="bg-secondary/5 border border-border rounded-xl p-4 flex items-center gap-3">
             <span className="text-xl select-none shrink-0">📊</span>
             <div>
-              <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">Strategy Audit Status</h4>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">Campaign Strategy Status</h4>
               <p className="text-xs font-semibold mt-0.5 text-muted-foreground">
                 {totalCampaigns > 0 ? (
                   <>
@@ -469,11 +469,11 @@ export default function CampaignAnalytics() {
 
           </div>
 
-          {/* Historical Campaign Audits & Outcomes Table */}
+          {/* Historical Campaign Performance & Outcomes Table */}
           <Card className="border border-border bg-card shadow-sm rounded-2xl overflow-hidden p-0">
             <div className="bg-muted/40 border-b border-border p-4">
               <h3 className="text-xs font-extrabold text-secondary uppercase tracking-wider flex items-center gap-1.5">
-                <MessageSquare className="text-secondary h-4 w-4" /> Historical Campaign Audits & Outcomes
+                <MessageSquare className="text-secondary h-4 w-4" /> Historical Campaign Performance & Outcomes
               </h3>
             </div>
             <CardContent className="p-0">
@@ -487,7 +487,7 @@ export default function CampaignAnalytics() {
                   data={feedbackList}
                   loading={loading}
                   showPagination={true}
-                  emptyMessage="No historical campaign audits logged."
+                  emptyMessage="No historical campaign outcomes logged."
                 />
               )}
             </CardContent>

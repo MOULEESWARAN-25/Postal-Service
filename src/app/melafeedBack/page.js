@@ -142,9 +142,9 @@ const FeedbackForm = () => {
       });
       const resData = await response.json();
       if (resData.success) {
-        toast.success("Feedback submitted and persisted to MongoDB!");
+        toast.success("Campaign feedback submitted successfully.");
       } else {
-        toast.error("Sentiment analyzed. Database save failed: " + resData.error);
+        toast.error("Sentiment analyzed. Save failed: " + resData.error); 
       }
     } catch (err) {
       console.warn("Failed to persist feedback to database:", err);

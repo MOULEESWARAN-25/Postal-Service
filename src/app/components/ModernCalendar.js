@@ -138,10 +138,10 @@ export default function ModernCalendar() {
 
             <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
               <h3 className="font-bold text-primary text-xs flex items-center gap-1">
-                <Sparkles size={12} className="text-primary animate-pulse" /> AI Crawler Opportunity
+                <Sparkles size={12} className="text-primary animate-pulse" /> Outreach Opportunities
               </h3>
               <p className="text-xs text-muted-foreground mt-1.5 leading-relaxed font-semibold">
-                Select <strong>Erode</strong> to view active festival crowds and local farmer meets detected by our AI event crawler.
+                Select <strong>Erode</strong> to view active festival crowds and local farmer meets detected by our event tracking system.
               </p>
             </div>
           </aside>
@@ -298,14 +298,14 @@ export default function ModernCalendar() {
                   })}
                 </DialogTitle>
                 <DialogDescription className="text-xs text-muted-foreground mt-0.5">
-                  AI opportunities, scraped events, and suggested campaign promotions.
+                  Outreach opportunities, tracked events, and suggested campaign promotions.
                 </DialogDescription>
               </DialogHeader>
 
               {getEventsForDay(selectedDay).length > 0 ? (
                 <div className="space-y-4">
                    <h4 className="font-bold text-muted-foreground text-xs uppercase tracking-wider">
-                    Detected AI Event Opportunities
+                    Detected Local Events & Opportunities
                   </h4>
                   <div className="space-y-4">
                     {getEventsForDay(selectedDay).map((event, index) => (

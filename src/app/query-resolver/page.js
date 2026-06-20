@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { 
-  Bot, Send, BookOpen, AlertCircle, ArrowRight, ChevronDown, ChevronUp, ShieldCheck
+  Bot, Send, BookOpen, AlertCircle, ArrowRight
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import useDashboardStore from "@/store/dashboardStore";
@@ -24,12 +24,11 @@ export default function PostOfficeChatbot() {
   const [messages, setMessages] = useState([
     {
       type: "bot",
-      text: "Hello! I am your India Post Query Resolution Assistant.\n\nI can resolve your questions regarding savings schemes, accounts, interest rates, eligibility rules, and document requirements. Type a query below or select a suggested topic to get started!"
+      text: "Hello! I am your India Post Support Assistant.\n\nI can help resolve your questions regarding savings schemes, accounts, interest rates, eligibility rules, and document requirements. Type a question below or select a suggested topic to get started!"
     }
   ]);
   const [loading, setLoading] = useState(false);
   const [userPrompt, setUserPrompt] = useState("");
-  const [expandedAuditIndex, setExpandedAuditIndex] = useState(null);
   const scrollAreaRef = useRef(null);
 
   // Sync external chatbot triggers (e.g. "Explain Recommendation")
@@ -133,10 +132,10 @@ export default function PostOfficeChatbot() {
                   className="text-xl font-extrabold text-white"
                   style={{ letterSpacing: "-0.03em" }}
                 >
-                  Post Office AI Assistant
+                  Post Office Assistant
                 </h1>
                 <p className="text-xs font-medium mt-0.5" style={{ color: "rgba(148,163,184,0.85)" }}>
-                  Resolve customer queries instantly using the AI-powered knowledge engine for banking, insurance, and postal services.
+                  Resolve customer queries instantly using the knowledge directory for banking, insurance, and postal services.
                 </p>
               </div>
             </div>
@@ -202,7 +201,7 @@ export default function PostOfficeChatbot() {
                     <Bot size={16} style={{ color: "#F87171" }} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-sm text-white" style={{ letterSpacing: "-0.01em" }}>Postal Service Query Resolver</h3>
+                    <h3 className="font-bold text-sm text-white" style={{ letterSpacing: "-0.01em" }}>Postal Service Assistant</h3>
                     <div className="flex items-center gap-1 mt-0.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                       <span className="text-xs font-semibold" style={{ color: "rgba(148,163,184,0.7)" }}>Assistant Online</span>
@@ -244,53 +243,7 @@ export default function PostOfficeChatbot() {
                         )}
                       </div>
 
-                      {msg.type === "bot" && msg.provenance && (
-                        <div className="ml-10 max-w-[75%] pb-2 flex flex-col items-start gap-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <button
-                              onClick={() => setExpandedAuditIndex(expandedAuditIndex === index ? null : index)}
-                              className="text-[10px] text-muted-foreground hover:text-primary font-bold flex items-center gap-1 transition-colors"
-                            >
-                              <ShieldCheck size={12} className="text-emerald-500 shrink-0" />
-                              <span>AI Trust & Provenance Log</span>
-                              {expandedAuditIndex === index ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
-                            </button>
-                            
-                            {msg.retrievalQuality && (
-                              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider ${
-                                msg.retrievalQuality === "HIGH" ? "bg-emerald-500/15 text-emerald-600 border border-emerald-500/25" :
-                                msg.retrievalQuality === "MEDIUM" ? "bg-amber-500/15 text-amber-600 border border-amber-500/25" :
-                                "bg-rose-500/15 text-rose-600 border border-rose-500/25"
-                              }`}>
-                                Retrieval: {msg.retrievalQuality}
-                              </span>
-                            )}
-                          </div>
-                          
-                          {expandedAuditIndex === index && (
-                            <div className="mt-1.5 p-3 rounded-xl border border-border bg-card shadow-sm space-y-2 w-full text-[11px] leading-relaxed text-foreground select-text">
-                              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                                <div className="p-1.5 rounded-lg border bg-muted/10">
-                                  <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Decision Authority</p>
-                                  <p className="font-semibold mt-0.5">{msg.provenance.decisionAuthority}</p>
-                                </div>
-                                <div className="p-1.5 rounded-lg border bg-muted/10">
-                                  <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Explanation Authority</p>
-                                  <p className="font-semibold mt-0.5">{msg.provenance.explanationAuthority}</p>
-                                </div>
-                                <div className="p-1.5 rounded-lg border bg-muted/10">
-                                  <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Data Authority</p>
-                                  <p className="font-semibold mt-0.5">{msg.provenance.dataAuthority}</p>
-                                </div>
-                              </div>
-                              <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-1 border-t border-border mt-1">
-                                <span>RAG Integration Status: <strong>Verified Grounded</strong></span>
-                                <span>Verified: {new Date(msg.provenance.timestamp).toLocaleTimeString()}</span>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
+                      {/* AI trust, retrieval quality, and provenance logs removed to focus purely on business-relevant scheme guidance */}
                     </div>
                   ))}
                   

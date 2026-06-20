@@ -416,10 +416,14 @@ Return your answer as a JSON object strictly matching this format (no markdown b
       }
     } catch (err) {
       console.error("Gemini Explanation Generation failed, using fallbacks:", err);
+      const driverStr0 = topRecommendations[0]?.drivers?.join(' ') || '';
+      const driverStr1 = topRecommendations[1]?.drivers?.join(' ') || '';
+      const driverStr2 = topRecommendations[2]?.drivers?.join(' ') || '';
+      
       explanations = {
-        explanation1: `${topRecommendations[0].name} matches the applicant's profile of age ${age} and financial capacity.`,
-        explanation2: `${topRecommendations[1].name} is a stable option for their ${occupation} background.`,
-        explanation3: `${topRecommendations[2].name} provides secondary savings and liquidity support.`
+        explanation1: `${topRecommendations[0].name} is recommended for age ${age} and income of ₹${monthlyIncome}/month. ${driverStr0}`,
+        explanation2: `${topRecommendations[1].name} is suitable for a ${occupation} profile. ${driverStr1}`,
+        explanation3: `${topRecommendations[2].name} is selected based on demographic indicators. ${driverStr2}`
       };
     }
 

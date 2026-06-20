@@ -173,7 +173,7 @@ export default function CompareView() {
       winner: parseFloat(lit0) >= parseFloat(lit1) ? 0 : 1,
       description: "Census-measured literacy rate",
       icon: <TrendingUp size={14} />,
-      tooltip: "Calculated as: ((Male Literate + Female Literate) / Total Population) * 100. Sourced from Census 2011."
+      tooltip: "The percentage of literate residents in the village population. Sourced from Census 2011."
     },
     {
       label: "Scheme Enrollments",
@@ -182,7 +182,7 @@ export default function CompareView() {
       winner: enrollCount0 >= enrollCount1 ? 0 : 1,
       description: "Active registered scheme enrollments",
       icon: <Users size={14} />,
-      tooltip: "The count of active policies registered for the selected scheme. Sourced from the live head office database."
+      tooltip: "The count of active policies registered for the selected scheme. Sourced from live head office records."
     },
     {
       label: "APY Adoption Rank",
@@ -198,7 +198,7 @@ export default function CompareView() {
       v0: score0,
       v1: score1,
       winner: winnerIdx,
-      description: "DSS-computed campaign priority index (0–100)",
+      description: "Outreach priority index (0–100)",
       icon: <Target size={14} />,
       tooltip: "Weighted suitability priority index (0-100) calculated from demographic density and segment ratios."
     },
@@ -228,7 +228,7 @@ export default function CompareView() {
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 <BreadcrumbPage className="font-extrabold text-secondary">
-                  Comparison Engine
+                  Compare Regions
                 </BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
@@ -274,7 +274,7 @@ export default function CompareView() {
                     className="text-xl font-extrabold text-white"
                     style={{ letterSpacing: "-0.03em" }}
                   >
-                    Regional Comparison Engine
+                    Regional Comparison
                   </h1>
                   <p
                     className="text-xs font-medium mt-0.5"
@@ -671,14 +671,14 @@ export default function CompareView() {
                   </div>
                   <div className="space-y-1">
                     <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider">
-                      DSS Explainability Evidence
+                      Recommendation Context
                     </p>
                     <p className="text-xs text-foreground font-semibold leading-normal">
-                      <strong>Evid:</strong> {winnerRec?.evidence || "N/A"}<br />
+                      <strong>Key Factors:</strong> {winnerRec?.evidence || "N/A"}<br />
                       <strong>Gap:</strong> {winnerRec?.gap || "N/A"}<br />
                       <strong>Impact:</strong> {winnerRec?.expectedImpact ? `~${winnerRec.expectedImpact} target conversions` : "N/A"}<br />
                       <span className="text-[10px] text-muted-foreground font-mono font-bold uppercase">
-                        Src: {winnerRec?.source || "Census DB"} | Upd: {winnerRec?.lastUpdated || "2026-06-20"}
+                        Source: {winnerRec?.source || "Census DB"} | Last Updated: {winnerRec?.lastUpdated || "2026-06-20"}
                       </span>
                     </p>
                   </div>

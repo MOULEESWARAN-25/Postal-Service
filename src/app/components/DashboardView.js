@@ -354,7 +354,7 @@ function DashboardView() {
         { label: "Total Population", value: totP }
       ],
       formula: "Capped priority rules based on target segment ratios",
-      explanation: "Scored dynamically using segments database indicators mapping."
+      explanation: "Scored dynamically based on village segment representation."
     };
   };
 
@@ -617,7 +617,7 @@ function DashboardView() {
                           <TooltipContent className="bg-slate-900 text-white border-0 text-xs p-2.5 max-w-xs shadow-md z-[100]">
                             <p className="font-bold mb-1">DSS Opportunity Index</p>
                             <p className="text-[10px] text-slate-300">
-                              Suitability priority index (0-100) calculated from demographic density and segment ratios. Click to view formulas.
+                              Suitability priority index (0-100) calculated from demographic density and segment ratios. Click to view methodology overview.
                             </p>
                           </TooltipContent>
                         </Tooltip>
@@ -715,19 +715,7 @@ function DashboardView() {
                                     ))}
                                   </div>
                                 </div>
-                                <div className="pt-1.5 border-t border-slate-100 space-y-1">
-                                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Index Formula</span>
-                                  <div className="bg-slate-50 p-2 rounded border border-slate-100 font-mono text-[9.5px] text-slate-900 leading-snug break-all">
-                                    {evidence.formula}
-                                  </div>
                                 </div>
-                                <div className="space-y-1">
-                                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Evaluation Steps</span>
-                                  <div className="bg-emerald-50/50 text-emerald-800 p-2 rounded border border-emerald-100 font-bold text-[10px]">
-                                    Index = {evidence.explanation} = <span className="text-primary font-black">{currentRec.opportunityScore}</span>
-                                  </div>
-                                </div>
-                              </div>
                             );
                           })()}
                         </div>
@@ -758,7 +746,7 @@ function DashboardView() {
                         onMouseEnter={(e) => { e.currentTarget.style.background = "#F8FAFF"; }}
                         onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
                       >
-                        Ask AI Assistant
+                        Ask Assistant
                       </button>
                     </div>
                   </div>
@@ -915,7 +903,7 @@ function DashboardView() {
                           <TooltipContent className="bg-slate-900 text-white border-0 text-xs p-2.5 max-w-xs shadow-md z-[100]">
                             <p className="font-bold mb-1">Literacy Index ⓘ</p>
                             <p className="text-[10px] text-slate-300">
-                              Calculated as: (Male Literate + Female Literate) / Total Population × 100. Sourced from Census 2011.
+                              The percentage of literate residents in the selected village. Sourced from Census 2011.
                             </p>
                           </TooltipContent>
                         </Tooltip>
@@ -1306,7 +1294,7 @@ function DashboardView() {
                 {[
                   { label: "Compare Villages", icon: Layers, onClick: () => router.push("/compare") },
                   { label: "Beneficiary Directory", icon: Users, onClick: () => router.push("/publicInfo") },
-                  { label: "DSS Recommender", icon: Sparkles, onClick: () => router.push("/recommender") },
+                  { label: "Scheme Recommender", icon: Sparkles, onClick: () => router.push("/recommender") },
                 ].map(({ label, icon: Icon, onClick }) => (
                   <button
                     key={label}
@@ -1346,15 +1334,15 @@ function DashboardView() {
                 style={{ background: "linear-gradient(135deg, #1A2B4A 0%, #2A3F66 100%)" }}
               >
                 <h4 className="text-xs font-bold uppercase tracking-wider text-white/70">
-                  AI Campaign Assistant
+                  Campaign Assistant
                 </h4>
                 <p className="text-xs font-semibold text-white mt-0.5" style={{ letterSpacing: "-0.01em" }}>
-                  Context-aware AI Scripts
+                  Operational Assistant Scripts
                 </p>
               </div>
               <div className="p-4 space-y-2">
                 <p className="text-xs leading-normal" style={{ color: "#64748B" }}>
-                  Trigger operational planning scripts in the AI chatbot.
+                  Trigger operational planning scripts in the assistant chat.
                 </p>
                 <div className="grid grid-cols-1 gap-1.5 pt-1">
                   <button

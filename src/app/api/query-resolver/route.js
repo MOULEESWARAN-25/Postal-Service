@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import connectToDatabase from "@/lib/mongoose";
 import { calculateVillageRecommendations } from "@/lib/recommendationEngine";
 import { validateMetricsGrounding } from "@/lib/llmValidator";
+import crypto from 'crypto';
 
 const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
 const google = createGoogleGenerativeAI({
@@ -350,6 +351,8 @@ export async function POST(req) {
     let retrievalQuality = "LOW";
     let formattedPrompt = "";
     let opportunityScore = 0;
+    let text = "";
+    let bypassGemini = false;
 
     // Fetch schemes list for grounding audits and fallback
     const schemesList = await db.collection('schemes').find({}).toArray();
@@ -517,16 +520,41 @@ export async function POST(req) {
           maxAge: sc.eligibilityCriteria?.maxAge || 100
         };
 
-        formattedPrompt = PROMPTS.SCHEME_INFORMATION
-          .replace(/{schemeName}/g, sc.name)
-          .replace(/{schemeCode}/g, sc.schemeCode)
-          .replace(/{description}/g, sc.description || "N/A")
-          .replace(/{interestRate}/g, sc.interestRate || 0)
-          .replace(/{minAge}/g, sc.eligibilityCriteria?.minAge !== undefined ? sc.eligibilityCriteria.minAge : "N/A")
-          .replace(/{maxAge}/g, sc.eligibilityCriteria?.maxAge !== undefined ? sc.eligibilityCriteria.maxAge : "N/A")
-          .replace(/{genders}/g, sc.eligibilityCriteria?.allowedGenders?.join(", ") || "All")
-          .replace(/{targetAudience}/g, sc.targetAudience || "N/A")
-          .replace(/{benefits}/g, sc.benefits?.join("; ") || "N/A");
+        const description = sc.description || "No description available.";
+        const minAge = sc.eligibilityCriteria?.minAge !== undefined ? sc.eligibilityCriteria.minAge : "N/A";
+        const maxAge = sc.eligibilityCriteria?.maxAge !== undefined ? sc.eligibilityCriteria.maxAge : "N/A";
+        const genders = sc.eligibilityCriteria?.allowedGenders?.join(", ") || "All";
+        const targetAudience = sc.targetAudience || "N/A";
+        const interestRate = sc.interestRate || "N/A";
+        const benefitsList = sc.benefits && sc.benefits.length > 0 
+          ? sc.benefits.map(b => `- ${b}`).join("\n") 
+          : "- Sovereign safety and attractive returns.";
+
+        const steps = [
+          `Visit your nearest India Post Office or use the IPPB mobile app.`,
+          `Provide necessary KYC documents including Aadhaar Card, PAN Card, and passport-size photographs.`,
+          `Complete the application form for ${sc.name} (${sc.schemeCode}).`,
+          `Submit the required initial minimum deposit as defined by the scheme rules.`
+        ].map((step, idx) => `${idx + 1}. ${step}`).join("\n");
+
+        text = `## 🏦 Scheme Summary
+${description}
+
+## 📋 Eligibility Rules
+- **Ages:** ${minAge} to ${maxAge} years
+- **Genders:** ${genders}
+- **Target Group:** ${targetAudience}
+
+## ⚡ Key Features & Interest Rate
+- **Current Interest Rate:** ${interestRate}% per annum
+- **Benefits:**
+${benefitsList}
+
+## 📝 Steps to Enroll
+${steps}`;
+
+        bypassGemini = true;
+        console.log(`Bypassed Gemini for SCHEME_INFORMATION of code: ${schemeCode}`);
       } else {
         retrievalQuality = "INSUFFICIENT_DATA";
       }
@@ -584,20 +612,102 @@ export async function POST(req) {
     // Add user query at the bottom to trigger direct response mapping
     const finalPrompt = `${formattedPrompt}\n\nUser Query: "${prompt}"`;
 
-    // 3. Call Gemini
-    let text = "";
-    try {
-      const response = await generateText({
-        model: google('gemini-2.0-flash'),
-        prompt: finalPrompt,
-      });
-      text = response.text;
-    } catch (llmError) {
-      console.warn("Gemini call failed, generating fallback response locally:", llmError);
+    // 2.5 Response Caching Lookup (Stable query categories only)
+    let cacheKey = "";
+    const shouldCache = ["VILLAGE_ANALYSIS", "RECOMMENDATION_EXPLANATION", "GENERAL_POSTAL_QUERY"].includes(classification.intent) &&
+                        (classification.intent !== "RECOMMENDATION_EXPLANATION" || classification.village);
+
+    if (!bypassGemini && shouldCache) {
+      if (classification.intent === "GENERAL_POSTAL_QUERY") {
+        const cacheInput = `${classification.intent}:${prompt.trim().toLowerCase()}`;
+        cacheKey = crypto.createHash('sha256').update(cacheInput).digest('hex');
+      } else {
+        const village = retrievedContext.villageName || "";
+        const scheme = retrievedContext.recommendedScheme || "";
+        const opportunityIndex = retrievedContext.opportunityScore || 0;
+        const expectedImpact = retrievedContext.estimatedEligibleCitizens || 0;
+        const engineVersion = "v1.4";
+        const lastUpdated = retrievedContext.lastUpdated || "Census 2011 PCA";
+        
+        const cacheInput = `${classification.intent}:${village}:${scheme}:${opportunityIndex}:${expectedImpact}:${engineVersion}:${lastUpdated}`;
+        cacheKey = crypto.createHash('sha256').update(cacheInput).digest('hex');
+      }
+
+      const cachedRecord = await db.collection('ai_response_cache').findOne({ cacheKey });
       
-      // Local fallback generation based on classified intent
-      if (classification.intent === "VILLAGE_ANALYSIS") {
-        text = `## 📊 Demographic Overview
+      if (cachedRecord) {
+        const ageMs = new Date() - new Date(cachedRecord.createdAt);
+        let ttlMs = 24 * 60 * 60 * 1000; // default 24h
+        if (classification.intent === "GENERAL_POSTAL_QUERY") {
+          ttlMs = 30 * 24 * 60 * 60 * 1000; // 30 days
+        } else if (classification.intent === "VILLAGE_ANALYSIS") {
+          ttlMs = 7 * 24 * 60 * 60 * 1000; // 7 days
+        } else if (classification.intent === "RECOMMENDATION_EXPLANATION") {
+          ttlMs = 24 * 60 * 60 * 1000; // 24 hours
+        }
+
+        if (ageMs <= ttlMs) {
+          console.log(`Cache HIT for intent ${classification.intent} (key: ${cacheKey})`);
+          
+          const provenance = {
+            ...cachedRecord.provenance,
+            cached: true
+          };
+
+          return new Response(JSON.stringify({
+            text: cachedRecord.text,
+            provenance,
+            retrievalQuality: cachedRecord.retrievalQuality
+          }), {
+            status: 200,
+            headers: { "Content-Type": "application/json" }
+          });
+        } else {
+          console.log(`Cache EXPIRED for intent ${classification.intent} (key: ${cacheKey}), deleting...`);
+          await db.collection('ai_response_cache').deleteOne({ cacheKey });
+        }
+      }
+    }
+
+    if (!bypassGemini) {
+      try {
+        const response = await generateText({
+          model: google('gemini-2.0-flash'),
+          prompt: finalPrompt,
+        });
+        text = response.text;
+
+        // Cache the newly generated response
+        if (shouldCache && text && cacheKey) {
+          const provenance = {
+            decisionAuthority: "Recommendation Engine v1.4",
+            explanationAuthority: "Gemini 2.0 Flash",
+            dataAuthority: "Census 2011 PCA + Postal DB",
+            timestamp: new Date().toISOString()
+          };
+
+          await db.collection('ai_response_cache').updateOne(
+            { cacheKey },
+            {
+              $set: {
+                cacheKey,
+                intent: classification.intent,
+                text,
+                provenance,
+                retrievalQuality,
+                createdAt: new Date()
+              }
+            },
+            { upsert: true }
+          );
+          console.log(`Cached response for intent ${classification.intent} (key: ${cacheKey})`);
+        }
+      } catch (llmError) {
+        console.warn("Gemini call failed, generating fallback response locally:", llmError);
+        
+        // Local fallback generation based on classified intent
+        if (classification.intent === "VILLAGE_ANALYSIS") {
+          text = `## 📊 Demographic Overview
 The village **${retrievedContext.villageName}** has a total population of **${retrievedContext.totP}** citizens (Male: **${retrievedContext.totM}**, Female: **${retrievedContext.totF}**).
 The literacy rate stands at **${retrievedContext.mLit}%** for males and **${retrievedContext.fLit}%** for females.
 Workforce indicators show **${retrievedContext.agriWorkers}** agricultural workers (**${retrievedContext.agriRatio}%**) and **${retrievedContext.salariedWorkers}** salaried workers (**${retrievedContext.salariedRatio}%**).
@@ -615,22 +725,22 @@ Outreach campaigns should be aligned with the harvesting season when agricultura
 ## ⚡ Expected Impact & Limitations
 - **Expected Impact:** ${retrievedContext.estimatedEligibleCitizens} target enrollments
 - **Key Constraints:** Regional female literacy is ${retrievedContext.fLit}%, requiring pictorial and simplified forms.`;
-      } else if (classification.intent === "RECOMMENDATION_EXPLANATION") {
-        text = `## 🏦 Suitability Justification
+        } else if (classification.intent === "RECOMMENDATION_EXPLANATION") {
+          text = `## 🏦 Suitability Justification
 The scheme **${retrievedContext.recommendedScheme || "Atal Pension Yojana (APY)"}** is highly suitable for **${classification.village || retrievedContext.villageName || "the region"}** based on demographics:
 - Earning segments align with the target audience of the scheme.
 - Household profile and demographic indicators fit the eligibility constraints.
 
 ## 🎯 Opportunity Index Explanation
-The dynamic recommendation engine computed a **DSS Opportunity Index** of **${opportunityScore || 85}/100**. This score is driven by:
+The **DSS Opportunity Index** is **${opportunityScore || 85}/100**. This score is driven by:
 - Key Drivers: **${retrievedContext.keyDrivers || "Agrarian presence requiring pension and savings support"}**
 - Target Gap: **${retrievedContext.gap || "Moderate penetration gap"}**
 
 ## 📦 Supporting Evidence Summary
 - **Expected Impact:** ${retrievedContext.estimatedEligibleCitizens || 15} citizens
 - **Last Updated:** ${retrievedContext.lastUpdated || "2026-06-20"}`;
-      } else if (classification.intent === "SCHEME_INFORMATION") {
-        text = `## 🏦 Scheme Summary
+        } else if (classification.intent === "SCHEME_INFORMATION") {
+          text = `## 🏦 Scheme Summary
 Official details for **${retrievedContext.schemeName || "Sukanya Samriddhi Account (SSA)"}** (**${retrievedContext.schemeCode || "SSA"}**).
 This scheme is a secure, sovereign-backed savings instrument offering attractive returns.
 
@@ -647,8 +757,8 @@ This scheme is a secure, sovereign-backed savings instrument offering attractive
 1. Visit the nearest India Post post office.
 2. Fill out the application form and provide Aadhaar ID & KYC documents.
 3. Deposit the minimum initial amount to activate the account.`;
-      } else if (classification.intent === "BENEFICIARY_GUIDANCE") {
-        text = `## 👤 Beneficiary Suitability Reasoning
+        } else if (classification.intent === "BENEFICIARY_GUIDANCE") {
+          text = `## 👤 Beneficiary Suitability Reasoning
 Based on the profile of **${retrievedContext.name || "Citizen"}** (Age: **${retrievedContext.age}**, Gender: **${retrievedContext.gender}**, Occupation: **${retrievedContext.occupation}**):
 1. **${retrievedContext.name}** is highly suited for schemes matching their income of ₹${retrievedContext.income}/month and demographic parameters.
 
@@ -656,8 +766,8 @@ Based on the profile of **${retrievedContext.name || "Citizen"}** (Age: **${retr
 1. Provide Aadhaar Card verification.
 2. Complete KYC registration forms.
 3. Bring standard passport photos and initial deposit amount.`;
-      } else if (classification.intent === "COMPARATIVE_ANALYSIS") {
-        text = `## ⚖️ Side-by-Side Comparison Matrix
+        } else if (classification.intent === "COMPARATIVE_ANALYSIS") {
+          text = `## ⚖️ Side-by-Side Comparison Matrix
 | Metric | ${retrievedContext.v1Name || "Village 1"} | ${retrievedContext.v2Name || "Village 2"} |
 | :--- | :--- | :--- |
 | **Total Population** | ${retrievedContext.v1TotP || 0} | ${retrievedContext.v2TotP || 0} |
@@ -668,13 +778,12 @@ Based on the profile of **${retrievedContext.name || "Citizen"}** (Age: **${retr
 
 ## 📍 Campaign Allocation Recommendations
 Prioritize marketing budgets to the village with the higher DSS index to maximize conversion rate.`;
-      } else {
-        const schemesSummary = schemesList.map(s => `- ${s.name} (${s.schemeCode}): Interest Rate: ${s.interestRate}%, Age: ${s.eligibilityCriteria?.minAge || 0}-${s.eligibilityCriteria?.maxAge || 100}`).join("\n");
-        text = `## 🏦 Post Office Schemes Info
+        } else {
+          const schemesSummary = schemesList.map(s => `- ${s.name} (${s.schemeCode}): Interest Rate: ${s.interestRate}%, Age: ${s.eligibilityCriteria?.minAge || 0}-${s.eligibilityCriteria?.maxAge || 100}`).join("\n");
+          text = `## 🏦 Post Office Schemes Info
 Here is a summary of the available financial schemes:
-${schemesSummary}
-
-*(Offline mode active: Displaying dynamic database summary)*`;
+${schemesSummary}`;
+        }
       }
     }
 
@@ -695,7 +804,7 @@ ${schemesSummary}
     // Provenance Metadata
     const provenance = {
       decisionAuthority: "Recommendation Engine v1.4",
-      explanationAuthority: "Gemini 2.0 Flash",
+      explanationAuthority: bypassGemini ? "Deterministic DSS Logic" : "Gemini 2.0 Flash",
       dataAuthority: "Census 2011 PCA + Postal DB",
       timestamp: new Date().toISOString()
     };

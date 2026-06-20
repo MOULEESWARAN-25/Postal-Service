@@ -85,7 +85,7 @@ export default function StrategicActionsView() {
             <Award className="text-primary h-6 w-6" /> Strategic Action Center
           </h1>
           <p className="text-muted-foreground text-xs font-semibold mt-1">
-            AI-generated campaign priorities, DSS Opportunity Indices, and reach analysis based on regional census statistics.
+            Outreach campaign priorities, DSS Opportunity Indices, and reach analysis based on regional census statistics.
           </p>
         </div>
 

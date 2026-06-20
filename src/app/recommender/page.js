@@ -229,7 +229,7 @@ function RecommenderForm() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage className="font-extrabold text-secondary">DSS Recommender</BreadcrumbPage>
+            <BreadcrumbPage className="font-extrabold text-secondary">Scheme Recommender</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -249,11 +249,11 @@ function RecommenderForm() {
             Quick Beneficiary Recommender
           </h1>
           <p className="text-xs text-muted-foreground font-semibold mt-1">
-            Calculate suitability scores and evaluate eligibility parameters dynamically.
+            Match beneficiaries with available savings schemes based on eligibility parameters.
           </p>
         </div>
         <Badge className="bg-primary/10 text-primary border border-primary/20 text-xs font-bold rounded-full px-3 py-1 self-start mt-6">
-          DSS · Scheme Finder
+          Outreach · Scheme Finder
         </Badge>
       </div>
 
@@ -451,11 +451,11 @@ function RecommenderForm() {
                   >
                     {loading ? (
                       <>
-                        <Loader2 className="animate-spin mr-2 h-4 w-4" /> Evaluating...
+                        <Loader2 className="animate-spin mr-2 h-4 w-4" /> Loading...
                       </>
                     ) : (
                       <>
-                        <Sparkles className="mr-2 h-4 w-4" /> Evaluate Eligibility
+                        <Sparkles className="mr-2 h-4 w-4" /> Find Eligible Schemes
                       </>
                     )}
                   </Button>
@@ -481,10 +481,10 @@ function RecommenderForm() {
             <Card className="flex flex-col justify-center items-center text-center p-12 space-y-4 min-h-[500px] border border-border bg-card shadow-sm rounded-xl">
               <Loader2 size={48} className="text-primary animate-spin" />
               <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">
-                Generating DSS Fit Matrix
+                Analyzing Scheme Suitability
               </h3>
               <p className="text-xs text-muted-foreground max-w-sm font-semibold">
-                Mapping rules and requesting context explanations.
+                Matching beneficiary attributes with scheme rules.
               </p>
             </Card>
           )}
@@ -566,7 +566,7 @@ function RecommenderForm() {
                           {/* DSS Metadata Panel */}
                           <div className="grid grid-cols-2 gap-3 pt-3 border-t border-border/60 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
                             <div>
-                              <span>Source:</span> <span className="text-foreground font-bold">{scheme.source || "Personal DB"}</span>
+                              <span>Source:</span> <span className="text-foreground font-bold">{scheme.source || "Profile Registry"}</span>
                             </div>
                             <div className="text-right">
                               <span>Last Updated:</span> <span className="text-foreground font-bold">{scheme.lastUpdated || "2026-06-20"}</span>
@@ -583,10 +583,7 @@ function RecommenderForm() {
 
                 <div className="bg-primary/10 border border-primary/20 p-4 rounded-xl flex items-center space-x-3 text-primary text-xs">
                   <Check size={16} className="text-primary shrink-0" />
-                  <span>
-                    <strong>Audit Log:</strong> Evaluation logged and indexed in{" "}
-                    <code className="font-mono text-[10px]">postal_service.personal_info</code>.
-                  </span>
+                  <span>Recommendation has been saved successfully.</span>
                 </div>
               </motion.div>
             )}
@@ -604,7 +601,7 @@ export default function QuickRecommender() {
         <Suspense
           fallback={
             <div className="w-full max-w-[1200px] mx-auto p-12 text-center text-xs text-muted-foreground font-bold uppercase tracking-wider">
-              Loading DSS Recommender...
+              Loading Scheme Recommender...
             </div>
           }
         >

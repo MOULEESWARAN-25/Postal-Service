@@ -425,7 +425,7 @@ const PublicInfo = () => {
                 pageIndex={currentPage - 1}
                 onPageChange={(idx) => setCurrentPage(idx + 1)}
                 onRowClick={handleclick}
-                emptyMessage="No Beneficiaries Found. Try adjusting your filters or search query to locate records."
+                emptyMessage="No Beneficiaries Found. Try adjusting your filters or search term to locate records."
                 showColumnsToggle={true}
               />
             )}
