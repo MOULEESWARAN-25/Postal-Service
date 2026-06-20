@@ -12,12 +12,22 @@ export function calculateVillageRecommendations(demographics) {
   if (!demographics) return [];
 
   // Parse lastUpdated dynamically from DB metadata field
-  const lastUpdatedRaw = demographics.lastUpdated;
-  const lastUpdated = lastUpdatedRaw
-    ? (typeof lastUpdatedRaw === "string" && lastUpdatedRaw.includes("T")
-        ? lastUpdatedRaw.split("T")[0]
-        : new Date(lastUpdatedRaw).toISOString().split("T")[0])
-    : "Census 2011 PCA";
+  let lastUpdated = "Census 2011 PCA";
+  try {
+    const lastUpdatedRaw = demographics.lastUpdated;
+    if (lastUpdatedRaw) {
+      if (typeof lastUpdatedRaw === "string" && lastUpdatedRaw.includes("T")) {
+        lastUpdated = lastUpdatedRaw.split("T")[0];
+      } else {
+        const parsedDate = new Date(lastUpdatedRaw);
+        if (!isNaN(parsedDate.getTime())) {
+          lastUpdated = parsedDate.toISOString().split("T")[0];
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Failed to parse lastUpdated raw date:", err);
+  }
 
   const totP = demographics.totP || 1;
   const totM = demographics.totM || 0;

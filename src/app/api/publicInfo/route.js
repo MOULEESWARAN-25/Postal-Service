@@ -15,33 +15,36 @@ export async function GET(request) {
   const schemes = url.searchParams.get('schemes')?.split(',').filter(Boolean) || [];
 
   try {
-    // Build query
-    const query = {};
-    
+    // Build query conditions
+    const conditions = [];
     
     if (searchTerm) {
-      query.$or = [
-        { $expr: { $regexMatch: { input: { $toString: "$aadhaar_id" }, regex: searchTerm, options: "i" } } },
-        { Name: { $regex: searchTerm, $options: 'i' } },
-        { Area: { $regex: searchTerm, $options: 'i' } }
-      ];
+      conditions.push({
+        $or: [
+          { $expr: { $regexMatch: { input: { $toString: "$aadhaar_id" }, regex: searchTerm, options: "i" } } },
+          { Name: { $regex: searchTerm, $options: 'i' } },
+          { Area: { $regex: searchTerm, $options: 'i' } }
+        ]
+      });
     }
     
     // Village filter
     if (villages.length > 0) {
-      query.Area = { $in: villages };
+      conditions.push({ Area: { $in: villages } });
     }
     
     // Scheme filter
     if (schemes.length > 0) {
-      query.$or = schemes.map(scheme => ({
-        $or: [
+      conditions.push({
+        $or: schemes.flatMap(scheme => [
           { RecommendedScheme1: scheme },
           { RecommendedScheme2: scheme },
           { RecommendedScheme3: scheme }
-        ]
-      }));
+        ])
+      });
     }
+    
+    const query = conditions.length > 0 ? { $and: conditions } : {};
     
 
     // Calculate skip

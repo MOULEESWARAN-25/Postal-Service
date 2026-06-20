@@ -401,8 +401,8 @@ function DashboardView() {
   };
 
   const isLocationSelected = !!(State || District || subpostoffice || postoffice || village);
-  const currentRec = getDynamicRecommendation();
   const regionTitle = village || (typeof postoffice === "object" ? postoffice?.name : postoffice) || subpostoffice?.name || District || State?.name || "India (National)";
+  const currentRec = getDynamicRecommendation();
 
   const lastLoggedVillage = useRef(null);
 

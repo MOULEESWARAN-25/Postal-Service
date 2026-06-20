@@ -12,9 +12,9 @@ export default function IncomeDistribution() {
   // Function to calculate income distribution
   const calculateIncomeDistribution = (data) => {
     const totalPopulation = data?.totP || 1; // Prevent division by 0
-    const lowIncome = (data?.margworkP / totalPopulation) * 100; // Marginal workers as low income
-    const middleIncome = ((data?.mainworkP - data?.mainClP - data?.mainHhP) / totalPopulation) * 100; // Non-cultivators, non-household workers as middle
-    const highIncome = (data?.mainClP / totalPopulation) * 100; // Cultivators as high income
+    const lowIncome = ((data?.margworkP || 0) / totalPopulation) * 100; // Marginal workers as low income
+    const middleIncome = (((data?.mainworkP || 0) - (data?.mainClP || 0) - (data?.mainHhP || 0)) / totalPopulation) * 100; // Non-cultivators, non-household workers as middle
+    const highIncome = ((data?.mainClP || 0) / totalPopulation) * 100; // Cultivators as high income
 
     return [lowIncome.toFixed(2), middleIncome.toFixed(2), highIncome.toFixed(2)];
   };
