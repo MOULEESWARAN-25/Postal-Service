@@ -1,7 +1,7 @@
 const axios = require('axios');
 const mongoose = require('mongoose');
 
-const MONGODB_URI = '[REDACTED_MONGODB_URI]';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/postal_service';
 
 async function testCache() {
   console.log("Connecting to database...");
