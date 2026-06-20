@@ -104,16 +104,74 @@ function RecommenderForm() {
   });
 
   useEffect(() => {
-    if (searchParams) {
-      const qName = searchParams.get("name") || "";
-      const qAadhaar = searchParams.get("aadhaarId") || "";
-      if (qName || qAadhaar) {
-        setForm((prev) => ({
-          ...prev,
-          name: qName || prev.name,
-          aadhaarId: qAadhaar || prev.aadhaarId,
-        }));
+    let qName = "";
+    let qAadhaar = "";
+
+    if (typeof window !== "undefined") {
+      const stored = sessionStorage.getItem("selectedBeneficiary");
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          qName = parsed.name || "";
+          qAadhaar = parsed.aadhaarId || "";
+          sessionStorage.removeItem("selectedBeneficiary");
+        } catch (e) {
+          console.warn("Failed to parse selectedBeneficiary session data:", e);
+        }
       }
+    }
+
+    if (!qName && !qAadhaar && searchParams) {
+      qName = searchParams.get("name") || "";
+      qAadhaar = searchParams.get("aadhaarId") || "";
+    }
+
+    if (qAadhaar) {
+      const fetchProfile = async () => {
+        setLoading(true);
+        try {
+          const response = await axios.get(`/api/publicInfo?search=${qAadhaar}`);
+          if (response.data.success && response.data.data && response.data.data.length > 0) {
+            const user = response.data.data[0];
+            setForm({
+              name: user.Name || qName || "",
+              phoneNumber: user.PhoneNumber || "9876543210",
+              aadhaarId: String(user.aadhaar_id || qAadhaar || ""),
+              age: String(user.Age || "28"),
+              gender: user.Gender || "Female",
+              occupation: user.Occupation || "Agriculture",
+              education: user.EducationLevel || "Secondary",
+              maritalStatus: user.MaritalStatus || "Married",
+              numberOfChildren: String(user.NoOfChildrenInTheHouse ?? "0"),
+              numberOfGirlChildrenUnder10: String(user.NoOfGirlChildrenUnder10 ?? "0"),
+              landOwnershipAcres: user.OwnLandForAgriculture === 'Yes' ? "5" : "0",
+              monthlyIncome: String(user.MonthlyIncome || "10000"),
+              digitalUsage: user.DigitalUsage || "Medium",
+            });
+          } else {
+            setForm((prev) => ({
+              ...prev,
+              name: qName || prev.name,
+              aadhaarId: qAadhaar || prev.aadhaarId,
+            }));
+          }
+        } catch (err) {
+          console.warn("Failed to fetch user profile for recommender:", err);
+          setForm((prev) => ({
+            ...prev,
+            name: qName || prev.name,
+            aadhaarId: qAadhaar || prev.aadhaarId,
+          }));
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchProfile();
+    } else if (qName) {
+      setForm((prev) => ({
+        ...prev,
+        name: qName,
+      }));
     }
   }, [searchParams]);
 

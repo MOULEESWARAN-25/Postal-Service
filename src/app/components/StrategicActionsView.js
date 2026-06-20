@@ -151,7 +151,17 @@ export default function StrategicActionsView() {
                     </div>
                   </div>
 
-                  <div className="pt-4 mt-6 border-t border-border flex justify-between items-center text-xs">
+                  {/* DSS Metadata Panel */}
+                  <div className="grid grid-cols-2 gap-2 pt-3 border-t border-border/60 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mt-4">
+                    <div>
+                      <span>Source:</span> <span className="text-foreground font-bold">{action.source || "Census 2011 PCA"}</span>
+                    </div>
+                    <div className="text-right">
+                      <span>Last Updated:</span> <span className="text-foreground font-bold">{action.lastUpdated || "2026-06-20"}</span>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 mt-3 border-t border-border flex justify-between items-center text-xs">
                     <span className="text-muted-foreground font-semibold">Reach: <strong className="text-foreground font-extrabold">{action.estimatedEligibleCitizens}</strong></span>
                     <Button 
                       onClick={() => askAIAboutAction(action)}

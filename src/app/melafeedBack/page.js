@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Input } from "@/components/ui/input";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -36,9 +37,11 @@ const FeedbackForm = () => {
     negativeFeedback: "",
     schemeIdentification: "",
     submissionTimestamp: "",
+    attendees: "150",
+    newEnrollments: "25",
   });
 
-  const { headData, setHeadData } = useDashboardStore();
+  const { village, headData, setHeadData } = useDashboardStore();
 
   const handleInputChange = (name, value) => {
     setFormData((prevData) => ({
@@ -47,7 +50,7 @@ const FeedbackForm = () => {
     }));
   };
 
-  const generateAndAnalyzeFeedback = (e) => {
+  const generateAndAnalyzeFeedback = async (e) => {
     e.preventDefault();
 
     // Validate form (ensure all fields are filled)
@@ -118,7 +121,35 @@ const FeedbackForm = () => {
     console.log("JSON Output:", JSON.stringify(analysisOutput, null, 2));
     setHeadData(formData);
 
-    toast.success("Feedback submitted successfully!");
+    // Map form state to campaign feedback schema and post to MongoDB
+    const feedbackScoreValue = (formData.melaHelpfulness === 'yes' ? 2.5 : 1) + (formData.schemeSuitability === 'yes' ? 2.5 : 1);
+    const apiPayload = {
+      campaignId: "CMP-MELA-" + Math.floor(1000 + Math.random() * 9000),
+      village: village || "A.Sembulichampalayam",
+      scheme: formData.schemeIdentification,
+      attendees: Number(formData.attendees) || 150,
+      newEnrollments: Number(formData.newEnrollments) || 25,
+      feedbackScore: feedbackScoreValue,
+      remarks: `Helpful: ${formData.melaHelpfulness}. Suitability: ${formData.schemeSuitability}. Overall Sentiment: ${analysisOutput.sentimentAnalysis.overallSentiment}. Positive comments: ${formData.positiveFeedback}. Areas of improvement: ${formData.negativeFeedback}`,
+      status: "Completed"
+    };
+
+    try {
+      const response = await fetch("/api/campaign-feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(apiPayload)
+      });
+      const resData = await response.json();
+      if (resData.success) {
+        toast.success("Feedback submitted and persisted to MongoDB!");
+      } else {
+        toast.error("Sentiment analyzed. Database save failed: " + resData.error);
+      }
+    } catch (err) {
+      console.warn("Failed to persist feedback to database:", err);
+      toast.error("Connection error. Feedback saved locally.");
+    }
 
     // Reset form 
     setFormData({
@@ -128,6 +159,8 @@ const FeedbackForm = () => {
       negativeFeedback: "",
       schemeIdentification: "",
       submissionTimestamp: "",
+      attendees: "150",
+      newEnrollments: "25",
     });
   };
 
@@ -283,6 +316,36 @@ const FeedbackForm = () => {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              {/* Campaign Numbers: Attendees & Enrollments */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-foreground uppercase tracking-wider block">
+                    Mela Attendees Count
+                  </label>
+                  <Input
+                    type="number"
+                    value={formData.attendees}
+                    onChange={(e) => handleInputChange("attendees", e.target.value)}
+                    placeholder="e.g. 150"
+                    className="border-border text-xs rounded-lg h-10 bg-transparent text-foreground"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-xs font-bold text-foreground uppercase tracking-wider block">
+                    New Enrollments Generated
+                  </label>
+                  <Input
+                    type="number"
+                    value={formData.newEnrollments}
+                    onChange={(e) => handleInputChange("newEnrollments", e.target.value)}
+                    placeholder="e.g. 25"
+                    className="border-border text-xs rounded-lg h-10 bg-transparent text-foreground"
+                    required
+                  />
+                </div>
               </div>
 
               {/* Scheme Identification */}

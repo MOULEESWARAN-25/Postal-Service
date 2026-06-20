@@ -19,11 +19,60 @@ import {
 
 export default function VillageIntelligenceView() {
   const { village, demographicData, triggerChatbot } = useDashboardStore();
+  const [agriData, setAgriData] = React.useState(null);
+  const [loadingAgri, setLoadingAgri] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!village) {
+      setAgriData(null);
+      return;
+    }
+    const fetchAgriData = async () => {
+      setLoadingAgri(true);
+      try {
+        const res = await fetch("/api/schemeTime", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ village: village.trim().toLowerCase() })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.result) {
+            setAgriData(data.result);
+          } else {
+            setAgriData(null);
+          }
+        } else {
+          setAgriData(null);
+        }
+      } catch (err) {
+        console.warn("Failed to fetch village agricultural data:", err);
+        setAgriData(null);
+      } finally {
+        setLoadingAgri(false);
+      }
+    };
+    fetchAgriData();
+  }, [village]);
 
   const askAIAboutVillage = () => {
     const regionName = demographicData?.name || village || "Erode";
-    const promptText = `Analyze the demographics of the village "${regionName}". Total population: ${demographicData?.totP?.toLocaleString() || 'N/A'}, Female Literacy: ${demographicData?.fLit || 'N/A'}%, Workforce Mix: ${demographicData?.totWorkP ? ((demographicData.totWorkP / (demographicData.totP || 1)) * 100).toFixed(0) : 'N/A'}% workers. Harvest season is Turmeric (Jan - Feb). Suggest which post office schemes are best to promote here and provide an outreach recommendation.`;
+    const cropName = agriData?.crop || "Turmeric";
+    const harvestSeason = agriData ? `${agriData.harvesting?.join(" - ")}` : "Jan - Feb";
+    const promptText = `Analyze the demographics of the village "${regionName}". Total population: ${demographicData?.totP?.toLocaleString() || 'N/A'}, Female Literacy: ${demographicData?.fLit || 'N/A'}%, Workforce Mix: ${demographicData?.totWorkP ? ((demographicData.totWorkP / (demographicData.totP || 1)) * 100).toFixed(0) : 'N/A'}% workers. Harvest season is ${cropName} (${harvestSeason}). Suggest which post office schemes are best to promote here and provide an outreach recommendation.`;
     triggerChatbot(promptText);
+  };
+
+  const getHeuristicText = () => {
+    if (!agriData) {
+      return "Select a village to calculate optimal sowing and harvest outreach campaign parameters.";
+    }
+    const cropLower = agriData.crop.toLowerCase();
+    const sowing = agriData.sowing && agriData.sowing.length > 0 ? agriData.sowing.join(" and ") : "sowing season";
+    const scheme = (agriData.crop === 'Turmeric' || agriData.crop === 'Cotton' || agriData.crop === 'Maize') 
+      ? "Kisan Vikas Patra (KVP)" 
+      : "Post Office Savings Account (SB)";
+    return `Sowing starts in ${sowing} for ${cropLower}. Setup ${scheme} information desks at local village centers.`;
   };
 
   return (
@@ -100,7 +149,7 @@ export default function VillageIntelligenceView() {
               <div className="border border-border rounded-xl p-5 bg-muted/20">
                 <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Harvest Calendar Season</span>
                 <div className="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-2">
-                  Turmeric (Jan - Feb)
+                  {loadingAgri ? "Loading..." : agriData ? `${agriData.crop} (${agriData.harvesting?.join(" - ")})` : "No harvest data"}
                 </div>
                 <p className="text-xs text-muted-foreground mt-2 leading-relaxed font-semibold">
                   Identified crop harvest interval. Matches periods of high liquidity when savings accounts (POSA) can be promoted.
@@ -111,11 +160,11 @@ export default function VillageIntelligenceView() {
                 <div>
                   <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Campaign Recommendation Heuristic</span>
                   <div className="text-xs font-bold text-foreground mt-2 leading-relaxed">
-                    Sowing starts in July for cotton. Setup Kisan Vikas Patra (KVP) information desks at local village centers.
+                    {loadingAgri ? "Computing campaign heuristic..." : getHeuristicText()}
                   </div>
                 </div>
                 <div className="text-xs text-muted-foreground font-bold mt-4 uppercase tracking-widest">
-                  Deterministic Heuristic Index #V04
+                  Deterministic Heuristic Index {agriData ? `#V${agriData.crop.slice(0, 2).toUpperCase()}` : "N/A"}
                 </div>
               </div>
             </div>
@@ -125,6 +174,7 @@ export default function VillageIntelligenceView() {
                 <Button
                   onClick={askAIAboutVillage}
                   className="w-full py-5 text-xs font-bold flex items-center justify-center gap-2 rounded-lg"
+                  disabled={loadingAgri}
                 >
                   <Sparkles size={14} />
                   <span>Ask AI About This Village</span>

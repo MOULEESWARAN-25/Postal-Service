@@ -48,23 +48,26 @@ const CropTiming = createModel("CropTiming", cropTimingSchema);
 // Function to fetch data from MongoDB using village name
 async function fetchAllDocuments(villageName) {
   try {
-    // Connect to the database
     await connectToDatabase();
+    const db = mongoose.connection.db;
+
+    // Ensure lowercase match with seed data (all stored as lowercase)
+    const normalisedVillage = (villageName || "").trim().toLowerCase();
 
     // Query CropSubDistrict for village crop details
-    const document1 = await CropSubDistrict.findOne(
-      { "crops.village": villageName },
-      { district: 1, "crops.$": 1 }
+    const document1 = await db.collection('cropsubdistricts').findOne(
+      { "crops.village": normalisedVillage },
+      { projection: { district: 1, "crops.$": 1 } }
     );
 
     if (!document1 || !document1.crops || document1.crops.length === 0) {
       console.log(
-        `No data found for village: ${villageName} in CropSubDistrict`
+        `No data found for village: ${normalisedVillage} in CropSubDistrict`
       );
       return null;
     }
 
-    const { district } = document1;
+    const district = document1.district;
     const cropName = document1.crops[0]?.crops[0]; // Extract the crop name
 
     if (!cropName) {
@@ -73,9 +76,9 @@ async function fetchAllDocuments(villageName) {
     }
 
     // Query CropTiming for sowing and harvesting times
-    const document2 = await CropTiming.findOne(
+    const document2 = await db.collection('croptimings').findOne(
       { cropname: cropName, "timing.district": district },
-      { "timing.$": 1 }
+      { projection: { "timing.$": 1 } }
     );
 
     if (!document2 || !document2.timing || document2.timing.length === 0) {
@@ -85,9 +88,9 @@ async function fetchAllDocuments(villageName) {
       return null;
     }
 
-    const { seasons } = document2.timing[0];
+    const seasons = document2.timing[0].seasons;
     const { sowing, harvesting } = seasons;
-    console.log(sowing);
+    
     // Combine and return the results
     return {
       district,
@@ -126,9 +129,10 @@ async function fetchAllDocuments(villageName) {
 export async function POST(request) {
   try {
     const body = await request.json();
-    const villageName = body.village;
+    // Seed data stores village names in lowercase — normalise input to match
+    const villageName = (body.village || "").trim().toLowerCase();
 
-    console.log("Village Name:", villageName);
+    console.log("Village Name (normalised):", villageName);
     if (!villageName) {
       return Response.json(
         { error: "Village name is required" },

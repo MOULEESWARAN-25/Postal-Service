@@ -111,7 +111,7 @@ export function calculateVillageRecommendations(demographics) {
     {
       schemeCode: 'MIS',
       name: 'Monthly Income Scheme (MIS)',
-      score: Math.min(100, Math.round(35 + seniorRatio * 350 + (100 - agriRatio) * 20)),
+      score: Math.min(100, Math.round(35 + seniorRatio * 350 + (1 - agriRatio) * 20)),
       keyDrivers: [
         `Senior citizen/retired density (${Math.round(seniorRatio * 100)}% aged 60+)`,
         `Preference for low-risk steady monthly income payouts`,
@@ -420,7 +420,17 @@ export function calculateVillageRecommendations(demographics) {
     }
   ];
 
-  // Sort by score descending
-  schemes.sort((a, b) => b.score - a.score);
+  // Sort by suitability score descending. If tied, prioritize core POSB schemes, then by expectedImpact.
+  schemes.sort((a, b) => {
+    if (b.score !== a.score) {
+      return b.score - a.score;
+    }
+    const isCoreA = !a.schemeCode.startsWith('IPPB_') && !['PMJJBY', 'PMSBY', 'APY'].includes(a.schemeCode);
+    const isCoreB = !b.schemeCode.startsWith('IPPB_') && !['PMJJBY', 'PMSBY', 'APY'].includes(b.schemeCode);
+    if (isCoreA !== isCoreB) {
+      return isCoreA ? -1 : 1;
+    }
+    return b.expectedImpact - a.expectedImpact;
+  });
   return schemes;
 }

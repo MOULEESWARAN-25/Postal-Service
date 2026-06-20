@@ -186,7 +186,8 @@ async function seed() {
     { ...createLocationPCA('Bhavani Village B', 'Erode', 'Bhavani', 'Total', 0.000013) },
     { ...createLocationPCA('Komarapalayam', 'Erode', 'Bhavani', 'Total', 0.000035) },
     { ...createLocationPCA('Thingalur Village', 'Erode', 'Thingalur', 'Total', 0.000014) },
-    { ...createLocationPCA('Thoppampalayam', 'Erode', 'Thingalur', 'Total', 0.000011) }
+    { ...createLocationPCA('Thoppampalayam', 'Erode', 'Thingalur', 'Total', 0.000011) },
+    { ...createLocationPCA('Arasur', 'Erode', 'Thirumangalam North Extension Rural Division', 'Total', 0.000016) }
   ];
 
   await DemographicsTamilNadu.insertMany(demographicVillages);
@@ -313,7 +314,8 @@ async function seed() {
     { village: 'bannari', district: 'Erode', crops: [{ village: 'bannari', crops: ['Turmeric', 'Sugarcane', 'Rice'] }] },
     { village: 'komarapalayam', district: 'Erode', crops: [{ village: 'komarapalayam', crops: ['Rice', 'Banana'] }] },
     { village: 'thingalur village', district: 'Erode', crops: [{ village: 'thingalur village', crops: ['Cotton', 'Turmeric'] }] },
-    { village: 'thoppampalayam', district: 'Erode', crops: [{ village: 'thoppampalayam', crops: ['Maize', 'Turmeric'] }] }
+    { village: 'thoppampalayam', district: 'Erode', crops: [{ village: 'thoppampalayam', crops: ['Maize', 'Turmeric'] }] },
+    { village: 'arasur', district: 'Erode', crops: [{ village: 'arasur', crops: ['Turmeric', 'Rice', 'Maize'] }] }
   ];
   await CropSubDistrict.insertMany(cropsubdistricts);
 
@@ -368,49 +370,49 @@ async function seed() {
       {
         schemeCode: 'SSA',
         name: 'Sukanya Samriddhi Account (SSA)',
-        score: Math.round(45 + childRatio * 300),
+        score: Math.min(100, Math.round(45 + childRatio * 300)),
         keyDrivers: [
-          `High concentration of family households (${Math.round(childRatio * 100)}% school-age children)`,
-          `Targeted outreach for girl child welfare`,
-          `Low current literacy gap (${(100 - literacyRate).toFixed(1)}% illiterate)`
+          `High school-age child density (${Math.round(childRatio * 100)}% aged 7-17)`,
+          `Targeted education and marriage savings goals for girl children under 10`,
+          `Tax deduction benefits and high sovereign yield of 8.2%`
         ],
-        estimatedEligibleCitizens: `~${childPop}`,
+        estimatedEligibleCitizens: `~${Math.round(childPop * 0.15) || 25}`,
         campaignWindow: 'July 10 - July 20'
       },
       {
         schemeCode: 'KVP',
         name: 'Kisan Vikas Patra (KVP)',
-        score: Math.round(45 + agriRatio * 200),
+        score: Math.min(100, Math.round(45 + agriRatio * 200)),
         keyDrivers: [
-          `Large agricultural workforce (${Math.round(agriRatio * 100)}% of population)`,
-          `Upcoming harvest credit cycle needs`,
-          `High sovereign yield (7.5%) with zero market risk`
+          `High agrarian segment presence (${Math.round(agriRatio * 100)}%) with lump sum post-harvest cash surplus`,
+          `Simple capital doubling mechanism with zero market risk`,
+          `Transferability and ease of liquidity parameters`
         ],
-        estimatedEligibleCitizens: `~${agriWorkers}`,
+        estimatedEligibleCitizens: `~${Math.round(agriWorkers * 0.12) || 25}`,
         campaignWindow: 'June 25 - July 05'
       },
       {
         schemeCode: 'SCSS',
         name: 'Senior Citizens Savings Scheme (SCSS)',
-        score: Math.round(30 + seniorRatio * 400),
+        score: Math.min(100, Math.round(30 + seniorRatio * 400)),
         keyDrivers: [
-          `Senior citizen segment size (${Math.round(seniorRatio * 100)}% aged 60+)`,
-          `Preference for safe retirement income`,
-          `Sovereign backing with high yields (8.2%)`
+          `High density of elderly individuals (${Math.round(seniorRatio * 100)}% aged 60+)`,
+          `Extremely attractive regular yield of 8.2% with sovereign backing`,
+          `Quarterly payouts assisting regular household expenditure`
         ],
-        estimatedEligibleCitizens: `~${seniorPop}`,
+        estimatedEligibleCitizens: `~${Math.round(seniorPop * 0.20) || 15}`,
         campaignWindow: 'July 15 - July 25'
       },
       {
         schemeCode: 'PPF',
         name: 'Public Provident Fund (PPF)',
-        score: Math.round(30 + salariedRatio * 400 + literacyRate * 0.3),
+        score: Math.min(100, Math.round(30 + salariedRatio * 400 + literacyRate * 0.3)),
         keyDrivers: [
-          `Salaried workforce concentration (${Math.round(salariedRatio * 100)}%)`,
-          `Long-term compound interest savings (7.1%)`,
-          `Tax deduction requirements under Section 80C`
+          `Formal and salaried workforce concentration (${Math.round(salariedRatio * 100)}%)`,
+          `Long-term compound wealth building with tax-free interest and maturity`,
+          `Section 80C tax deduction requirement for high-income earners`
         ],
-        estimatedEligibleCitizens: `~${salariedWorkers}`,
+        estimatedEligibleCitizens: `~${Math.round(salariedWorkers * 0.10) || 15}`,
         campaignWindow: 'August 01 - August 10'
       }
     ];
@@ -419,7 +421,7 @@ async function seed() {
     return schemes[0];
   };
 
-  const activeVillageNames = ['A.Sembulichampalayam', 'Bannari', 'Komarapalayam', 'Bhavani Village A', 'Thingalur Village', 'Thoppampalayam'];
+  const activeVillageNames = ['A.Sembulichampalayam', 'Arasur', 'Bannari', 'Komarapalayam', 'Bhavani Village A', 'Thingalur Village', 'Thoppampalayam'];
   const recommendations = activeVillageNames.map(name => {
     const dem = demographicVillages.find(v => v.name === name);
     const rec = getSeededRecommendation(dem);

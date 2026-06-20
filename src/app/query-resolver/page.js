@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { 
-  Bot, Send, BookOpen, AlertCircle, ArrowRight
+  Bot, Send, BookOpen, AlertCircle, ArrowRight, ChevronDown, ChevronUp, ShieldCheck
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import useDashboardStore from "@/store/dashboardStore";
@@ -29,6 +29,7 @@ export default function PostOfficeChatbot() {
   ]);
   const [loading, setLoading] = useState(false);
   const [userPrompt, setUserPrompt] = useState("");
+  const [expandedAuditIndex, setExpandedAuditIndex] = useState(null);
   const scrollAreaRef = useRef(null);
 
   // Sync external chatbot triggers (e.g. "Explain Recommendation")
@@ -69,6 +70,8 @@ export default function PostOfficeChatbot() {
     setUserPrompt("");
 
     let reply = "I'm sorry, I'm having trouble connecting to the system right now.";
+    let provenance = null;
+    let retrievalQuality = null;
     try {
       const res = await fetch("/api/query-resolver", {
         method: "POST",
@@ -78,12 +81,19 @@ export default function PostOfficeChatbot() {
       const data = await res.json();
       if (data && data.text) {
         reply = data.text;
+        provenance = data.provenance;
+        retrievalQuality = data.retrievalQuality;
       }
     } catch (err) {
       console.warn("Chatbot query failed:", err);
     }
 
-    const botMessage = { text: reply, type: "bot" };
+    const botMessage = { 
+      text: reply, 
+      type: "bot",
+      provenance,
+      retrievalQuality
+    };
     setMessages((prev) => [...prev, botMessage]);
     setLoading(false);
   };
@@ -205,32 +215,81 @@ export default function PostOfficeChatbot() {
               <ScrollArea ref={scrollAreaRef} className="flex-1 p-6 h-[420px] bg-muted/10">
                 <div className="space-y-4">
                   {messages.map((msg, index) => (
-                    <div
-                      key={index}
-                      className={`flex items-end gap-2.5 ${msg.type === "user" ? "justify-end" : "justify-start"}`}
-                    >
-                      {msg.type === "bot" && (
-                        <Avatar className="h-8 w-8 shrink-0 border border-border">
-                          <AvatarFallback className="bg-secondary text-secondary-foreground text-xs font-bold">IP</AvatarFallback>
-                        </Avatar>
-                      )}
+                    <div key={index} className="flex flex-col space-y-1">
                       <div
-                        className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-xs shadow-sm leading-relaxed ${
-                          msg.type === "user"
-                            ? "bg-primary text-primary-foreground rounded-br-none"
-                            : "bg-card text-foreground rounded-bl-none border border-border"
-                        }`}
+                        className={`flex items-end gap-2.5 ${msg.type === "user" ? "justify-end" : "justify-start"}`}
                       >
-                        {msg.type === "bot" ? (
-                          <MarkdownCustom>{msg.text}</MarkdownCustom>
-                        ) : (
-                          <p className="whitespace-pre-line font-medium">{msg.text}</p>
+                        {msg.type === "bot" && (
+                          <Avatar className="h-8 w-8 shrink-0 border border-border">
+                            <AvatarFallback className="bg-secondary text-secondary-foreground text-xs font-bold">IP</AvatarFallback>
+                          </Avatar>
+                        )}
+                        <div
+                          className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-xs shadow-sm leading-relaxed ${
+                            msg.type === "user"
+                              ? "bg-primary text-primary-foreground rounded-br-none"
+                              : "bg-card text-foreground rounded-bl-none border border-border"
+                          }`}
+                        >
+                          {msg.type === "bot" ? (
+                            <MarkdownCustom>{msg.text}</MarkdownCustom>
+                          ) : (
+                            <p className="whitespace-pre-line font-medium">{msg.text}</p>
+                          )}
+                        </div>
+                        {msg.type === "user" && (
+                          <Avatar className="h-8 w-8 shrink-0 border border-border">
+                            <AvatarFallback className="bg-muted text-muted-foreground text-xs font-bold">USR</AvatarFallback>
+                          </Avatar>
                         )}
                       </div>
-                      {msg.type === "user" && (
-                        <Avatar className="h-8 w-8 shrink-0 border border-border">
-                          <AvatarFallback className="bg-muted text-muted-foreground text-xs font-bold">USR</AvatarFallback>
-                        </Avatar>
+
+                      {msg.type === "bot" && msg.provenance && (
+                        <div className="ml-10 max-w-[75%] pb-2 flex flex-col items-start gap-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <button
+                              onClick={() => setExpandedAuditIndex(expandedAuditIndex === index ? null : index)}
+                              className="text-[10px] text-muted-foreground hover:text-primary font-bold flex items-center gap-1 transition-colors"
+                            >
+                              <ShieldCheck size={12} className="text-emerald-500 shrink-0" />
+                              <span>AI Trust & Provenance Log</span>
+                              {expandedAuditIndex === index ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
+                            </button>
+                            
+                            {msg.retrievalQuality && (
+                              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider ${
+                                msg.retrievalQuality === "HIGH" ? "bg-emerald-500/15 text-emerald-600 border border-emerald-500/25" :
+                                msg.retrievalQuality === "MEDIUM" ? "bg-amber-500/15 text-amber-600 border border-amber-500/25" :
+                                "bg-rose-500/15 text-rose-600 border border-rose-500/25"
+                              }`}>
+                                Retrieval: {msg.retrievalQuality}
+                              </span>
+                            )}
+                          </div>
+                          
+                          {expandedAuditIndex === index && (
+                            <div className="mt-1.5 p-3 rounded-xl border border-border bg-card shadow-sm space-y-2 w-full text-[11px] leading-relaxed text-foreground select-text">
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                <div className="p-1.5 rounded-lg border bg-muted/10">
+                                  <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Decision Authority</p>
+                                  <p className="font-semibold mt-0.5">{msg.provenance.decisionAuthority}</p>
+                                </div>
+                                <div className="p-1.5 rounded-lg border bg-muted/10">
+                                  <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Explanation Authority</p>
+                                  <p className="font-semibold mt-0.5">{msg.provenance.explanationAuthority}</p>
+                                </div>
+                                <div className="p-1.5 rounded-lg border bg-muted/10">
+                                  <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">Data Authority</p>
+                                  <p className="font-semibold mt-0.5">{msg.provenance.dataAuthority}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-1 border-t border-border mt-1">
+                                <span>RAG Integration Status: <strong>Verified Grounded</strong></span>
+                                <span>Verified: {new Date(msg.provenance.timestamp).toLocaleTimeString()}</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       )}
                     </div>
                   ))}

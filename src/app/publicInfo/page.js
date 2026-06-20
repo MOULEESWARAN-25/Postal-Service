@@ -294,7 +294,7 @@ const PublicInfo = () => {
                 <DropdownMenuItem onClick={(e) => { e.stopPropagation(); triggerChatbot(`Explain why schemes like ${item.RecommendedScheme1} or ${item.RecommendedScheme2} are highly suitable for beneficiary ${item.Name}.`); }} className="text-xs cursor-pointer">
                   Explain Fit
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); router.push(`/recommender?name=${encodeURIComponent(item.Name)}&aadhaarId=${encodeURIComponent(item.aadhaar_id)}`); }} className="text-xs cursor-pointer">
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); if (typeof window !== 'undefined') { sessionStorage.setItem('selectedBeneficiary', JSON.stringify({ name: item.Name, aadhaarId: item.aadhaar_id })); } router.push('/recommender'); }} className="text-xs cursor-pointer">
                   Recommend Scheme
                 </DropdownMenuItem>
               </DropdownMenuContent>

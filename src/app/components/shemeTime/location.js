@@ -1,7 +1,15 @@
 import { Clock1, Globe2, HomeIcon, MapPinCheck, TagIcon } from "lucide-react";
 import React from "react";
+import useDashboardStore from "@/store/dashboardStore";
 
 export default function Location({ timingData, scheme, areaType }) {
+  const { State, District, subpostoffice } = useDashboardStore();
+  
+  const stateName = State ? (typeof State === 'object' ? State.name : State) : "Tamil Nadu";
+  const districtName = timingData?.result?.district || District || "Erode";
+  const subDistrictName = subpostoffice ? (typeof subpostoffice === 'object' ? subpostoffice.name : subpostoffice) : "Sathyamangalam";
+  const pincodeVal = subpostoffice ? (typeof subpostoffice === 'object' ? subpostoffice.pincode : "638401") : "638401";
+
   const month = [scheme?.ruralAvailability];
 
   console.log("month = ", month);
@@ -14,29 +22,29 @@ export default function Location({ timingData, scheme, areaType }) {
           {/* State Section */}
           <div className="flex items-center space-x-3">
             <Globe2 className="h-5 w-5 text-secondary" />
-            <p className="text-base font-semibold text-secondary">TamilNadu</p>
+            <p className="text-base font-semibold text-secondary">{stateName}</p>
           </div>
 
           {/* District Section */}
           <div className="flex items-center space-x-3">
             <HomeIcon className="h-5 w-5 text-secondary" />
             <p className="text-sm text-foreground font-semibold">
-              {timingData?.result?.district}
+              {districtName}
             </p>
           </div>
 
           {/* Sub-district Section */}
           <div className="flex items-center space-x-3">
             <MapPinCheck className="h-5 w-5 text-primary" />
-            <p className="text-sm text-primary font-semibold">
-              Sathyamangalam
+            <p className="text-sm text-primary font-semibold text-ellipsis overflow-hidden whitespace-nowrap" title={subDistrictName}>
+              {subDistrictName}
             </p>
           </div>
 
           {/* Pincode Section */}
           <div className="flex items-center space-x-3">
             <TagIcon className="h-5 w-5 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground font-semibold">638402</p>
+            <p className="text-sm text-muted-foreground font-semibold">{pincodeVal}</p>
           </div>
         </div>
 

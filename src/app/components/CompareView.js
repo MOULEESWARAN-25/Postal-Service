@@ -28,20 +28,37 @@ import {
 } from "@/components/ui/breadcrumb";
 
 export default function CompareView() {
-  const { village } = useDashboardStore();
+  const { District } = useDashboardStore();
+  const activeDistrict = District || "Erode";
   const [recommendations, setRecommendations] = useState([]);
   const [comparisonData, setComparisonData] = useState([]);
+  const [villagesList, setVillagesList] = useState([]);
   const [compVillages, setCompVillages] = useState(["A.Sembulichampalayam", "Bannari"]);
   const [loading, setLoading] = useState(true);
 
-  const villagesList = [
-    "A.Sembulichampalayam",
-    "Bannari",
-    "Komarapalayam",
-    "Bhavani Village A",
-    "Thingalur Village",
-    "Thoppampalayam",
-  ];
+  useEffect(() => {
+    const loadDynamicVillages = async () => {
+      try {
+        const res = await axios.post("/api/getVillages", { District: activeDistrict });
+        if (res.data && res.data.matches && res.data.matches.length > 0) {
+          setVillagesList(res.data.matches);
+          const first = res.data.matches[0];
+          const second = res.data.matches[1] || res.data.matches[0];
+          setCompVillages([first, second]);
+        } else {
+          const fallbackList = ["A.Sembulichampalayam", "Bannari", "Komarapalayam", "Bhavani Village A", "Thingalur Village", "Thoppampalayam"];
+          setVillagesList(fallbackList);
+          setCompVillages(["A.Sembulichampalayam", "Bannari"]);
+        }
+      } catch (err) {
+        console.warn("Failed to load dynamic villages for comparison:", err);
+        const fallbackList = ["A.Sembulichampalayam", "Bannari", "Komarapalayam", "Bhavani Village A", "Thingalur Village", "Thoppampalayam"];
+        setVillagesList(fallbackList);
+        setCompVillages(["A.Sembulichampalayam", "Bannari"]);
+      }
+    };
+    loadDynamicVillages();
+  }, [activeDistrict]);
 
   const fetchRecommendationsAndEnrollments = async () => {
     try {
@@ -75,6 +92,7 @@ export default function CompareView() {
   const [demographics, setDemographics] = useState({});
 
   useEffect(() => {
+    if (compVillages.length < 2) return;
     const fetchCompareDemographics = async () => {
       try {
         const [res0, res1] = await Promise.all([
@@ -98,14 +116,14 @@ export default function CompareView() {
 
   const getLiteracy = (villageName) => {
     const data = demographics[villageName];
-    if (!data) return "80.0%";
+    if (!data) return "—";
     const totM = data.totM || 0;
     const totF = data.totF || 0;
     const totP = data.totP || 1;
-    const mLit = data.mLit || 82.1;
-    const fLit = data.fLit || 65.5;
+    const mLit = data.mLit || 0;
+    const fLit = data.fLit || 0;
     const litPop = totM * (mLit / 100) + totF * (fLit / 100);
-    return ((litPop / totP) * 100).toFixed(1) + "%";
+    return totP > 1 ? ((litPop / totP) * 100).toFixed(1) + "%" : "—";
   };
 
   const lit0 = getLiteracy(compVillages[0]);
@@ -115,16 +133,16 @@ export default function CompareView() {
   const rec0 = demographics[compVillages[0]] ? calculateVillageRecommendations(demographics[compVillages[0]])[0] : null;
   const rec1 = demographics[compVillages[1]] ? calculateVillageRecommendations(demographics[compVillages[1]])[0] : null;
 
-  const score0 = rec0 ? rec0.score : (recommendations.find((r) => r.village === compVillages[0])?.opportunityScore ?? 85);
-  const score1 = rec1 ? rec1.score : (recommendations.find((r) => r.village === compVillages[1])?.opportunityScore ?? 80);
+  const score0 = rec0 ? rec0.score : (recommendations.find((r) => r.village === compVillages[0])?.opportunityScore ?? 0);
+  const score1 = rec1 ? rec1.score : (recommendations.find((r) => r.village === compVillages[1])?.opportunityScore ?? 0);
   const winnerIdx = score0 >= score1 ? 0 : 1;
   const winnerVillage = compVillages[winnerIdx];
   const loserVillage = compVillages[winnerIdx === 0 ? 1 : 0];
 
   const enrollCount0 =
-    comparisonData.find((v) => v.village === compVillages[0])?.count ?? 34;
+    comparisonData.find((v) => v.village === compVillages[0])?.count ?? 0;
   const enrollCount1 =
-    comparisonData.find((v) => v.village === compVillages[1])?.count ?? 22;
+    comparisonData.find((v) => v.village === compVillages[1])?.count ?? 0;
 
   const rank0 = enrollCount0 > 30 ? "High" : (enrollCount0 > 15 ? "Medium" : "Low");
   const rank1 = enrollCount1 > 30 ? "High" : (enrollCount1 > 15 ? "Medium" : "Low");
@@ -658,6 +676,7 @@ export default function CompareView() {
                     <p className="text-xs text-foreground font-semibold leading-normal">
                       <strong>Evid:</strong> {winnerRec?.evidence || "N/A"}<br />
                       <strong>Gap:</strong> {winnerRec?.gap || "N/A"}<br />
+                      <strong>Impact:</strong> {winnerRec?.expectedImpact ? `~${winnerRec.expectedImpact} target conversions` : "N/A"}<br />
                       <span className="text-[10px] text-muted-foreground font-mono font-bold uppercase">
                         Src: {winnerRec?.source || "Census DB"} | Upd: {winnerRec?.lastUpdated || "2026-06-20"}
                       </span>

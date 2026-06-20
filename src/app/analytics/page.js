@@ -46,7 +46,7 @@ export default function CampaignAnalytics() {
 
   const [form, setForm] = useState({
     campaignId: "",
-    village: "Arasur",
+    village: "",
     scheme: "Sukanya Samriddhi Account (SSA)",
     attendees: "",
     newEnrollments: "",
@@ -125,7 +125,7 @@ export default function CampaignAnalytics() {
         setShowAddForm(false);
         setForm({
           campaignId: "",
-          village: "Arasur",
+          village: "",
           scheme: "Sukanya Samriddhi Account (SSA)",
           attendees: "",
           newEnrollments: "",
@@ -148,19 +148,32 @@ export default function CampaignAnalytics() {
   const conversionRate = totalAttendees > 0 ? ((totalEnrollments / totalAttendees) * 100).toFixed(1) : 0;
   const avgFeedback = totalCampaigns > 0 ? (feedbackList.reduce((sum, f) => sum + (f.feedbackScore || 0), 0) / totalCampaigns).toFixed(1) : 0;
 
-  // Leaderboard logic
+  // Leaderboard logic — all values computed from real MongoDB feedbackList
   const getLeaderboard = () => {
     const villageMap = {};
+    const schemeMap = {};
+
     feedbackList.forEach(f => {
+      // Village conversion tracking
       if (!villageMap[f.village]) {
         villageMap[f.village] = { attendees: 0, enrollments: 0 };
       }
       villageMap[f.village].attendees += (f.attendees || 0);
       villageMap[f.village].enrollments += (f.newEnrollments || 0);
+
+      // Scheme enrollment tracking
+      if (f.scheme) {
+        if (!schemeMap[f.scheme]) {
+          schemeMap[f.scheme] = { attendees: 0, enrollments: 0 };
+        }
+        schemeMap[f.scheme].attendees += (f.attendees || 0);
+        schemeMap[f.scheme].enrollments += (f.newEnrollments || 0);
+      }
     });
-    
-    let bestVillage = "Arasur";
-    let bestConv = 28.2;
+
+    // Best village by conversion rate
+    let bestVillage = feedbackList.length > 0 ? Object.keys(villageMap)[0] : "—";
+    let bestConv = 0;
     Object.keys(villageMap).forEach(vil => {
       const rate = villageMap[vil].attendees > 0 ? (villageMap[vil].enrollments / villageMap[vil].attendees) * 100 : 0;
       if (rate > bestConv) {
@@ -169,11 +182,22 @@ export default function CampaignAnalytics() {
       }
     });
 
+    // Best scheme by enrollment conversion rate
+    let bestScheme = feedbackList.length > 0 ? Object.keys(schemeMap)[0] : "—";
+    let bestSchemeConv = 0;
+    Object.keys(schemeMap).forEach(sch => {
+      const rate = schemeMap[sch].attendees > 0 ? (schemeMap[sch].enrollments / schemeMap[sch].attendees) * 100 : 0;
+      if (rate > bestSchemeConv) {
+        bestSchemeConv = rate;
+        bestScheme = sch;
+      }
+    });
+
     return {
       bestVillage,
-      bestConv: bestConv.toFixed(1),
-      bestScheme: "Sukanya Samriddhi Account (SSA)",
-      bestSchemeAdoption: "32.1%"
+      bestConv: feedbackList.length > 0 ? bestConv.toFixed(1) : "0.0",
+      bestScheme,
+      bestSchemeAdoption: feedbackList.length > 0 ? bestSchemeConv.toFixed(1) + "%" : "0.0%"
     };
   };
 
@@ -289,16 +313,24 @@ export default function CampaignAnalytics() {
             </Badge>
           </div>
 
+
           {/* DSS Heading strategy-badge Alert */}
           <div className="bg-secondary/5 border border-border rounded-xl p-4 flex items-center gap-3">
             <span className="text-xl select-none shrink-0">📊</span>
             <div>
               <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">Strategy Audit Status</h4>
               <p className="text-xs font-semibold mt-0.5 text-muted-foreground">
-                Campaign strategy is <strong className="text-foreground font-bold">highly effective</strong>. Overall conversion efficiency is at <strong className="text-primary font-bold">{conversionRate || 23.4}%</strong>, exceeding the national target baseline.
+                {totalCampaigns > 0 ? (
+                  <>
+                    Campaign strategy is <strong className="text-foreground font-bold">{Number(conversionRate) >= 20 ? "highly effective" : Number(conversionRate) >= 10 ? "moderately effective" : "in early stages"}</strong>. Overall conversion efficiency is at <strong className="text-primary font-bold">{conversionRate}%</strong> across {totalCampaigns} logged campaign{totalCampaigns !== 1 ? "s" : ""}.
+                  </>
+                ) : (
+                  <>No campaign outcomes logged yet. Use <strong className="text-foreground font-bold">&quot;Log Campaign Outcome&quot;</strong> to begin tracking conversion efficiency.</>
+                )}
               </p>
             </div>
           </div>
+
 
           {/* KPI Summary Cards Row */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

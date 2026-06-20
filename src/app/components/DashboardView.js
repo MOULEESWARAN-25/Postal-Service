@@ -80,7 +80,7 @@ function DashboardView() {
     try {
       const res = await axios.get("/api/enrollments");
       if (res.data.success) {
-        setLiveEnrollmentCount(res.data.stats.totalEnrolled || 84);
+        setLiveEnrollmentCount(res.data.stats.totalEnrolled || 0);
         const allVilsData = res.data.stats.byVillage || [];
         setComparisonData(allVilsData);
       }
@@ -597,7 +597,7 @@ function DashboardView() {
                             </button>
                           </span>
                         </div>
-                        {/* Opportunity Score badge */}
+                        {/* DSS Opportunity Index badge */}
                         <Tooltip>
                           <TooltipTrigger
                             type="button"
