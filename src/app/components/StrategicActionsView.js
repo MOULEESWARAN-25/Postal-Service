@@ -85,7 +85,7 @@ export default function StrategicActionsView() {
             <Award className="text-primary h-6 w-6" /> Strategic Action Center
           </h1>
           <p className="text-muted-foreground text-xs font-semibold mt-1">
-            AI-generated campaign priorities, opportunity scores, and reach analysis based on regional census statistics.
+            AI-generated campaign priorities, DSS Opportunity Indices, and reach analysis based on regional census statistics.
           </p>
         </div>
 
@@ -126,7 +126,7 @@ export default function StrategicActionsView() {
                   <div>
                     <div className="flex justify-between items-center border-b border-border pb-3 mb-4">
                       <Badge variant="secondary" className="font-extrabold text-xs rounded px-2 py-0.5">
-                        Score: {action.opportunityScore}/100
+                        DSS Opportunity Index: {action.opportunityScore}/100
                       </Badge>
                       <span className="text-xs text-muted-foreground font-bold">{action.campaignWindow}</span>
                     </div>

@@ -3,37 +3,37 @@ import React, { useEffect, useState } from "react";
 import ApexCharts from "apexcharts";
 import useDashboardStore from "@/store/dashboardStore";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { APEX_CHART_THEME } from "@/components/ui/chart-custom";
 
 const getLiteracyChartOptions = (seriesData) => {
   return {
+    ...APEX_CHART_THEME,
     series: seriesData,
-    colors: ["#1A2B4A", "#475569", "#C8102E", "#94A3B8"],
     chart: {
-      height: 320, // Adjust height to match Occupation chart
-      width: "100%", // Maintain width 100% within container
+      ...APEX_CHART_THEME.chart,
+      height: 250, // Standard height matching other cards
+      width: "100%",
       type: "pie",
     },
     stroke: {
-      colors: ["white"],
-      width: 3,
+      colors: ["var(--color-surface)"],
+      width: 2,
     },
     plotOptions: {
       pie: {
         dataLabels: {
-          offset: -25,
+          offset: -15,
         },
       },
     },
     labels: ["Literate Men", "Illiterate Men", "Literate Women", "Illiterate Women"],
     dataLabels: {
       enabled: true,
+      formatter: (val) => `${val.toFixed(0)}%`,
       style: {
-        fontFamily: "Poppins, sans-serif",
+        fontSize: "10px",
+        fontFamily: "Inter, sans-serif",
       },
-    },
-    legend: {
-      position: "bottom",
-      fontFamily: "Poppins, sans-serif",
     },
   };
 };
@@ -58,11 +58,12 @@ export default function LiteracyPieChart() {
 
   useEffect(() => {
     if (demographicData) {
-      const totalpopulation = demographicData.totP;
-      const literate_men = (totalpopulation * demographicData.mLit) / 100;
-      const illiterate_men = (totalpopulation * demographicData.mIll) / 100;
-      const literate_women = (totalpopulation * demographicData.fLit) / 100;
-      const illiterate_women = (totalpopulation * demographicData.fIll) / 100;
+      const totM = demographicData.totM || 0;
+      const totF = demographicData.totF || 0;
+      const literate_men = (totM * (demographicData.mLit || 0)) / 100;
+      const illiterate_men = (totM * (demographicData.mIll || 0)) / 100;
+      const literate_women = (totF * (demographicData.fLit || 0)) / 100;
+      const illiterate_women = (totF * (demographicData.fIll || 0)) / 100;
 
       // Update the chart data
       setChartData([literate_men, illiterate_men, literate_women, illiterate_women]);

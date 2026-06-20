@@ -12,7 +12,8 @@ export async function GET(request) {
   try {
     const query = {};
     if (district && district !== 'Holiday') {
-      query.district = { $regex: new RegExp(`^${district}$`, 'i') };
+      const escaped = district.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      query.district = { $regex: new RegExp(`^${escaped}$`, 'i') };
     }
 
     const events = await Event.find(query).sort({ date: 1 });

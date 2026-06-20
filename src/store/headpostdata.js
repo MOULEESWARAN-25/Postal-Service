@@ -6,9 +6,11 @@ const useheaddata = create((set, get) => ({
   sub: null, 
   loa: false, 
   sch: null, 
+  selectedScheme: "Sukanya Samriddhi Account (SSA)",
  
   // Setters 
   setsch: (sch) => set({ sch }), 
+  setSelectedScheme: (selectedScheme) => set({ selectedScheme }),
   setLoa: (loa) => set({ loa }), 
   setSub: (sub) => set({ sub }), 
   setSta: (Sta) => set({ Sta }), 
@@ -16,7 +18,7 @@ const useheaddata = create((set, get) => ({
  
   // Handle the logic for fetching the data 
   fetchHeadData: async () => { 
-    const { Sta, Dis, sub, setLoa, setsch } = get(); // Access current store values 
+    const { Sta, Dis, sub, selectedScheme, setLoa, setsch } = get(); // Access current store values 
  
     if (!Sta && !Dis && !sub) { 
       return; 
@@ -34,6 +36,7 @@ const useheaddata = create((set, get) => ({
           State: Sta?.name, 
           District: Dis, 
           SubpostOffice: sub?.name?.split(" ").slice(0, 1).join(" "), 
+          selectedScheme: selectedScheme || "Sukanya Samriddhi Account (SSA)"
         }), 
       }); 
  

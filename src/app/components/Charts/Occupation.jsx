@@ -2,24 +2,26 @@ import React, { useEffect, useMemo } from "react";
 import ApexCharts from "apexcharts";
 import useDashboardStore from "@/store/dashboardStore";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { APEX_CHART_THEME } from "@/components/ui/chart-custom";
 
 const getChartOptions = (chartData) => {
   return {
+    ...APEX_CHART_THEME,
     series: chartData.series,
-    colors: ["#1A2B4A", "#475569", "#C8102E", "#94A3B8"],
     chart: {
-      height: 320,
+      ...APEX_CHART_THEME.chart,
+      height: 250, // Standard height matching other cards
       width: "100%",
       type: "pie",
     },
     stroke: {
-      colors: ["white"],
-      width: 3,
+      colors: ["var(--color-surface)"],
+      width: 2,
     },
     plotOptions: {
       pie: {
         dataLabels: {
-          offset: -25,
+          offset: -15,
         },
       },
     },
@@ -28,14 +30,12 @@ const getChartOptions = (chartData) => {
       enabled: true,
       formatter: (val) => `${val.toFixed(1)}%`,
       style: {
-        fontFamily: "Poppins, sans-serif",
+        fontSize: "10px",
+        fontFamily: "Inter, sans-serif",
       },
     },
-    legend: {
-      position: "bottom",
-      fontFamily: "Poppins, sans-serif",
-    },
     tooltip: {
+      ...APEX_CHART_THEME.tooltip,
       y: {
         formatter: (val) => `${val.toFixed(1)}%`,
       },

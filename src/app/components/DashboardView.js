@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   NotebookTabs,
   MapPin,
@@ -8,7 +8,8 @@ import {
   Users,
   Sparkles,
   Layers,
-  ChevronRight
+  ChevronRight,
+  HelpCircle
 } from "lucide-react";
 import dynamic from "next/dynamic";
 
@@ -21,11 +22,14 @@ import useDashboardStore from "@/store/dashboardStore";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { calculateVillageRecommendations } from "@/lib/recommendationEngine";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import DSSMethodologyModal from "./DSSMethodologyModal";
 
 function DashboardView() {
   const router = useRouter();
@@ -48,7 +52,7 @@ function DashboardView() {
   } = useDashboardStore();
 
   const [postOfficesCount, setPostOfficesCount] = useState(null);
-  const [postofficesCount, setPostofficesCount] = useState(null);
+  const [postofficesCount, setpostofficesCount] = useState(null);
   const [error, setError] = useState(null);
 
   // DSS Data States
@@ -56,6 +60,8 @@ function DashboardView() {
   const [recommendations, setRecommendations] = useState([]);
   const [liveEnrollmentCount, setLiveEnrollmentCount] = useState(0);
   const [comparisonData, setComparisonData] = useState([]);
+  const [isMethodologyOpen, setIsMethodologyOpen] = useState(false);
+  const [isEvidenceOpen, setIsEvidenceOpen] = useState(false);
 
   // Fetch campaign recommendations from MongoDB
   const fetchRecommendations = React.useCallback(async () => {
@@ -179,6 +185,179 @@ function DashboardView() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [State, District, village, subpostoffice, postoffice]);
 
+  const getWeightedLiteracy = () => {
+    if (!demographicData) return "—";
+    const totM = demographicData.totM || 0;
+    const totF = demographicData.totF || 0;
+    const totP = demographicData.totP || 1;
+    const mLit = demographicData.mLit || 0;
+    const fLit = demographicData.fLit || 0;
+    const litPop = totM * (mLit / 100) + totF * (fLit / 100);
+    return ((litPop / totP) * 100).toFixed(1) + "%";
+  };
+
+  const getRecommendationEvidence = (schemeName, dem) => {
+    if (!dem) return null;
+    const totP = dem.totP || 1;
+    const totM = dem.totM || 0;
+    const totF = dem.totF || 0;
+    const mLit = dem.mLit || 82.1;
+    const fLit = dem.fLit || 65.5;
+    const litPop = totM * (mLit / 100) + totF * (fLit / 100);
+    const literacyRate = (litPop / totP) * 100;
+
+    const mainAlP = dem.mainAlP || 0;
+    const mainClP = dem.mainClP || 0;
+    const margAlP = dem.margAlP || 0;
+    const margClP = dem.margClP || 0;
+    const agriWorkers = mainAlP + mainClP + margAlP + margClP;
+    const agriRatio = agriWorkers / totP;
+
+    const childPop = dem.population717 || 0;
+    const childRatio = childPop / totP;
+
+    const seniorPop = dem.population60Plus || 0;
+    const seniorRatio = seniorPop / totP;
+
+    const mainOtP = dem.mainOtP || 0;
+    const margOtP = dem.margOtP || 0;
+    const salariedWorkers = mainOtP + margOtP;
+    const salariedRatio = salariedWorkers / totP;
+
+    const youthPop = dem.population1824 || 0;
+    const youthRatio = youthPop / totP;
+
+    const name = schemeName || "";
+    
+    if (name.includes("Sukanya")) {
+      return {
+        factors: [
+          { label: "School-age Children", value: childPop },
+          { label: "Total Population", value: totP },
+          { label: "Child Ratio", value: `${(childRatio * 100).toFixed(1)}%` },
+        ],
+        formula: "min(100, Math.round(45 + childRatio * 300))",
+        explanation: `45 + (${childRatio.toFixed(3)} × 300)`
+      };
+    } else if (name.includes("Kisan Vikas Patra") || name.includes("KVP")) {
+      return {
+        factors: [
+          { label: "Agricultural Workers", value: agriWorkers },
+          { label: "Total Population", value: totP },
+          { label: "Agricultural Ratio", value: `${(agriRatio * 100).toFixed(1)}%` },
+        ],
+        formula: "min(100, Math.round(45 + agriRatio * 200))",
+        explanation: `45 + (${agriRatio.toFixed(3)} × 200)`
+      };
+    } else if (name.includes("Senior Citizens") || name.includes("SCSS")) {
+      return {
+        factors: [
+          { label: "Senior Citizens (60+)", value: seniorPop },
+          { label: "Total Population", value: totP },
+          { label: "Senior Ratio", value: `${(seniorRatio * 100).toFixed(1)}%` },
+        ],
+        formula: "min(100, Math.round(30 + seniorRatio * 400))",
+        explanation: `30 + (${seniorRatio.toFixed(3)} × 400)`
+      };
+    } else if (name.includes("Public Provident Fund") || name.includes("PPF")) {
+      return {
+        factors: [
+          { label: "Salaried/Other Workers", value: salariedWorkers },
+          { label: "Total Population", value: totP },
+          { label: "Salaried Ratio", value: `${(salariedRatio * 100).toFixed(1)}%` },
+          { label: "Weighted Literacy Rate", value: `${literacyRate.toFixed(1)}%` },
+        ],
+        formula: "min(100, Math.round(30 + salariedRatio * 400 + literacyRate * 0.3))",
+        explanation: `30 + (${salariedRatio.toFixed(3)} × 400) + (${literacyRate.toFixed(1)} × 0.3)`
+      };
+    } else if (name.includes("Savings Account (SB)") || name.includes("Savings Account")) {
+      return {
+        factors: [
+          { label: "Total Population", value: totP },
+          { label: "Weighted Literacy Rate", value: `${literacyRate.toFixed(1)}%` },
+        ],
+        formula: "min(100, Math.round(50 + literacyRate * 0.5))",
+        explanation: `50 + (${literacyRate.toFixed(1)} × 0.5)`
+      };
+    } else if (name.includes("Recurring Deposit") || name.includes("RD")) {
+      return {
+        factors: [
+          { label: "Agricultural Workers", value: agriWorkers },
+          { label: "Total Population", value: totP },
+          { label: "Agricultural Ratio", value: `${(agriRatio * 100).toFixed(1)}%` },
+          { label: "Weighted Literacy Rate", value: `${literacyRate.toFixed(1)}%` },
+        ],
+        formula: "min(100, Math.round(45 + agriRatio * 200 + (100 - literacyRate) * 0.3))",
+        explanation: `45 + (${agriRatio.toFixed(3)} × 200) + (${(100 - literacyRate).toFixed(1)} × 0.3)`
+      };
+    } else if (name.includes("Time Deposit") || name.includes("TD")) {
+      return {
+        factors: [
+          { label: "Salaried/Other Workers", value: salariedWorkers },
+          { label: "Total Population", value: totP },
+          { label: "Salaried Ratio", value: `${(salariedRatio * 100).toFixed(1)}%` },
+          { label: "Weighted Literacy Rate", value: `${literacyRate.toFixed(1)}%` },
+        ],
+        formula: "min(100, Math.round(30 + salariedRatio * 300 + literacyRate * 0.2))",
+        explanation: `30 + (${salariedRatio.toFixed(3)} × 300) + (${literacyRate.toFixed(1)} × 0.2)`
+      };
+    } else if (name.includes("Monthly Income") || name.includes("MIS")) {
+      return {
+        factors: [
+          { label: "Senior Citizens (60+)", value: seniorPop },
+          { label: "Senior Ratio", value: `${(seniorRatio * 100).toFixed(1)}%` },
+          { label: "Agricultural Ratio", value: `${(agriRatio * 100).toFixed(1)}%` },
+        ],
+        formula: "min(100, Math.round(35 + seniorRatio * 350 + (1 - agriRatio) * 20))",
+        explanation: `35 + (${seniorRatio.toFixed(3)} × 350) + (${(1 - agriRatio).toFixed(3)} × 20)`
+      };
+    } else if (name.includes("Savings Certificate") || name.includes("NSC")) {
+      return {
+        factors: [
+          { label: "Salaried/Other Workers", value: salariedWorkers },
+          { label: "Salaried Ratio", value: `${(salariedRatio * 100).toFixed(1)}%` },
+          { label: "Weighted Literacy Rate", value: `${literacyRate.toFixed(1)}%` },
+        ],
+        formula: "min(100, Math.round(25 + salariedRatio * 350 + literacyRate * 0.2))",
+        explanation: `25 + (${salariedRatio.toFixed(3)} × 350) + (${literacyRate.toFixed(1)} × 0.2)`
+      };
+    } else if (name.includes("Mahila Samman") || name.includes("MSSC")) {
+      const femaleRatio = totF / totP;
+      const genderGap = mLit - fLit;
+      return {
+        factors: [
+          { label: "Female Population", value: totF },
+          { label: "Total Population", value: totP },
+          { label: "Female Ratio", value: `${(femaleRatio * 100).toFixed(1)}%` },
+          { label: "Gender Literacy Gap", value: `${genderGap.toFixed(1)}%` }
+        ],
+        formula: "min(100, Math.round(40 + femaleRatio * 100 + genderGap * 0.5))",
+        explanation: `40 + (${femaleRatio.toFixed(3)} × 100) + (${genderGap.toFixed(1)} × 0.5)`
+      };
+    } else if (name.includes("Atal Pension") || name.includes("APY")) {
+      return {
+        factors: [
+          { label: "Agricultural Workers", value: agriWorkers },
+          { label: "Agricultural Ratio", value: `${(agriRatio * 100).toFixed(1)}%` },
+          { label: "Youth Population (18-24)", value: youthPop },
+          { label: "Youth Ratio", value: `${(youthRatio * 100).toFixed(1)}%` }
+        ],
+        formula: "min(100, Math.round(35 + agriRatio * 200 + youthRatio * 200))",
+        explanation: `35 + (${agriRatio.toFixed(3)} × 200) + (${youthRatio.toFixed(3)} × 200)`
+      };
+    }
+
+    return {
+      factors: [
+        { label: "Weighted Literacy Rate", value: `${literacyRate.toFixed(1)}%` },
+        { label: "Agricultural Ratio", value: `${(agriRatio * 100).toFixed(1)}%` },
+        { label: "Total Population", value: totP }
+      ],
+      formula: "Capped priority rules based on target segment ratios",
+      explanation: "Scored dynamically using segments database indicators mapping."
+    };
+  };
+
   const [selectedData, setSelectedData] = useState(null);
 
   const handleRadioChange = (index) => {
@@ -191,41 +370,31 @@ function DashboardView() {
 
   // Dynamic recommendation lookup for DSS
   const getDynamicRecommendation = () => {
+    if (demographicData) {
+      const computed = calculateVillageRecommendations(demographicData);
+      if (computed && computed.length > 0) {
+        const top = computed[0];
+        return {
+          village: village || regionTitle,
+          recommendedScheme: top.name,
+          opportunityScore: top.score,
+          campaignWindow: top.campaignWindow,
+          keyDrivers: top.keyDrivers,
+          estimatedEligibleCitizens: `~${top.expectedImpact}`,
+          evidence: top.evidence,
+          gap: top.gap,
+          source: top.source,
+          lastUpdated: top.lastUpdated
+        };
+      }
+    }
+
     const normalizedVil = (village || "").trim().toLowerCase();
     if (normalizedVil) {
       const found = recommendations.find(
         (r) => (r.village || "").trim().toLowerCase() === normalizedVil
       );
       if (found) return found;
-
-      // Fallbacks for specific Erode villages
-      if (normalizedVil === "bannari") {
-        return {
-          village: "Bannari",
-          recommendedScheme: "Kisan Credit Card (KCC)",
-          opportunityScore: 89,
-          campaignWindow: "October - November 2026",
-          keyDrivers: [
-            "Predominant agricultural worker demographic (64.2%) in Bannari sector",
-            "Low overall credit utilization and marginal farmer logs",
-            "Favorable seasonal monsoon sowing window detected by event scheduler"
-          ],
-          estimatedEligibleCitizens: "~95"
-        };
-      }
-      
-      return {
-        village: village,
-        recommendedScheme: "Atal Pension Yojana (APY)",
-        opportunityScore: 87,
-        campaignWindow: "November - December 2026",
-        keyDrivers: [
-          `High portion of marginal workers (34.2%) registered in ${village}`,
-          "Low active pension policy count inside sector sub-post office records",
-          "Opportunity to target self-employed shopkeepers and casual laborers"
-        ],
-        estimatedEligibleCitizens: "~85"
-      };
     }
 
     return null;
@@ -234,6 +403,50 @@ function DashboardView() {
   const isLocationSelected = !!(State || District || subpostoffice || postoffice || village);
   const currentRec = getDynamicRecommendation();
   const regionTitle = village || (typeof postoffice === "object" ? postoffice?.name : postoffice) || subpostoffice?.name || District || State?.name || "India (National)";
+
+  const lastLoggedVillage = useRef(null);
+
+  const logRecommendationAudit = async (rec) => {
+    if (!rec || !rec.village) return;
+    try {
+      await axios.post("/api/audit-logs", {
+        actionType: "VIEW_RECOMMENDATION",
+        location: rec.village,
+        recommendation: rec.recommendedScheme,
+        opportunityIndex: rec.opportunityScore,
+        userActionTime: new Date()
+      });
+    } catch (err) {
+      console.warn("Failed to write audit log:", err);
+    }
+  };
+
+  const handleLaunchCampaign = async () => {
+    if (currentRec) {
+      try {
+        await axios.post("/api/audit-logs", {
+          actionType: "LAUNCH_CAMPAIGN",
+          location: currentRec.village || regionTitle,
+          recommendation: currentRec.recommendedScheme,
+          opportunityIndex: currentRec.opportunityScore,
+          userActionTime: new Date()
+        });
+      } catch (err) {
+        console.warn("Failed to log campaign launch:", err);
+      }
+    }
+    router.push("/calender");
+  };
+
+  useEffect(() => {
+    if (demographicData && currentRec) {
+      const uniqueId = `${demographicData.name || "India"}-${currentRec.recommendedScheme}`;
+      if (lastLoggedVillage.current !== uniqueId) {
+        lastLoggedVillage.current = uniqueId;
+        logRecommendationAudit(currentRec);
+      }
+    }
+  }, [demographicData, currentRec]);
 
   const handleExploreClick = () => {
     setActiveTab("state");
@@ -370,25 +583,44 @@ function DashboardView() {
                             <Sparkles size={12} style={{ color: "#C8102E" }} className="animate-pulse" />
                           </div>
                           <span
-                            className="text-xs font-bold uppercase tracking-wider"
+                            className="text-xs font-bold uppercase tracking-wider flex items-center gap-2"
                             style={{ color: "#C8102E" }}
                           >
                             Strategic Action Center
+                            <button
+                              type="button"
+                              onClick={() => setIsMethodologyOpen(true)}
+                              className="text-[10px] lowercase font-normal underline hover:opacity-80 transition cursor-pointer border-none bg-transparent"
+                              style={{ color: "#C8102E" }}
+                            >
+                              (methodology ⓘ)
+                            </button>
                           </span>
                         </div>
                         {/* Opportunity Score badge */}
-                        <div
-                          className="shrink-0 text-center px-3 py-1.5 rounded-xl"
-                          style={{
-                            background: "linear-gradient(135deg, #C8102E 0%, #A00D24 100%)",
-                            boxShadow: "0 4px 12px rgba(200,16,46,0.25)",
-                          }}
-                        >
-                          <div className="text-xl font-extrabold text-white leading-none" style={{ letterSpacing: "-0.03em" }}>
-                            {currentRec.opportunityScore}
-                          </div>
-                          <div className="text-xs font-bold text-white/70 uppercase tracking-wider">/ 100</div>
-                        </div>
+                        <Tooltip>
+                          <TooltipTrigger
+                            type="button"
+                            className="shrink-0 text-center px-3 py-1.5 rounded-xl cursor-pointer hover:scale-105 transition-transform"
+                            onClick={() => setIsMethodologyOpen(true)}
+                            style={{
+                              background: "linear-gradient(135deg, #C8102E 0%, #A00D24 100%)",
+                              boxShadow: "0 4px 12px rgba(200,16,46,0.25)",
+                              border: "none"
+                            }}
+                          >
+                            <div className="text-xl font-extrabold text-white leading-none" style={{ letterSpacing: "-0.03em" }}>
+                              {currentRec.opportunityScore}
+                            </div>
+                            <div className="text-[10px] font-bold text-white/70 uppercase tracking-wider mt-0.5">Index ⓘ</div>
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-slate-900 text-white border-0 text-xs p-2.5 max-w-xs shadow-md z-[100]">
+                            <p className="font-bold mb-1">DSS Opportunity Index</p>
+                            <p className="text-[10px] text-slate-300">
+                              Suitability priority index (0-100) calculated from demographic density and segment ratios. Click to view formulas.
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
                       </div>
 
                       <h3 className="text-lg font-extrabold leading-tight mb-2" style={{ color: "#1A2B4A", letterSpacing: "-0.02em" }}>
@@ -413,7 +645,7 @@ function DashboardView() {
                         <h4 className="text-xs font-bold uppercase tracking-wider" style={{ color: "#94A3B8" }}>
                           Supporting Evidence
                         </h4>
-                        <ul className="space-y-1.5">
+                        <ul className="space-y-1.5 mb-3">
                           {currentRec.keyDrivers?.map((driver, idx) => (
                             <li key={idx} className="flex items-start gap-2">
                               <div
@@ -424,12 +656,88 @@ function DashboardView() {
                             </li>
                           ))}
                         </ul>
+
+                        {/* DSS Metadata Panel */}
+                        <div className="grid grid-cols-2 gap-2 pt-3 border-t border-dashed border-border/80 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
+                          <div>
+                            <span>Evidence:</span> <span className="text-foreground normal-case font-bold">{currentRec.evidence}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <span>Gap Ratio:</span>
+                            <Tooltip>
+                              <TooltipTrigger className="cursor-help hover:opacity-80" aria-label="Gap ratio explanation">
+                                <HelpCircle size={10} className="text-muted-foreground/60" />
+                              </TooltipTrigger>
+                              <TooltipContent className="bg-slate-900 text-white border-0 text-xs p-2.5 max-w-xs shadow-md z-[100]">
+                                <p className="font-bold mb-1">Gap Ratio ⓘ</p>
+                                <p className="text-[10px] text-slate-300">
+                                  Refers to estimated target market penetration gap. Lower gap indicates high potential saturation.
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                            <span className="text-foreground normal-case font-bold">{currentRec.gap}</span>
+                          </div>
+                          <div>
+                            <span>Source:</span> <span className="text-foreground normal-case font-bold">{currentRec.source}</span>
+                          </div>
+                          <div>
+                            {currentRec.lastUpdated === "Census 2011 PCA" ? (
+                              <><span>Dataset Version:</span> <span className="text-foreground normal-case font-bold">Census 2011 PCA</span></>
+                            ) : (
+                              <><span>Last Updated:</span> <span className="text-foreground normal-case font-bold">{currentRec.lastUpdated}</span></>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Collapsible Evidence Details (Drawer/Panel) */}
+                        <div className="pt-3 border-t border-dashed border-border/80">
+                          <button
+                            type="button"
+                            onClick={() => setIsEvidenceOpen(!isEvidenceOpen)}
+                            className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer bg-transparent border-none p-0 uppercase tracking-wider"
+                          >
+                            <span>{isEvidenceOpen ? "Hide Calculation Evidence ▲" : `Why ${currentRec.recommendedScheme}? (View Evidence) ▼`}</span>
+                          </button>
+
+                          {isEvidenceOpen && (() => {
+                            const evidence = getRecommendationEvidence(currentRec.recommendedScheme, demographicData);
+                            if (!evidence) return null;
+                            return (
+                              <div className="mt-2.5 p-3 bg-white rounded-lg border border-slate-100 space-y-2 text-[11px] text-slate-700 font-semibold normal-case">
+                                <div className="space-y-1">
+                                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Demographic Inputs</span>
+                                  <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                                    {evidence.factors.map((f, idx) => (
+                                      <div key={idx} className="flex justify-between border-b border-dashed border-slate-100 pb-0.5">
+                                        <span className="text-slate-500">{f.label}:</span>
+                                        <span className="font-bold text-slate-900">{f.value}</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                                <div className="pt-1.5 border-t border-slate-100 space-y-1">
+                                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Index Formula</span>
+                                  <div className="bg-slate-50 p-2 rounded border border-slate-100 font-mono text-[9.5px] text-slate-900 leading-snug break-all">
+                                    {evidence.formula}
+                                  </div>
+                                </div>
+                                <div className="space-y-1">
+                                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Evaluation Steps</span>
+                                  <div className="bg-emerald-50/50 text-emerald-800 p-2 rounded border border-emerald-100 font-bold text-[10px]">
+                                    Index = {evidence.explanation} = <span className="text-primary font-black">{currentRec.opportunityScore}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })()}
+                        </div>
+
                       </div>
                     </div>
 
                     <div className="flex gap-2 flex-wrap mt-5">
                       <button
-                        onClick={() => router.push("/calender")}
+                        onClick={handleLaunchCampaign}
                         className="flex items-center gap-1.5 h-9 px-4 rounded-lg text-xs font-bold text-white transition-all duration-150"
                         style={{
                           background: "linear-gradient(135deg, #C8102E 0%, #A00D24 100%)",
@@ -598,14 +906,27 @@ function DashboardView() {
                     onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 1px 4px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.03)"; e.currentTarget.style.transform = "translateY(0)"; }}
                   >
                     <div className="flex items-start justify-between">
-                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Literacy</span>
+                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                        Literacy
+                        <Tooltip>
+                          <TooltipTrigger className="cursor-help hover:opacity-80" aria-label="Literacy rate explanation">
+                            <HelpCircle size={12} className="text-muted-foreground/60" />
+                          </TooltipTrigger>
+                          <TooltipContent className="bg-slate-900 text-white border-0 text-xs p-2.5 max-w-xs shadow-md z-[100]">
+                            <p className="font-bold mb-1">Literacy Index ⓘ</p>
+                            <p className="text-[10px] text-slate-300">
+                              Calculated as: (Male Literate + Female Literate) / Total Population × 100. Sourced from Census 2011.
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </span>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "rgba(200,16,46,0.08)" }}>
                         <NotebookTabs className="h-3.5 w-3.5" style={{ color: "#C8102E" }} />
                       </div>
                     </div>
                     <div className="mt-3">
                       <h4 className="text-xl font-extrabold" style={{ color: "#1A2B4A", letterSpacing: "-0.02em" }}>
-                        {demographicData?.fLit && demographicData?.mLit ? `${((demographicData.fLit + demographicData.mLit) / 2).toFixed(1)}%` : "—"}
+                        {getWeightedLiteracy()}
                       </h4>
                       <p className="text-xs text-muted-foreground font-semibold mt-0.5">
                         M: {demographicData?.mLit || 0}% &nbsp;|&nbsp; F: {demographicData?.fLit || 0}%
@@ -1037,7 +1358,7 @@ function DashboardView() {
                 </p>
                 <div className="grid grid-cols-1 gap-1.5 pt-1">
                   <button
-                    onClick={() => triggerChatbot(`Generate a 10-point campaign organization checklist for promoting ${currentRec?.recommendedScheme || "Sukanya Samriddhi Yojana (SSA)"} in ${regionTitle}.`)}
+                    onClick={() => triggerChatbot(`Generate a 10-point campaign organization checklist for promoting ${currentRec?.recommendedScheme || "Sukanya Samriddhi Account (SSA)"} in ${regionTitle}.`)}
                     className="flex items-center gap-2 w-full text-xs font-semibold h-8 px-3 rounded-lg text-left transition-all duration-150"
                     style={{ color: "#374151", background: "#F8FAFF", border: "1px solid #E8EDF5" }}
                     onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#CBD5E1"; }}
@@ -1046,7 +1367,7 @@ function DashboardView() {
                     📝 Get Campaign Checklist
                   </button>
                   <button
-                    onClick={() => triggerChatbot(`Draft an outreach announcement script and localized SMS template for promoting ${currentRec?.recommendedScheme || "Sukanya Samriddhi Yojana (SSA)"} in ${regionTitle}.`)}
+                    onClick={() => triggerChatbot(`Draft an outreach announcement script and localized SMS template for promoting ${currentRec?.recommendedScheme || "Sukanya Samriddhi Account (SSA)"} in ${regionTitle}.`)}
                     className="flex items-center gap-2 w-full text-xs font-semibold h-8 px-3 rounded-lg text-left transition-all duration-150"
                     style={{ color: "#374151", background: "#F8FAFF", border: "1px solid #E8EDF5" }}
                     onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#CBD5E1"; }}
@@ -1063,6 +1384,8 @@ function DashboardView() {
         </div>
 
       </div>
+
+      <DSSMethodologyModal isOpen={isMethodologyOpen} onClose={() => setIsMethodologyOpen(false)} />
     </main>
   );
 }

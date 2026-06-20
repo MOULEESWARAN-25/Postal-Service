@@ -34,98 +34,284 @@ export async function POST(req) {
 
     // --- Deterministic Rules & Weighted Scoring Engine ---
     const recommendations = [];
+    const currentTimestamp = new Date().toISOString().split('T')[0];
 
-    // 1. Sukanya Samriddhi Yojana (SSA)
-    if (gender === 'Female' && age <= 10) {
-      const score = Math.min(98, 90 + (monthlyIncome < 15000 ? 8 : 2));
+    const safeIncome = Number(monthlyIncome || 0);
+    const safeAge = Number(age || 18);
+    const safeLand = Number(landOwnershipAcres || 0);
+    const safeChildren = Number(numberOfChildren || 0);
+    const safeGirls = Number(numberOfGirlChildrenUnder10 || 0);
+
+    // 1. Sukanya Samriddhi Account (SSA)
+    if (gender === 'Female' && safeAge <= 10) {
       recommendations.push({
         schemeCode: 'SSA',
-        name: 'Sukanya Samriddhi Yojana (SSA)',
-        score,
-        drivers: ['✔ Target gender (Female)', '✔ Age is under 10', '✔ High interest savings (8.2%)']
+        name: 'Sukanya Samriddhi Account (SSA)',
+        score: Math.min(98, 90 + (safeIncome < 15000 ? 8 : 2)),
+        drivers: ['✔ Target gender (Female)', '✔ Age is under 10', '✔ High interest savings (8.2%)'],
+        expectedImpact: 'Maturity benefits for child education/marriage goals',
+        source: 'Personal Profile DB + Scheme Rules',
+        lastUpdated: currentTimestamp
       });
-    } else if (numberOfGirlChildrenUnder10 > 0) {
-      const score = Math.min(98, 88 + (monthlyIncome < 15000 ? 8 : 2));
+    } else if (safeGirls > 0) {
       recommendations.push({
         schemeCode: 'SSA',
-        name: 'Sukanya Samriddhi Yojana (SSA)',
-        score,
-        drivers: ['✔ Has girl child under 10', '✔ High interest savings (8.2%)', '✔ Tax deduction under Section 80C']
+        name: 'Sukanya Samriddhi Account (SSA)',
+        score: Math.min(98, 88 + (safeIncome < 15000 ? 8 : 2)),
+        drivers: ['✔ Has girl child under 10', '✔ High interest savings (8.2%)', '✔ Tax deduction under Section 80C'],
+        expectedImpact: 'Maturity benefits for child education/marriage goals',
+        source: 'Personal Profile DB + Scheme Rules',
+        lastUpdated: currentTimestamp
       });
     }
 
-    // 2. Senior Citizen Savings Scheme (SCSS)
-    if (age >= 60) {
-      const score = Math.min(98, 88 + (digitalUsage === 'Low' ? 8 : 3));
+    // 2. Post Office Savings Account (SB)
+    recommendations.push({
+      schemeCode: 'SB',
+      name: 'Post Office Savings Account (SB)',
+      score: Math.min(95, 75 + (safeAge >= 10 ? 15 : 5)),
+      drivers: ['✔ Universal savings access', '✔ Minimal opening balance (₹500)', '✔ Sovereign liquidity guarantee'],
+      expectedImpact: 'Basic savings repository and DBT links',
+      source: 'Personal Profile DB + Scheme Rules',
+      lastUpdated: currentTimestamp
+    });
+
+    // 3. National Savings Recurring Deposit (RD)
+    recommendations.push({
+      schemeCode: 'RD',
+      name: 'National Savings Recurring Deposit (RD)',
+      score: Math.min(95, 70 + (safeIncome < 20000 ? 15 : 5) + (safeAge >= 10 ? 5 : 0)),
+      drivers: ['✔ Regular savings starting from ₹100/month', '✔ Safe fixed compound yield (6.7%)', '✔ Short-term 5-year lock-in'],
+      expectedImpact: 'Guaranteed lump sum corpus at maturity',
+      source: 'Personal Profile DB + Scheme Rules',
+      lastUpdated: currentTimestamp
+    });
+
+    // 4. National Savings Time Deposit (TD)
+    recommendations.push({
+      schemeCode: 'TD',
+      name: 'National Savings Time Deposit (TD)',
+      score: Math.min(95, 65 + (occupation?.toLowerCase() === 'salaried' ? 15 : 5) + (safeIncome >= 15000 ? 10 : 0)),
+      drivers: ['✔ Guaranteed fixed returns (1 to 5 years)', '✔ Higher interest than basic savings', '✔ Section 80C benefits for 5-year lock-in'],
+      expectedImpact: 'Capital preservation and fixed income growth',
+      source: 'Personal Profile DB + Scheme Rules',
+      lastUpdated: currentTimestamp
+    });
+
+    // 5. Monthly Income Scheme (MIS)
+    if (safeAge >= 50 || safeIncome > 20000) {
       recommendations.push({
-        schemeCode: 'SCSS',
-        name: 'Senior Citizen Savings Scheme (SCSS)',
-        score,
-        drivers: ['✔ Age is 60+ (Senior Citizen)', '✔ High regular interest payouts (8.2%)', '✔ Sovereign security backing']
+        schemeCode: 'MIS',
+        name: 'Monthly Income Scheme (MIS)',
+        score: Math.min(95, 60 + (safeAge >= 60 ? 25 : 10)),
+        drivers: ['✔ Regular monthly interest payouts', '✔ Low-risk sovereign capital guarantee', '✔ Suitable for retired segments'],
+        expectedImpact: 'Regular monthly post-retirement payouts',
+        source: 'Personal Profile DB + Scheme Rules',
+        lastUpdated: currentTimestamp
       });
     }
 
-    // 3. Kisan Credit Card (KCC)
-    if (occupation?.toLowerCase() === 'agriculture' || landOwnershipAcres > 0) {
-      const score = Math.min(98, 85 + (landOwnershipAcres > 5 ? 10 : 3));
-      recommendations.push({
-        schemeCode: 'KCC',
-        name: 'Kisan Credit Card (KCC)',
-        score,
-        drivers: ['✔ Owns agricultural land', '✔ Low-interest cultivation loans (7.0%)', '✔ Repayment aligned to harvest cycles']
-      });
-    }
-
-    // 4. Public Provident Fund (PPF)
-    if (age >= 18 && monthlyIncome > 15000) {
-      const score = Math.min(98, 80 + (digitalUsage === 'High' ? 10 : 5));
+    // 6. Public Provident Fund (PPF)
+    if (safeAge >= 18) {
       recommendations.push({
         schemeCode: 'PPF',
         name: 'Public Provident Fund (PPF)',
-        score,
-        drivers: ['✔ Age is 18+', '✔ Tax-free interest and maturity (7.1%)', '✔ Long-term wealth compounding']
+        score: Math.min(98, 70 + (occupation?.toLowerCase() === 'salaried' ? 18 : 5) + (safeIncome >= 25000 ? 8 : 0)),
+        drivers: ['✔ Long-term compounding wealth asset', '✔ EEE tax exemptions (interest & maturity)', '✔ Sovereign-backed 15-year tenure'],
+        expectedImpact: 'Tax-exempt long-term compounding corpus',
+        source: 'Personal Profile DB + Scheme Rules',
+        lastUpdated: currentTimestamp
       });
     }
 
-    // 5. Recurring Deposit Scheme (RD)
-    if (age >= 10) {
-      const score = Math.min(95, 75 + (digitalUsage !== 'Low' ? 10 : 5));
+    // 7. Senior Citizens Savings Scheme (SCSS)
+    if (safeAge >= 60) {
       recommendations.push({
-        schemeCode: 'RD',
-        name: 'Recurring Deposit Scheme (RD)',
-        score,
-        drivers: ['✔ Age is 10+', '✔ Fixed monthly savings starting from ₹100', '✔ Safe compound interest (6.7%)']
+        schemeCode: 'SCSS',
+        name: 'Senior Citizens Savings Scheme (SCSS)',
+        score: Math.min(98, 88 + (digitalUsage === 'Low' ? 8 : 3)),
+        drivers: ['✔ Age is 60+ (Senior Citizen)', '✔ High regular interest yield (8.2%)', '✔ Sovereign security backing'],
+        expectedImpact: 'Quarterly regular retirement income payouts',
+        source: 'Personal Profile DB + Scheme Rules',
+        lastUpdated: currentTimestamp
       });
     }
 
-    // 6. Post Office Savings Account (POSA)
-    const posaScore = Math.min(95, 70 + (monthlyIncome < 10000 ? 15 : 5));
-    recommendations.push({
-      schemeCode: 'POSA',
-      name: 'Post Office Savings Account (POSA)',
-      score: posaScore,
-      drivers: ['✔ Liquidity and safety', '✔ Low minimum balance of ₹500', '✔ Tax-free interest up to ₹10,000']
-    });
+    // 8. National Savings Certificate (NSC)
+    if (safeAge >= 10) {
+      recommendations.push({
+        schemeCode: 'NSC',
+        name: 'National Savings Certificate (NSC)',
+        score: Math.min(95, 65 + (occupation?.toLowerCase() === 'salaried' ? 15 : 5)),
+        drivers: ['✔ Guaranteed 5-year yield (7.7%)', '✔ Tax deduction under Section 80C', '✔ Acceptable as bank collateral'],
+        expectedImpact: 'Fixed-income capital protection asset',
+        source: 'Personal Profile DB + Scheme Rules',
+        lastUpdated: currentTimestamp
+      });
+    }
 
-    // 7. Mahila Samman Savings Certificate
-    if (gender === 'Female' && age >= 18) {
-      const score = Math.min(98, 82 + (monthlyIncome < 20000 ? 10 : 4));
+    // 9. Kisan Vikas Patra (KVP)
+    if (occupation?.toLowerCase() === 'agriculture' || safeLand > 0) {
+      recommendations.push({
+        schemeCode: 'KVP',
+        name: 'Kisan Vikas Patra (KVP)',
+        score: Math.min(96, 75 + (safeLand > 2 ? 15 : 5)),
+        drivers: ['✔ Capital doubles over fixed tenure', '✔ Rural agrarian segment focus', '✔ Safe sovereign asset growth'],
+        expectedImpact: 'Simple capital doubling security',
+        source: 'Personal Profile DB + Scheme Rules',
+        lastUpdated: currentTimestamp
+      });
+    }
+
+    // 10. Mahila Samman Savings Certificate (MSSC)
+    if (gender === 'Female') {
       recommendations.push({
         schemeCode: 'MSSC',
-        name: 'Mahila Samman Savings Certificate',
-        score,
-        drivers: ['✔ Target gender (Female)', '✔ Fixed 2-year tenure (7.5%)', '✔ Partial withdrawal option']
+        name: 'Mahila Samman Savings Certificate (MSSC)',
+        score: Math.min(98, 80 + (safeIncome < 20000 ? 10 : 5)),
+        drivers: ['✔ Target gender (Female)', '✔ High-interest 2-year tenure (7.5%)', '✔ Accords women independent wealth'],
+        expectedImpact: 'High-interest 2-year fixed saving for women',
+        source: 'Personal Profile DB + Scheme Rules',
+        lastUpdated: currentTimestamp
       });
     }
 
-    // 8. Atal Pension Yojana (APY)
-    if (age >= 18 && age <= 40) {
-      const score = Math.min(98, 80 + (occupation?.toLowerCase() === 'agriculture' || occupation?.toLowerCase() === 'self-employed' ? 12 : 3));
+    // 11. PM CARES for Children Scheme
+    if (safeAge < 18) {
+      recommendations.push({
+        schemeCode: 'PMCARES',
+        name: 'PM CARES for Children Scheme',
+        score: 40,
+        drivers: ['✔ Target cohort (Minors)', '✔ Sovereign support link', '✔ Educational backing options'],
+        expectedImpact: 'Casework-basis minor rehabilitation support',
+        source: 'Personal Profile DB + Scheme Rules',
+        lastUpdated: currentTimestamp
+      });
+    }
+
+    // 12. Regular Savings Account (IPPB)
+    recommendations.push({
+      schemeCode: 'IPPB_REG',
+      name: 'Regular Savings Account (IPPB)',
+      score: Math.min(95, 60 + (digitalUsage === 'High' ? 20 : 10) + (safeAge >= 10 ? 10 : 0)),
+      drivers: ['✔ Digital-first doorstep banking', '✔ KYC link (Aadhaar & PAN)', '✔ Convenient app interface for utility bills'],
+      expectedImpact: 'Dynamic transaction and mobile utility link',
+      source: 'Personal Profile DB + Scheme Rules',
+      lastUpdated: currentTimestamp
+    });
+
+    // 13. Basic Savings Account (IPPB)
+    recommendations.push({
+      schemeCode: 'IPPB_BAS',
+      name: 'Basic Savings Account (IPPB)',
+      score: Math.min(95, 65 + (digitalUsage === 'Low' ? 15 : 5) + (safeIncome < 12000 ? 10 : 0)),
+      drivers: ['✔ Zero minimum balance account', '✔ Simplifies DBT subsidy receipt', '✔ Direct local sweep options to POSB'],
+      expectedImpact: 'Zero-fee subsidy sweep account',
+      source: 'Personal Profile DB + Scheme Rules',
+      lastUpdated: currentTimestamp
+    });
+
+    // 14. DigiSmart Savings Account (IPPB)
+    if (safeAge >= 18) {
+      recommendations.push({
+        schemeCode: 'IPPB_DIGI',
+        name: 'DigiSmart Savings Account (IPPB)',
+        score: Math.min(96, 50 + (safeAge <= 30 ? 25 : 5) + (digitalUsage === 'High' ? 15 : 0)),
+        drivers: ['✔ Target youth (18+ app users)', '✔ Cashbacks and zero-fee sweeps', '✔ Direct online card links'],
+        expectedImpact: 'Modern mobile-first transaction account',
+        source: 'Personal Profile DB + Scheme Rules',
+        lastUpdated: currentTimestamp
+      });
+    }
+
+    // 15. Premium Savings Account (IPPB)
+    if (safeAge >= 10 && safeIncome > 18000) {
+      recommendations.push({
+        schemeCode: 'IPPB_PREM',
+        name: 'Premium Savings Account (IPPB)',
+        score: Math.min(95, 45 + (digitalUsage === 'High' ? 25 : 10)),
+        drivers: ['✔ Value-added premium cashback benefits', '✔ Zero charges on sweeps and cashouts', '✔ Premium support access'],
+        expectedImpact: 'High-benefit transactional current sweeps',
+        source: 'Personal Profile DB + Scheme Rules',
+        lastUpdated: currentTimestamp
+      });
+    }
+
+    // 16. Premium Aarogya Savings Account (IPPB)
+    if (safeAge >= 10) {
+      recommendations.push({
+        schemeCode: 'IPPB_AAR',
+        name: 'Premium Aarogya Savings Account (IPPB)',
+        score: Math.min(95, 40 + (safeAge >= 40 ? 20 : 5) + (safeIncome > 15000 ? 15 : 5)),
+        drivers: ['✔ Bundled telehealth consultations', '✔ Wellness and medical discounts', '✔ Inbuilt accidental insurance'],
+        expectedImpact: 'Combined healthcare accessibility and banking',
+        source: 'Personal Profile DB + Scheme Rules',
+        lastUpdated: currentTimestamp
+      });
+    }
+
+    // 17. SHG Savings Account (IPPB)
+    if (occupation?.toLowerCase() === 'self-employed' || occupation?.toLowerCase() === 'agriculture') {
+      recommendations.push({
+        schemeCode: 'IPPB_SHG',
+        name: 'SHG Savings Account (IPPB)',
+        score: Math.min(96, 60 + (gender === 'Female' ? 20 : 5)),
+        drivers: ['✔ Targeted at rural micro-entrepreneurs', '✔ Supports group Self-Help collections', '✔ Links directly to small business credit'],
+        expectedImpact: 'Collective entrepreneurial group account',
+        source: 'Personal Profile DB + Scheme Rules',
+        lastUpdated: currentTimestamp
+      });
+    }
+
+    // 18. Current Account (IPPB)
+    if (occupation?.toLowerCase() === 'self-employed' || safeIncome > 20000) {
+      recommendations.push({
+        schemeCode: 'IPPB_CURR',
+        name: 'Current Account (IPPB)',
+        score: Math.min(95, 55 + (occupation?.toLowerCase() === 'self-employed' ? 25 : 10)),
+        drivers: ['✔ Unlimited deposit and withdrawal limits', '✔ Integrated merchant QR payments', '✔ Streamlines business cashflow'],
+        expectedImpact: 'Merchant and retail business support account',
+        source: 'Personal Profile DB + Scheme Rules',
+        lastUpdated: currentTimestamp
+      });
+    }
+
+    // 19. Pradhan Mantri Jeevan Jyoti Bima Yojana (PMJJBY)
+    if (safeAge >= 18 && safeAge <= 50) {
+      recommendations.push({
+        schemeCode: 'PMJJBY',
+        name: 'Pradhan Mantri Jeevan Jyoti Bima Yojana (PMJJBY)',
+        score: Math.min(97, 75 + (safeIncome < 20000 ? 12 : 4)),
+        drivers: ['✔ Earning age cohort (18-50)', '✔ Low-cost term life insurance (₹2 Lakh for ₹436/yr)', '✔ Auto-debit ease from savings'],
+        expectedImpact: 'Term life cover backing for family safety',
+        source: 'Personal Profile DB + Scheme Rules',
+        lastUpdated: currentTimestamp
+      });
+    }
+
+    // 20. Pradhan Mantri Suraksha Bima Yojana (PMSBY)
+    if (safeAge >= 18 && safeAge <= 70) {
+      recommendations.push({
+        schemeCode: 'PMSBY',
+        name: 'Pradhan Mantri Suraksha Bima Yojana (PMSBY)',
+        score: Math.min(97, 80 + (safeIncome < 25000 ? 10 : 3)),
+        drivers: ['✔ Adult age cohort (18-70)', '✔ Highly affordable accident cover (₹2 Lakh for ₹20/yr)', '✔ Automatic payment ease'],
+        expectedImpact: 'Accidental disability and demise safety net',
+        source: 'Personal Profile DB + Scheme Rules',
+        lastUpdated: currentTimestamp
+      });
+    }
+
+    // 21. Atal Pension Yojana (APY)
+    if (safeAge >= 18 && safeAge <= 40) {
       recommendations.push({
         schemeCode: 'APY',
         name: 'Atal Pension Yojana (APY)',
-        score,
-        drivers: ['✔ Age is between 18 and 40', '✔ Guaranteed pension after 60', '✔ Low-cost social security coverage']
+        score: Math.min(98, 70 + (occupation?.toLowerCase() === 'agriculture' || safeIncome < 15000 ? 18 : 5)),
+        drivers: ['✔ Age is between 18 and 40', '✔ Guaranteed pension after 60 (₹1k-5k/month)', '✔ Designed for unorganized sector labor'],
+        expectedImpact: 'Lifetime regular retirement pension support',
+        source: 'Personal Profile DB + Scheme Rules',
+        lastUpdated: currentTimestamp
       });
     }
 
@@ -133,13 +319,16 @@ export async function POST(req) {
     recommendations.sort((a, b) => b.score - a.score);
     const topRecommendations = recommendations.slice(0, 3);
 
-    // Make sure we have 3 recommendations (pad with POSA/RD if needed)
+    // Make sure we have 3 recommendations (pad with SB/RD if needed)
     while (topRecommendations.length < 3) {
       topRecommendations.push({
-        schemeCode: 'POSA',
-        name: 'Post Office Savings Account (POSA)',
+        schemeCode: 'SB',
+        name: 'Post Office Savings Account (SB)',
         score: 70,
-        drivers: ['✔ Basic safe savings account']
+        drivers: ['✔ Basic safe savings account'],
+        expectedImpact: 'Basic savings repository',
+        source: 'Personal Profile DB + Scheme Rules',
+        lastUpdated: currentTimestamp
       });
     }
 
@@ -178,7 +367,6 @@ Return your answer as a JSON object strictly matching this format (no markdown b
 
       // Try parsing the JSON
       let text = response.text.trim();
-      // Strip markdown code fences if Gemini added them
       if (text.startsWith("```")) {
         const matches = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
         if (matches && matches[1]) {
@@ -189,7 +377,7 @@ Return your answer as a JSON object strictly matching this format (no markdown b
     } catch (err) {
       console.error("Gemini Explanation Generation failed, using fallbacks:", err);
       explanations = {
-        explanation1: `${topRecommendations[0].name} matches the applicant's age profile of ${age} and financial capacity.`,
+        explanation1: `${topRecommendations[0].name} matches the applicant's profile of age ${age} and financial capacity.`,
         explanation2: `${topRecommendations[1].name} is a stable option for their ${occupation} background.`,
         explanation3: `${topRecommendations[2].name} provides secondary savings and liquidity support.`
       };

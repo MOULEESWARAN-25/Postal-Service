@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import ApexCharts from 'apexcharts';
 import useDashboardStore from '@/store/dashboardStore';
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { APEX_CHART_THEME } from "@/components/ui/chart-custom";
 
 export default function PopulationSpike() {
   const chartRef = useRef(null);
@@ -32,19 +33,18 @@ export default function PopulationSpike() {
     ];
 
     const options = {
+      ...APEX_CHART_THEME,
       chart: {
-        height: 300,
+        ...APEX_CHART_THEME.chart,
+        height: 250,
         width: "100%",
         type: "area",
-        fontFamily: "Poppins, sans-serif",
         dropShadow: {
           enabled: false,
         },
-        toolbar: {
-          show: false,
-        },
       },
       tooltip: {
+        ...APEX_CHART_THEME.tooltip,
         enabled: true,
         x: {
           show: false,
@@ -63,27 +63,17 @@ export default function PopulationSpike() {
         enabled: false,
       },
       stroke: {
-        width: 6,
-      },
-      grid: {
-        show: true,
-        borderColor: '#f1f5f9',
-        strokeDashArray: 4,
-        padding: {
-          left: 30,
-          right: 20,
-          top: 10,
-          bottom: 10,
-        },
+        width: 4,
+        colors: ["#1A2B4A"]
       },
       series: [
         {
           name: "Population",
           data: populationData, // Use the calculated population data
-          color: "#1A2B4A",
         },
       ],
       xaxis: {
+        ...APEX_CHART_THEME.xaxis,
         categories: years, // Use dynamically generated years
         labels: {
           show: true,
@@ -98,7 +88,6 @@ export default function PopulationSpike() {
       yaxis: {
         show: false,
       },
-      
     };
 
     // Initialize the chart and render it

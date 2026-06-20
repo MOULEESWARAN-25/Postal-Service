@@ -57,6 +57,12 @@ const SubPostOfficeSearch = () => {
             });
           }
         });
+        unique.push({
+          name: "Thirumangalam North Extension Rural Division",
+          pincode: "638401",
+          division: "Erode Division",
+          state: "Tamil Nadu",
+        });
         unique.sort((a, b) => a.name.localeCompare(b.name));
 
         setAllSubPostOffices(unique);

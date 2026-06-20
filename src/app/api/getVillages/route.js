@@ -19,8 +19,9 @@ export async function POST(req) {
 
     // Try MongoDB first (has detailed data for Erode and similar)
     // Filter using lowercase "district" field and filter out aggregate rows
+    const escapedDistrict = District.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const mongoVillages = await Village.distinct("name", {
-      district: { $regex: new RegExp(`^${District}$`, "i") },
+      district: { $regex: new RegExp(`^${escapedDistrict}$`, "i") },
       // Only real village records: name != district (excludes district-level aggregates)
       $expr: { $ne: ["$name", "$district"] },
       // Also ensure subDistrict exists and is different from district

@@ -22,7 +22,7 @@ Context: You're assisting individuals seeking advice on savings, investments, an
 Format your response using this specific Markdown structure:
 
 ## 🏦 Overview of Relevant Schemes
-• [Brief description of key post office schemes like PPF, NSC, FD, etc.]
+• [Brief description of key post office schemes like PPF, NSC, TD, etc.]
 
 ## 📋 Detailed Advice
 

@@ -149,21 +149,27 @@ const FeedbackForm = () => {
   ];
 
   const schemeIdentificationOptions = [
-    "Post Office Savings Account(POSA)",
-    "Recurring Deposit (RD)",
-    "Time Deposit (TD)",
+    "Post Office Savings Account (SB)",
+    "National Savings Recurring Deposit (RD)",
+    "National Savings Time Deposit (TD)",
+    "Monthly Income Scheme (MIS)",
     "Public Provident Fund (PPF)",
+    "Senior Citizens Savings Scheme (SCSS)",
+    "Sukanya Samriddhi Account (SSA)",
     "National Savings Certificate (NSC)",
     "Kisan Vikas Patra (KVP)",
-    "Sukanya Samriddhi Yojana (SSY)",
-    "Senior Citizen Savings Scheme (SCSS)",
-    "Atal Pension Yojana (APY)",
-    "Postal Life Insurance (PLI)",
-    "Rural Postal Life Insurance (RPLI)",
     "Mahila Samman Savings Certificate (MSSC)",
-    "Kisan Credit Card (KCC)",
-    "Fixed Deposit(FD)",
-    "Monthly Income Account (MIS)",
+    "PM CARES for Children Scheme",
+    "Regular Savings Account (IPPB)",
+    "Basic Savings Account (IPPB)",
+    "DigiSmart Savings Account (IPPB)",
+    "Premium Savings Account (IPPB)",
+    "Premium Aarogya Savings Account (IPPB)",
+    "SHG Savings Account (IPPB)",
+    "Current Account (IPPB)",
+    "PMJJBY (Third-Party Insurance)",
+    "PMSBY (Third-Party Insurance)",
+    "Atal Pension Yojana (APY)"
   ];
 
   return (

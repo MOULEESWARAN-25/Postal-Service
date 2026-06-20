@@ -111,7 +111,7 @@ export default function VillageIntelligenceView() {
                 <div>
                   <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Campaign Recommendation Heuristic</span>
                   <div className="text-xs font-bold text-foreground mt-2 leading-relaxed">
-                    Sowing starts in July for cotton. Setup Kisan Credit Card (KCC) kiosks at local village centers.
+                    Sowing starts in July for cotton. Setup Kisan Vikas Patra (KVP) information desks at local village centers.
                   </div>
                 </div>
                 <div className="text-xs text-muted-foreground font-bold mt-4 uppercase tracking-widest">

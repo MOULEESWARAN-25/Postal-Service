@@ -106,7 +106,7 @@ export default function ModernCalendar() {
   const correctedStartDay = startDay === 0 ? 6 : startDay - 1;
 
   const handleSuggestCampaign = (event) => {
-    const promptText = `Suggest a campaign plan for the event "${event.eventName}" at "${event.location}" scheduled on ${new Date(event.date).toLocaleDateString()}. Expected crowd is ${event.expectedCrowd || "High"} and suggested schemes are ${event.suggestedSchemes || "POSA, APY"}. Provide a strategy, suggested promotion techniques, and timelines.`;
+    const promptText = `Suggest a campaign plan for the event "${event.eventName}" at "${event.location}" scheduled on ${new Date(event.date).toLocaleDateString()}. Expected crowd is ${event.expectedCrowd || "High"} and suggested schemes are ${event.suggestedSchemes || "SB, APY"}. Provide a strategy, suggested promotion techniques, and timelines.`;
     triggerChatbot(promptText);
   };
 
@@ -340,7 +340,7 @@ export default function ModernCalendar() {
                            <span className="text-xs font-bold text-primary uppercase tracking-widest block mb-1">
                             Recommended Promotion Schemes
                           </span>
-                          <p className="text-xs text-foreground font-bold">{event.suggestedSchemes || "POSA, APY"}</p>
+                          <p className="text-xs text-foreground font-bold">{event.suggestedSchemes || "SB, APY"}</p>
                         </div>
 
                         <Button

@@ -20,8 +20,8 @@ export async function POST(req) {
   await connectToDatabase();
 
   try {
-    // Parse the JSON payload from the incoming request
     const data = await req.json();
+    const selectedScheme = data.selectedScheme || "Sukanya Samriddhi Account (SSA)";
 
     // Common filtering function to reduce code duplication
     async function filterDataByBranchOffices(branchOffices) {
@@ -57,16 +57,30 @@ export async function POST(req) {
 
           // Check if the Area exists in the list of areas for the Branch Post Office
           if (branchOffices[correctKey].includes(area)) {
-            // Add the item to the appropriate branch array in filteredResults
-            const formattedKey = correctKey.charAt(0).toUpperCase() + correctKey.slice(1);
-            filteredResults[formattedKey].push(item);
-            
-            // Update the length of filtered results for this branch
-            resultLengths[formattedKey]++;
+            // Check if eligible for the selected scheme
+            const isEligible = 
+              item.recommendedScheme1 === selectedScheme ||
+              item.recommendedScheme2 === selectedScheme ||
+              item.recommendedScheme3 === selectedScheme ||
+              (item.recommandendSchemes && item.recommandendSchemes.includes(selectedScheme));
 
-            // Count Scheme 1:1 items
-            if (item.scheme1 === 1) {
-              schemeCount[formattedKey]++;
+            if (isEligible) {
+              // Add the item to the appropriate branch array in filteredResults
+              const formattedKey = correctKey.charAt(0).toUpperCase() + correctKey.slice(1);
+              filteredResults[formattedKey].push(item);
+              
+              // Update the length of filtered results for this branch
+              resultLengths[formattedKey]++;
+
+              // Check if enrolled in this selected scheme
+              const isEnrolled = 
+                (item.recommendedScheme1 === selectedScheme && item.scheme1 === 1) ||
+                (item.recommendedScheme2 === selectedScheme && item.scheme2 === 1) ||
+                (item.recommendedScheme3 === selectedScheme && item.scheme3 === 1);
+
+              if (isEnrolled) {
+                schemeCount[formattedKey]++;
+              }
             }
           }
         }
@@ -83,20 +97,23 @@ export async function POST(req) {
       // Dynamically add count for each branch office
       Object.keys(branchOffices).forEach(key => {
         const formattedKey = key.toLowerCase();
-        responseObject[formattedKey] = schemeCount[key.charAt(0).toUpperCase() + key.slice(1)];
+        const lookupKey = key.charAt(0).toUpperCase() + key.slice(1);
+        responseObject[formattedKey] = schemeCount[lookupKey];
       });
 
       return responseObject;
     }
 
-    // Handle Sathyamangalam request
-    if (data.State === "Tamil Nadu" && data.District === "Erode" && data.SubpostOffice === "Sathiyamangalam") {
+    // Handle Sathyamangalam / Thirumangalam request
+    const subPO = data.SubpostOffice ? data.SubpostOffice.toLowerCase() : "";
+    if (data.State === "Tamil Nadu" && data.District === "Erode" && 
+        (subPO.includes("sathy") || subPO.includes("thirumangalam"))) {
       const result = await filterDataByBranchOffices(sathyBranchOffices);
       return new Response(JSON.stringify(result), { status: 200 });
     }
 
     // Handle Perundurai request
-    if (data.State === "Tamil Nadu" && data.District === "Erode" && data.SubpostOffice === "Perundurai") {
+    if (data.State === "Tamil Nadu" && data.District === "Erode" && subPO.includes("perundurai")) {
       const result = await filterDataByBranchOffices(perunduraiBranchOffices);
       return new Response(JSON.stringify(result), { status: 200 });
     }

@@ -1,41 +1,50 @@
 import React, { useRef, useEffect } from "react";
 import ApexCharts from "apexcharts";
+import { APEX_CHART_THEME } from "@/components/ui/chart-custom";
 
 export default function SuccessRateChart({ scheme }) {
-  const chartId = `donut-chart-${scheme.id || Math.random()}`;
+  const generatedId = React.useId();
+  const chartId = `donut-chart-${scheme.id || generatedId.replace(/:/g, "")}`;
   const series1 = scheme.successRate || 0;
   const series2 = 100 - series1;
-
-  const options = {
-    series: [series1, series2],
-    colors: ["#818cf7", "#a6b4fd"],
-    chart: {
-      height: 200,
-      width: "100%",
-      type: "donut",
-    },
-    plotOptions: {
-      pie: {
-        donut: {
-          size: "55%",
-          labels: {
-            show: false,
-          },
-        },
-      },
-    },
-    dataLabels: {
-      enabled: false,
-    },
-    legend: {
-      show: false,
-    },
-  };
 
   const chartRef = useRef(null);
 
   useEffect(() => {
     let chart;
+    const series1 = scheme.successRate || 0;
+    const series2 = 100 - series1;
+    const options = {
+      ...APEX_CHART_THEME,
+      series: [series1, series2],
+      chart: {
+        ...APEX_CHART_THEME.chart,
+        height: 200,
+        width: "100%",
+        type: "donut",
+      },
+      stroke: {
+        colors: ["var(--color-surface)"],
+        width: 2,
+      },
+      plotOptions: {
+        pie: {
+          donut: {
+            size: "65%",
+            labels: {
+              show: false,
+            },
+          },
+        },
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      legend: {
+        show: false,
+      },
+    };
+
     if (chartRef.current) {
       chart = new ApexCharts(chartRef.current, options);
       chart.render();
@@ -45,7 +54,7 @@ export default function SuccessRateChart({ scheme }) {
         chart.destroy();
       }
     };
-  }, [scheme, options]);
+  }, [scheme]);
 
   return (
     <div className="w-full h-full  rounded-lg shadow-md flex items-center bg-white">

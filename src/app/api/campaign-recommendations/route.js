@@ -12,7 +12,8 @@ export async function GET(request) {
 
     const filter = {};
     if (village) {
-      filter.village = { $regex: new RegExp(village, "i") };
+      const escaped = village.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      filter.village = { $regex: new RegExp(escaped, "i") };
     }
 
     const recommendations = await CampaignRecommendation.find(filter).sort({ opportunityScore: -1 });

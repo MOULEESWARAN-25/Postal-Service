@@ -78,6 +78,9 @@ async function seed() {
   const DemographicsSchema = new mongoose.Schema({}, { strict: false });
   const Demographics = mongoose.models.Demographics || mongoose.model('Demographics', DemographicsSchema, 'demographics');
 
+  const HeadPostDataSchema = new mongoose.Schema({}, { strict: false });
+  const HeadPostData = mongoose.models.HeadPostData || mongoose.model('HeadPostData', HeadPostDataSchema, 'HeadPostData');
+
   console.log('Cleaning collections...');
   await Promise.all([
     DemographicsTamilNadu.deleteMany({}),
@@ -90,7 +93,8 @@ async function seed() {
     Enrollment.deleteMany({}),
     Scheme.deleteMany({}),
     PostOffice.deleteMany({}),
-    Demographics.deleteMany({})
+    Demographics.deleteMany({}),
+    HeadPostData.deleteMany({})
   ]);
 
   console.log('Seeding demographic_tamilnadu...');
@@ -103,43 +107,52 @@ async function seed() {
     mainworkP: 362400000, mainClP: 95800000, mainAlP: 82700000, mainHhP: 13200000, mainOtP: 170700000,
     margworkP: 119200000, margClP: 22000000, margAlP: 61800000, margHhP: 3800000, margOtP: 31600000,
     noHh: 249253000, population717: 230000000, population1824: 140000000,
-    population2540: 310000000, population4060: 250000000, population60Plus: 104000000
+    population2540: 310000000, population4060: 250000000, population60Plus: 104000000,
+    lastUpdated: new Date("2026-06-20T00:00:00.000Z")
   };
 
-  const createLocationPCA = (name, district, subDistrict, tru, pRatio) => ({
-    name,
-    district,
-    subDistrict,
-    tru,
-    totP: Math.round(baseIndiaTotal.totP * pRatio),
-    totM: Math.round(baseIndiaTotal.totM * pRatio),
-    totF: Math.round(baseIndiaTotal.totF * pRatio),
-    mLit: baseIndiaTotal.mLit,
-    mIll: baseIndiaTotal.mIll,
-    fLit: baseIndiaTotal.fLit,
-    fIll: baseIndiaTotal.fIll,
-    totWorkP: Math.round(baseIndiaTotal.totWorkP * pRatio),
-    totWorkM: Math.round(baseIndiaTotal.totWorkM * pRatio),
-    totWorkF: Math.round(baseIndiaTotal.totWorkF * pRatio),
-    nonWorkM: Math.round(baseIndiaTotal.nonWorkM * pRatio),
-    nonWorkF: Math.round(baseIndiaTotal.nonWorkF * pRatio),
-    mainworkP: Math.round(baseIndiaTotal.mainworkP * pRatio),
-    mainClP: Math.round(baseIndiaTotal.mainClP * pRatio),
-    mainAlP: Math.round(baseIndiaTotal.mainAlP * pRatio),
-    mainHhP: Math.round(baseIndiaTotal.mainHhP * pRatio),
-    mainOtP: Math.round(baseIndiaTotal.mainOtP * pRatio),
-    margworkP: Math.round(baseIndiaTotal.margworkP * pRatio),
-    margClP: Math.round(baseIndiaTotal.margClP * pRatio),
-    margAlP: Math.round(baseIndiaTotal.margAlP * pRatio),
-    margHhP: Math.round(baseIndiaTotal.margHhP * pRatio),
-    margOtP: Math.round(baseIndiaTotal.margOtP * pRatio),
-    noHh: Math.round(baseIndiaTotal.noHh * pRatio),
-    population717: Math.round(baseIndiaTotal.population717 * pRatio),
-    population1824: Math.round(baseIndiaTotal.population1824 * pRatio),
-    population2540: Math.round(baseIndiaTotal.population2540 * pRatio),
-    population4060: Math.round(baseIndiaTotal.population4060 * pRatio),
-    population60Plus: Math.round(baseIndiaTotal.population60Plus * pRatio)
-  });
+  const createLocationPCA = (name, district, subDistrict, tru, pRatio) => {
+    const charCodeSum = name.split("").reduce((sum, ch) => sum + ch.charCodeAt(0), 0);
+    const litOffset = (charCodeSum % 11) - 5; // yields offset between -5% and +5%
+    const mLit = Math.max(50, Math.min(95, baseIndiaTotal.mLit + litOffset));
+    const fLit = Math.max(40, Math.min(90, baseIndiaTotal.fLit + litOffset));
+
+    return {
+      name,
+      district,
+      subDistrict,
+      tru,
+      totP: Math.round(baseIndiaTotal.totP * pRatio),
+      totM: Math.round(baseIndiaTotal.totM * pRatio),
+      totF: Math.round(baseIndiaTotal.totF * pRatio),
+      mLit: Number(mLit.toFixed(1)),
+      mIll: Number((100 - mLit).toFixed(1)),
+      fLit: Number(fLit.toFixed(1)),
+      fIll: Number((100 - fLit).toFixed(1)),
+      totWorkP: Math.round(baseIndiaTotal.totWorkP * pRatio),
+      totWorkM: Math.round(baseIndiaTotal.totWorkM * pRatio),
+      totWorkF: Math.round(baseIndiaTotal.totWorkF * pRatio),
+      nonWorkM: Math.round(baseIndiaTotal.nonWorkM * pRatio),
+      nonWorkF: Math.round(baseIndiaTotal.nonWorkF * pRatio),
+      mainworkP: Math.round(baseIndiaTotal.mainworkP * pRatio),
+      mainClP: Math.round(baseIndiaTotal.mainClP * pRatio),
+      mainAlP: Math.round(baseIndiaTotal.mainAlP * pRatio),
+      mainHhP: Math.round(baseIndiaTotal.mainHhP * pRatio),
+      mainOtP: Math.round(baseIndiaTotal.mainOtP * pRatio),
+      margworkP: Math.round(baseIndiaTotal.margworkP * pRatio),
+      margClP: Math.round(baseIndiaTotal.margClP * pRatio),
+      margAlP: Math.round(baseIndiaTotal.margAlP * pRatio),
+      margHhP: Math.round(baseIndiaTotal.margHhP * pRatio),
+      margOtP: Math.round(baseIndiaTotal.margOtP * pRatio),
+      noHh: Math.round(baseIndiaTotal.noHh * pRatio),
+      population717: Math.round(baseIndiaTotal.population717 * pRatio),
+      population1824: Math.round(baseIndiaTotal.population1824 * pRatio),
+      population2540: Math.round(baseIndiaTotal.population2540 * pRatio),
+      population4060: Math.round(baseIndiaTotal.population4060 * pRatio),
+      population60Plus: Math.round(baseIndiaTotal.population60Plus * pRatio),
+      lastUpdated: new Date("2026-06-20T00:00:00.000Z")
+    };
+  };
 
   const demographicVillages = [
     // INDIA totals
@@ -158,17 +171,17 @@ async function seed() {
     { ...createLocationPCA('Erode', 'Erode', 'Erode', 'Urban', 0.0009), name: 'Erode' },
 
     // Sub Post Offices as aggregate regions
-    { ...createLocationPCA('Sathyamangalam', 'Erode', 'Sathyamangalam', 'Total', 0.00032), name: 'Sathyamangalam' },
+    { ...createLocationPCA('Thirumangalam North Extension Rural Division', 'Erode', 'Thirumangalam North Extension Rural Division', 'Total', 0.00032), name: 'Thirumangalam North Extension Rural Division' },
     { ...createLocationPCA('Bhavani', 'Erode', 'Bhavani', 'Total', 0.00028), name: 'Bhavani' },
     { ...createLocationPCA('Thingalur', 'Erode', 'Thingalur', 'Total', 0.00018), name: 'Thingalur' },
 
     // Individual Villages
-    { ...createLocationPCA('Arasur', 'Erode', 'Sathyamangalam', 'Total', 0.000015) },
-    { ...createLocationPCA('Ayyampalayam', 'Erode', 'Sathyamangalam', 'Total', 0.000012) },
-    { ...createLocationPCA('Bannari', 'Erode', 'Sathyamangalam', 'Total', 0.000018) },
-    { ...createLocationPCA('Rajan Nagar', 'Erode', 'Sathyamangalam', 'Total', 0.000014) },
-    { ...createLocationPCA('Pudupeerkadavu', 'Erode', 'Sathyamangalam', 'Total', 0.000016) },
-    { ...createLocationPCA('Bhavanisagar', 'Erode', 'Sathyamangalam', 'Total', 0.000022) },
+    { ...createLocationPCA('A.Sembulichampalayam', 'Erode', 'Thirumangalam North Extension Rural Division', 'Total', 0.000015) },
+    { ...createLocationPCA('Ayyampalayam', 'Erode', 'Thirumangalam North Extension Rural Division', 'Total', 0.000012) },
+    { ...createLocationPCA('Bannari', 'Erode', 'Thirumangalam North Extension Rural Division', 'Total', 0.000018) },
+    { ...createLocationPCA('Rajan Nagar', 'Erode', 'Thirumangalam North Extension Rural Division', 'Total', 0.000014) },
+    { ...createLocationPCA('Pudupeerkadavu', 'Erode', 'Thirumangalam North Extension Rural Division', 'Total', 0.000016) },
+    { ...createLocationPCA('Bhavanisagar', 'Erode', 'Thirumangalam North Extension Rural Division', 'Total', 0.000022) },
     { ...createLocationPCA('Bhavani Village A', 'Erode', 'Bhavani', 'Total', 0.000015) },
     { ...createLocationPCA('Bhavani Village B', 'Erode', 'Bhavani', 'Total', 0.000013) },
     { ...createLocationPCA('Komarapalayam', 'Erode', 'Bhavani', 'Total', 0.000035) },
@@ -182,13 +195,13 @@ async function seed() {
   const personalInfos = [
     {
       Name: "Muthusamy K", PhoneNumber: "9876543210", pan_id: "ABCDE1234F", aadhaar_id: 123456789012,
-      Address: "12, Main Street, Arasur", Age: 64, Gender: "Male", Location: "Erode", Area: "Arasur",
+      Address: "12, Main Street, A.Sembulichampalayam", Age: 64, Gender: "Male", Location: "Erode", Area: "A.Sembulichampalayam",
       MaritalStatus: "Married", Occupation: "Agriculture", MonthlyIncome: 8500, EducationLevel: "Secondary",
       NoOfChildrenInTheHouse: 2, NoOfGirlChildrenUnder10: 0, OwnLandForAgriculture: "Yes", DigitalUsage: "Low",
       CreditScore: 680, BankAccount: "Yes", AlreadyInLoan: "No", NeedNewLoan: "Yes", TaxPayer: "No",
       NeedEducationLoan: "No", DateOfBirth: "1962-05-15", GirlChildAges: 0, CreditScore: 680,
-      RecommendedSchemes: ["Kisan Credit Card (KCC)", "Senior Citizen Savings Scheme (SCSS)", "Post Office Savings Account (POSA)"],
-      RecommendedScheme1: "Kisan Credit Card (KCC)", RecommendedScheme2: "Senior Citizen Savings Scheme (SCSS)", RecommendedScheme3: "Post Office Savings Account (POSA)",
+      RecommendedSchemes: ["Kisan Credit Card Scheme for Marginal Farmers", "Senior Citizen Savings Scheme (SCSS)", "Post Office Savings Account (POSA)"],
+      RecommendedScheme1: "Kisan Credit Card Scheme for Marginal Farmers", RecommendedScheme2: "Senior Citizen Savings Scheme (SCSS)", RecommendedScheme3: "Post Office Savings Account (POSA)",
       Scheme1: 0, Scheme2: 1, Scheme3: 0, DaysLeftScheme1: 30, DaysLeftScheme2: 120, DaysLeftScheme3: 0
     },
     {
@@ -204,13 +217,13 @@ async function seed() {
     },
     {
       Name: "Ramasamy P", PhoneNumber: "9753124680", pan_id: "DFGHI5678B", aadhaar_id: 111122223333,
-      Address: "10, Mariamman St, Arasur", Age: 42, Gender: "Male", Location: "Erode", Area: "Arasur",
+      Address: "10, Mariamman St, A.Sembulichampalayam", Age: 42, Gender: "Male", Location: "Erode", Area: "A.Sembulichampalayam",
       MaritalStatus: "Married", Occupation: "Agriculture", MonthlyIncome: 9000, EducationLevel: "Primary",
       NoOfChildrenInTheHouse: 1, NoOfGirlChildrenUnder10: 0, OwnLandForAgriculture: "Yes", DigitalUsage: "Low",
       CreditScore: 660, BankAccount: "Yes", AlreadyInLoan: "No", NeedNewLoan: "No", TaxPayer: "No",
       NeedEducationLoan: "No", DateOfBirth: "1984-03-12", GirlChildAges: 0,
-      RecommendedSchemes: ["Kisan Credit Card (KCC)", "Post Office Savings Account (POSA)", "Kisan Vikas Patra (KVP)"],
-      RecommendedScheme1: "Kisan Credit Card (KCC)", RecommendedScheme2: "Post Office Savings Account (POSA)", RecommendedScheme3: "Kisan Vikas Patra (KVP)",
+      RecommendedSchemes: ["Kisan Credit Card Scheme for Marginal Farmers", "Post Office Savings Account (POSA)", "Kisan Vikas Patra (KVP)"],
+      RecommendedScheme1: "Kisan Credit Card Scheme for Marginal Farmers", RecommendedScheme2: "Post Office Savings Account (POSA)", RecommendedScheme3: "Kisan Vikas Patra (KVP)",
       Scheme1: 1, Scheme2: 0, Scheme3: 0, DaysLeftScheme1: 0, DaysLeftScheme2: 0, DaysLeftScheme3: 90
     },
     {
@@ -240,7 +253,7 @@ async function seed() {
   // Let's create another 10 profiles programmatically
   const occupationList = ['Agriculture', 'Salaried', 'Self-Employed', 'Housewife', 'Student'];
   const eduList = ['Primary', 'Secondary', 'Graduate'];
-  const villagesList = ['Arasur', 'Bannari', 'Komarapalayam', 'Bhavani Village A', 'Thingalur Village', 'Thoppampalayam'];
+  const villagesList = ['A.Sembulichampalayam', 'Bannari', 'Komarapalayam', 'Bhavani Village A', 'Thingalur Village', 'Thoppampalayam'];
 
   for (let i = 0; i < 10; i++) {
     const age = 20 + Math.floor(Math.random() * 50);
@@ -296,7 +309,7 @@ async function seed() {
   console.log('Seeding cropsubdistricts & croptimings...');
   const cropsubdistricts = [
     { village: 'bhavani', district: 'Erode', crops: [{ village: 'bhavani', crops: ['Rice', 'Banana', 'Sugarcane'] }] },
-    { village: 'arasur', district: 'Erode', crops: [{ village: 'arasur', crops: ['Cotton', 'Maize', 'Turmeric'] }] },
+    { village: 'a.sembulichampalayam', district: 'Erode', crops: [{ village: 'a.sembulichampalayam', crops: ['Cotton', 'Maize', 'Turmeric'] }] },
     { village: 'bannari', district: 'Erode', crops: [{ village: 'bannari', crops: ['Turmeric', 'Sugarcane', 'Rice'] }] },
     { village: 'komarapalayam', district: 'Erode', crops: [{ village: 'komarapalayam', crops: ['Rice', 'Banana'] }] },
     { village: 'thingalur village', district: 'Erode', crops: [{ village: 'thingalur village', crops: ['Cotton', 'Turmeric'] }] },
@@ -316,56 +329,252 @@ async function seed() {
 
   console.log('Seeding events...');
   const events = [
-    { eventName: 'Bhavani Kooduthurai Mela', date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), location: 'Bhavani Temple Grounds', district: 'Erode', eventType: 'Festival', description: 'Huge annual gathering at the holy river confluence. Ideal for mass savings and APY enrollment campaigns.', expectedCrowd: 'High', suggestedSchemes: 'POSA, APY, SSA', status: 'Planned', attendees: 0, enrollments: 0, scrapedSource: 'Erode Admin Portal' },
-    { eventName: 'Sathy Farmers Cooperative Meet', date: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000), location: 'Sathyamangalam Market', district: 'Erode', eventType: 'Community Event', description: 'Weekly meeting of cotton and turmeric cultivators. Ideal for crop loans and investment schemes.', expectedCrowd: 'High', suggestedSchemes: 'KCC, KVP, PPF', status: 'Planned', attendees: 0, enrollments: 0, scrapedSource: 'Erode Agri Portal' },
+    { eventName: 'Bhavani Kooduthurai Mela', date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), location: 'Bhavani Temple Grounds', district: 'Erode', eventType: 'Festival', description: 'Huge annual gathering at the holy river confluence. Ideal for mass savings and APY enrollment campaigns.', expectedCrowd: 'High', suggestedSchemes: 'SB, APY, SSA', status: 'Planned', attendees: 0, enrollments: 0, scrapedSource: 'Erode Admin Portal' },
+    { eventName: 'Sathy Farmers Cooperative Meet', date: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000), location: 'Sathyamangalam Market', district: 'Erode', eventType: 'Community Event', description: 'Weekly meeting of cotton and turmeric cultivators. Ideal for crop loans and investment schemes.', expectedCrowd: 'High', suggestedSchemes: 'KVP, PPF, APY', status: 'Planned', attendees: 0, enrollments: 0, scrapedSource: 'Erode Agri Portal' },
     { eventName: 'Thingalur Mariamman Festival', date: new Date(Date.now() + 6 * 24 * 60 * 60 * 1000), location: 'Thingalur Temple', district: 'Erode', eventType: 'Festival', description: 'Annual village temple chariot festival. High crowd density.', expectedCrowd: 'High', suggestedSchemes: 'RD, SSA, MSSC', status: 'Planned', scrapedSource: 'Tamil Nadu Tourism Portal' }
   ];
   await Event.insertMany(events);
 
   console.log('Seeding campaign_recommendations...');
-  const recommendations = [
-    { village: 'Arasur', recommendedScheme: 'Sukanya Samriddhi Yojana (SSA)', opportunityScore: 92, campaignWindow: 'July 10 - July 20', keyDrivers: ['High girl child population under 10', 'Upcoming school reopening season', 'Low current enrollment rate (12%)'], estimatedEligibleCitizens: '~120' },
-    { village: 'Bannari', recommendedScheme: 'Kisan Credit Card (KCC)', opportunityScore: 88, campaignWindow: 'June 25 - July 05', keyDrivers: ['Large agricultural population', 'Sowing season starting in June', 'Availability of arable land'], estimatedEligibleCitizens: '~85' },
-    { village: 'Komarapalayam', recommendedScheme: 'Senior Citizen Savings Scheme (SCSS)', opportunityScore: 85, campaignWindow: 'July 15 - July 25', keyDrivers: ['Higher concentration of 60+ age group', 'Interest payout cycle start', 'Safe investment preference in rural area'], estimatedEligibleCitizens: '~60' },
-    { village: 'Bhavani Village A', recommendedScheme: 'Recurring Deposit Scheme (RD)', opportunityScore: 90, campaignWindow: 'June 28 - July 05', keyDrivers: ['Steady small household incomes', 'Upcoming temple mela crowd', 'Low current RD counts'], estimatedEligibleCitizens: '~150' }
-  ];
+  const getSeededRecommendation = (demographics) => {
+    const totP = demographics.totP || 1;
+    const totM = demographics.totM || 0;
+    const totF = demographics.totF || 0;
+
+    const mainAlP = demographics.mainAlP || 0;
+    const mainClP = demographics.mainClP || 0;
+    const margAlP = demographics.margAlP || 0;
+    const margClP = demographics.margClP || 0;
+    const agriWorkers = mainAlP + mainClP + margAlP + margClP;
+    const agriRatio = agriWorkers / totP;
+
+    const childPop = demographics.population717 || 0;
+    const childRatio = childPop / totP;
+
+    const seniorPop = demographics.population60Plus || 0;
+    const seniorRatio = seniorPop / totP;
+
+    const mainOtP = demographics.mainOtP || 0;
+    const margOtP = demographics.margOtP || 0;
+    const salariedWorkers = mainOtP + margOtP;
+    const salariedRatio = salariedWorkers / totP;
+
+    const mLit = demographics.mLit || 82.1;
+    const fLit = demographics.fLit || 65.5;
+    const litPop = totM * (mLit / 100) + totF * (fLit / 100);
+    const literacyRate = (litPop / totP) * 100;
+
+    const schemes = [
+      {
+        schemeCode: 'SSA',
+        name: 'Sukanya Samriddhi Account (SSA)',
+        score: Math.round(45 + childRatio * 300),
+        keyDrivers: [
+          `High concentration of family households (${Math.round(childRatio * 100)}% school-age children)`,
+          `Targeted outreach for girl child welfare`,
+          `Low current literacy gap (${(100 - literacyRate).toFixed(1)}% illiterate)`
+        ],
+        estimatedEligibleCitizens: `~${childPop}`,
+        campaignWindow: 'July 10 - July 20'
+      },
+      {
+        schemeCode: 'KVP',
+        name: 'Kisan Vikas Patra (KVP)',
+        score: Math.round(45 + agriRatio * 200),
+        keyDrivers: [
+          `Large agricultural workforce (${Math.round(agriRatio * 100)}% of population)`,
+          `Upcoming harvest credit cycle needs`,
+          `High sovereign yield (7.5%) with zero market risk`
+        ],
+        estimatedEligibleCitizens: `~${agriWorkers}`,
+        campaignWindow: 'June 25 - July 05'
+      },
+      {
+        schemeCode: 'SCSS',
+        name: 'Senior Citizens Savings Scheme (SCSS)',
+        score: Math.round(30 + seniorRatio * 400),
+        keyDrivers: [
+          `Senior citizen segment size (${Math.round(seniorRatio * 100)}% aged 60+)`,
+          `Preference for safe retirement income`,
+          `Sovereign backing with high yields (8.2%)`
+        ],
+        estimatedEligibleCitizens: `~${seniorPop}`,
+        campaignWindow: 'July 15 - July 25'
+      },
+      {
+        schemeCode: 'PPF',
+        name: 'Public Provident Fund (PPF)',
+        score: Math.round(30 + salariedRatio * 400 + literacyRate * 0.3),
+        keyDrivers: [
+          `Salaried workforce concentration (${Math.round(salariedRatio * 100)}%)`,
+          `Long-term compound interest savings (7.1%)`,
+          `Tax deduction requirements under Section 80C`
+        ],
+        estimatedEligibleCitizens: `~${salariedWorkers}`,
+        campaignWindow: 'August 01 - August 10'
+      }
+    ];
+
+    schemes.sort((a, b) => b.score - a.score);
+    return schemes[0];
+  };
+
+  const activeVillageNames = ['A.Sembulichampalayam', 'Bannari', 'Komarapalayam', 'Bhavani Village A', 'Thingalur Village', 'Thoppampalayam'];
+  const recommendations = activeVillageNames.map(name => {
+    const dem = demographicVillages.find(v => v.name === name);
+    const rec = getSeededRecommendation(dem);
+    return {
+      village: name,
+      recommendedScheme: rec.name,
+      opportunityScore: rec.score,
+      campaignWindow: rec.campaignWindow,
+      keyDrivers: rec.keyDrivers,
+      estimatedEligibleCitizens: rec.estimatedEligibleCitizens
+    };
+  });
+
   await CampaignRecommendation.insertMany(recommendations);
+
+  console.log('Seeding HeadPostData...');
+  const headPostDataList = [];
+  const sathyBranches = {
+    "Bannari": ["Rajan Nagar", "Pudupeerkadavu", "Pungar"],
+    "Dhimbam": ["Erahanahalli", "Gettavadi", "Kongahalli"],
+    "Hassanur": ["Marur", "Neithalapuram", "Gundri"]
+  };
+  const perunduraiBranches = {
+    "Ingur": ["Mukasi Pulavapalayam", "Kambiliampatti", "Varapalayam"],
+    "Olapalayam": ["Singanallur", "Mullampatti", "Kandampalayam"]
+  };
+
+  const addBranchRecords = (branchesMap, subPO) => {
+    let index = 0;
+    Object.entries(branchesMap).forEach(([branch, areas]) => {
+      areas.forEach(area => {
+        // Generate 15 citizens for each area deterministically
+        for (let i = 0; i < 15; i++) {
+          index++;
+          const age = 20 + ((index * 7) % 55); // 20 to 74
+          const gender = (index % 2 === 0) ? "Female" : "Male";
+          const income = 5000 + ((index * 250) % 20000); // 5000 to 24750
+          const hasGirl = gender === "Female" && age < 45 && (index % 3 === 0);
+          
+          let recommendedScheme1 = "Post Office Savings Account (SB)";
+          let recommendedScheme2 = "National Savings Recurring Deposit (RD)";
+          let recommendedScheme3 = "Pradhan Mantri Suraksha Bima Yojana (PMSBY)";
+
+          if (gender === 'Female' && hasGirl) {
+            recommendedScheme1 = "Sukanya Samriddhi Account (SSA)";
+          } else if (age >= 60) {
+            recommendedScheme1 = "Senior Citizens Savings Scheme (SCSS)";
+          } else if (income > 20000) {
+            recommendedScheme1 = "Public Provident Fund (PPF)";
+          }
+
+          if (income < 10000) {
+            recommendedScheme2 = "Basic Savings Account (IPPB)";
+          } else if (index % 3 === 0) {
+            recommendedScheme2 = "Kisan Vikas Patra (KVP)";
+          } else if (gender === 'Female') {
+            recommendedScheme2 = "Mahila Samman Savings Certificate (MSSC)";
+          }
+
+          if (age >= 18 && age <= 40 && index % 2 === 0) {
+            recommendedScheme3 = "Atal Pension Yojana (APY)";
+          } else if (age >= 18 && age <= 50) {
+            recommendedScheme3 = "Pradhan Mantri Jeevan Jyoti Bima Yojana (PMJJBY)";
+          } else {
+            recommendedScheme3 = "National Savings Time Deposit (TD)";
+          }
+
+          headPostDataList.push({
+            name: `Citizen ${branch} ${i}`,
+            phoneNumber: `98765${(index * 3) % 10}1234`,
+            panId: `PAN${(index * 13) % 10000}K`,
+            aadharId: 100000000000 + (index * 7777777777) % 900000000000,
+            address: `${i + 1}, St, ${area}`,
+            age,
+            gender,
+            location: "Erode",
+            area,
+            maritalStatus: (index % 5 < 4) ? "Married" : "Single",
+            occupation: (index % 3 === 0) ? "Agriculture" : "Self-Employed",
+            monthlyIncome: income,
+            educationLevel: "Secondary",
+            financialGoal: "Savings",
+            riskAppetite: "Low",
+            duration: "Medium",
+            bankAccount: "Yes",
+            digitalUsage: (index % 4 === 0) ? "High" : "Low",
+            ownLandForAgriculture: (index % 3 === 0) ? "Yes" : "No",
+            alreadyInLoan: "No",
+            needNewLoan: "No",
+            taxPayer: income > 20000 ? "Yes" : "No",
+            needEducationLoan: "No",
+            numberOfChildren: (index % 2 === 0) ? 2 : 0,
+            numberOfGirlChildrenUnder10: hasGirl ? 1 : 0,
+            creditScore: 700,
+            recommendedScheme1,
+            recommendedScheme2,
+            recommendedScheme3,
+            dateOfBirth: new Date(2026 - age, 5, 15).toISOString().split('T')[0],
+            girlChildAges: hasGirl ? 5 : 0,
+            daysLeftScheme1: 30,
+            daysLeftScheme2: 60,
+            daysLeftScheme3: 90,
+            scheme1: (index % 4 === 0) ? 1 : 0,
+            scheme2: (index % 5 === 0) ? 1 : 0,
+            scheme3: (index % 3 === 0) ? 1 : 0,
+            recommandendSchemes: [recommendedScheme1, recommendedScheme2, recommendedScheme3],
+            Area: area,
+            BranchPostOffice: branch,
+            SubPostOffice: subPO
+          });
+        }
+      });
+    });
+  };
+
+  addBranchRecords(sathyBranches, "Thirumangalam North Extension Rural Division");
+  addBranchRecords(perunduraiBranches, "Perundurai");
+  
+  await HeadPostData.insertMany(headPostDataList);
 
   console.log('Seeding campaign_feedback...');
   const feedbacks = [
-    { campaignId: 'CMP001', village: 'Arasur', scheme: 'Sukanya Samriddhi Yojana (SSA)', attendees: 180, newEnrollments: 34, feedbackScore: 4.2, remarks: 'High interest among women beneficiaries', status: 'Completed', date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000) },
-    { campaignId: 'CMP002', village: 'Bannari', scheme: 'Kisan Credit Card (KCC)', attendees: 120, newEnrollments: 22, feedbackScore: 4.5, remarks: 'Farmers requested loan application simplification', status: 'Completed', date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) },
-    { campaignId: 'CMP003', village: 'Komarapalayam', scheme: 'Senior Citizen Savings Scheme (SCSS)', attendees: 50, newEnrollments: 12, feedbackScore: 4.0, remarks: 'Retirees preferred higher interest rates', status: 'Completed', date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) }
+    { campaignId: 'CMP001', village: 'A.Sembulichampalayam', scheme: 'Sukanya Samriddhi Account (SSA)', attendees: 180, newEnrollments: 34, feedbackScore: 4.2, remarks: 'High interest among women beneficiaries', status: 'Completed', date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000) },
+    { campaignId: 'CMP002', village: 'Bannari', scheme: 'Kisan Vikas Patra (KVP)', attendees: 120, newEnrollments: 22, feedbackScore: 4.5, remarks: 'Farmers welcomed safe capital doubling options', status: 'Completed', date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000) },
+    { campaignId: 'CMP003', village: 'Komarapalayam', scheme: 'Senior Citizens Savings Scheme (SCSS)', attendees: 50, newEnrollments: 12, feedbackScore: 4.0, remarks: 'Retirees preferred higher interest rates', status: 'Completed', date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) }
   ];
   await CampaignFeedback.insertMany(feedbacks);
 
   console.log('Seeding enrollments...');
   const enrollmentsList = [
     // Direct link to known profiles
-    { citizenAadhaar: '123456789012', schemeCode: 'SCSS', status: 'Enrolled', enrollmentDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), village: 'Arasur', campaignId: 'CMP003' },
+    { citizenAadhaar: '123456789012', schemeCode: 'SCSS', status: 'Enrolled', enrollmentDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), village: 'A.Sembulichampalayam', campaignId: 'CMP003' },
     { citizenAadhaar: '987654321098', schemeCode: 'RD', status: 'Enrolled', enrollmentDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), village: 'Bannari', campaignId: 'CMP001' },
-    { citizenAadhaar: '111122223333', schemeCode: 'KCC', status: 'Enrolled', enrollmentDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), village: 'Arasur', campaignId: 'CMP002' },
+    { citizenAadhaar: '111122223333', schemeCode: 'KVP', status: 'Enrolled', enrollmentDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), village: 'A.Sembulichampalayam', campaignId: 'CMP002' },
     { citizenAadhaar: '777788889999', schemeCode: 'SSA', status: 'Enrolled', enrollmentDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), village: 'Bhavani Village A', campaignId: 'CMP001' }
   ];
 
   // Populate remaining enrollments dynamically to match the campaign outcomes:
-  // CMP001 has 34 enrollments for SSA in Arasur (feedback village is Arasur in feedbacks array)
+  // CMP001 has 34 enrollments for SSA in Arasur
   for (let i = 0; i < 33; i++) {
     enrollmentsList.push({
       citizenAadhaar: `300000000${100 + i}`,
       schemeCode: 'SSA',
       status: 'Enrolled',
       enrollmentDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
-      village: 'Arasur',
+      village: 'A.Sembulichampalayam',
       campaignId: 'CMP001'
     });
   }
 
-  // CMP002 has 22 enrollments for KCC in Bannari
+  // CMP002 has 22 enrollments for KVP in Bannari
   for (let i = 0; i < 21; i++) {
     enrollmentsList.push({
       citizenAadhaar: `400000000${100 + i}`,
-      schemeCode: 'KCC',
+      schemeCode: 'KVP',
       status: 'Enrolled',
       enrollmentDate: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
       village: 'Bannari',
@@ -387,7 +596,7 @@ async function seed() {
 
   // Add some pending/not-enrolled entries for other citizens in villages
   for (let i = 0; i < 15; i++) {
-    const schemeCodes = ['RD', 'PPF', 'SSA', 'APY', 'KCC'];
+    const schemeCodes = ['RD', 'PPF', 'SSA', 'APY', 'KVP'];
     const villages = ['Arasur', 'Bannari', 'Komarapalayam', 'Bhavani Village A', 'Thingalur Village'];
     enrollmentsList.push({
       citizenAadhaar: `600000000${100 + i}`,
@@ -403,21 +612,207 @@ async function seed() {
 
   console.log('Seeding schemes...');
   const schemesList = [
-    { schemeCode: 'POSA', name: 'Post Office Savings Account', description: 'A basic savings account offering safe returns and liquidity.', eligibilityCriteria: { minAge: 0, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] }, targetAudience: 'General public, rural and semi-urban populations', benefits: ['Low minimum balance of ₹500', 'Tax-free interest up to ₹10,000 per year', 'Safe government backing'], interestRate: 4.0 },
-    { schemeCode: 'RD', name: 'Recurring Deposit Scheme (RD)', description: 'Disciplined monthly savings scheme with guaranteed returns.', eligibilityCriteria: { minAge: 18, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] }, targetAudience: 'Salaried individuals, daily wage earners', benefits: ['Fixed monthly deposits starting from ₹100', '5-year maturity period', 'Loan facility up to 50% of balance'], interestRate: 6.7 },
-    { schemeCode: 'PPF', name: 'Public Provident Fund (PPF)', description: 'Long-term tax saving and wealth accumulation scheme.', eligibilityCriteria: { minAge: 18, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] }, targetAudience: 'Taxpayers, self-employed professionals', benefits: ['Section 80C tax deduction', 'Completely tax-free interest and maturity', '15-year tenure lock-in'], interestRate: 7.1 },
-    { schemeCode: 'SSA', name: 'Sukanya Samriddhi Yojana (SSA)', description: 'Savings scheme targeted exclusively for the welfare of the girl child.', eligibilityCriteria: { minAge: 0, maxAge: 10, allowedGenders: ['Female'] }, targetAudience: 'Parents of girl children under 10', benefits: ['Highest interest rate among POSB schemes', 'Tax deduction under Section 80C', 'Matures on girl child reaching 21 years'], interestRate: 8.2 },
-    { schemeCode: 'SCSS', name: 'Senior Citizen Savings Scheme (SCSS)', description: 'Regular income scheme for seniors with sovereign security.', eligibilityCriteria: { minAge: 60, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] }, targetAudience: 'Retirees and senior citizens', benefits: ['Quarterly interest payout', 'Section 80C tax deduction', 'Maturity period of 5 years'], interestRate: 8.2 },
-    { schemeCode: 'KCC', name: 'Kisan Credit Card (KCC)', description: 'Short-term credit for farmers to meet cultivation and maintenance needs.', eligibilityCriteria: { minAge: 18, maxAge: 75, allowedGenders: ['Male', 'Female', 'Other'], maxLandAcres: 50 }, targetAudience: 'Farmers and agricultural landowners', benefits: ['Low-interest crop loans', 'Flexible repayment based on harvest cycle', 'Inbuilt crop insurance protection'], interestRate: 7.0 }
+    // 1. Traditional POSB Schemes
+    {
+      schemeCode: 'SB',
+      name: 'Post Office Savings Account (SB)',
+      description: 'A basic savings account offering safe returns, liquidity, and a gateway to government benefits.',
+      eligibilityCriteria: { minAge: 10, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'General public, rural and semi-urban populations',
+      benefits: ['Low minimum balance of ₹500', 'Tax-free interest up to ₹10,000 per year', 'Safe government backing', 'Mandatory nomination support'],
+      interestRate: 4.0
+    },
+    {
+      schemeCode: 'RD',
+      name: 'National Savings Recurring Deposit (RD)',
+      description: 'Disciplined monthly savings scheme with guaranteed compound returns over 5 years.',
+      eligibilityCriteria: { minAge: 10, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Salaried individuals, daily wage earners',
+      benefits: ['Fixed monthly deposits starting from ₹100', '5-year maturity period', 'Loan facility up to 50% of balance after 1 year'],
+      interestRate: 6.7
+    },
+    {
+      schemeCode: 'TD',
+      name: 'National Savings Time Deposit (TD)',
+      description: 'Fixed term deposit scheme offering secure high-yield returns for 1 to 5 year tenures.',
+      eligibilityCriteria: { minAge: 10, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Savers, salaried individuals',
+      benefits: ['Tenure options from 1 to 5 years', 'Section 80C tax benefits for 5-year deposits', 'Quarterly compounding payouts'],
+      interestRate: 7.5
+    },
+    {
+      schemeCode: 'MIS',
+      name: 'Monthly Income Scheme (MIS)',
+      description: 'Provides a secure monthly interest payout on lump-sum capital investments.',
+      eligibilityCriteria: { minAge: 10, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Retirees, senior citizens seeking regular payouts',
+      benefits: ['Monthly interest payout to linked savings account', 'Sovereign capital protection', 'Maximum deposit limit of ₹9 Lakh for single accounts'],
+      interestRate: 7.4
+    },
+    {
+      schemeCode: 'PPF',
+      name: 'Public Provident Fund (PPF)',
+      description: 'Long-term tax-exempt wealth accumulation and retirement savings asset.',
+      eligibilityCriteria: { minAge: 18, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Taxpayers, self-employed professionals',
+      benefits: ['EEE tax status (exempt on contribution, interest, and maturity)', 'Section 80C deduction benefits', 'Sovereign protection with a 15-year tenure'],
+      interestRate: 7.1
+    },
+    {
+      schemeCode: 'SCSS',
+      name: 'Senior Citizens Savings Scheme (SCSS)',
+      description: 'Regular high-yield income scheme for retired senior citizens.',
+      eligibilityCriteria: { minAge: 60, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Retirees aged 60+ (or retired civilian employees aged 55-60)',
+      benefits: ['Attractive quarterly interest yield', 'Sovereign capital security', 'Section 80C tax deduction benefits'],
+      interestRate: 8.2
+    },
+    {
+      schemeCode: 'SSA',
+      name: 'Sukanya Samriddhi Account (SSA)',
+      description: 'Dedicated high-yield savings scheme for the education and marriage of a girl child.',
+      eligibilityCriteria: { minAge: 0, maxAge: 10, allowedGenders: ['Female'] },
+      targetAudience: 'Parents/guardians of girl children under 10 years',
+      benefits: ['Highest interest rate among POSB schemes', 'Tax exemptions under Section 80C', 'Matures on girl child reaching 21 years of age'],
+      interestRate: 8.2
+    },
+    {
+      schemeCode: 'NSC',
+      name: 'National Savings Certificate (NSC)',
+      description: 'Low-risk 5-year fixed return certificate popular for tax saving.',
+      eligibilityCriteria: { minAge: 10, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Middle-class savers, taxpayers',
+      benefits: ['Guaranteed 5-year returns', 'Section 80C tax deduction', 'Collateral capability to secure bank credit'],
+      interestRate: 7.7
+    },
+    {
+      schemeCode: 'KVP',
+      name: 'Kisan Vikas Patra (KVP)',
+      description: 'Sovereign certificate scheme that doubles the principal investment over a fixed period.',
+      eligibilityCriteria: { minAge: 10, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Farmers, rural populations, risk-averse investors',
+      benefits: ['Doubles capital investment deterministically', 'Zero market risk', 'Easy transferability and nomination facilities'],
+      interestRate: 7.5
+    },
+    {
+      schemeCode: 'MSSC',
+      name: 'Mahila Samman Savings Certificate (MSSC)',
+      description: 'Short-term savings scheme empowering women with high fixed interest.',
+      eligibilityCriteria: { minAge: 0, maxAge: 100, allowedGenders: ['Female'] },
+      targetAudience: 'Women of all ages, guardians of minor girls',
+      benefits: ['High fixed interest rate of 7.5%', '2-year short tenure limit', 'Flexible partial withdrawal option (up to 40%)'],
+      interestRate: 7.5
+    },
+    {
+      schemeCode: 'PMCARES',
+      name: 'PM CARES for Children Scheme',
+      description: 'Comprehensive welfare and financial scheme for children orphaned by the COVID-19 pandemic.',
+      eligibilityCriteria: { minAge: 0, maxAge: 18, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Minors orphaned during the COVID-19 pandemic',
+      benefits: ['Comprehensive educational stipend support', 'Free health insurance under PM-JAY', 'Lump sum corpus and monthly payout at age 23'],
+      interestRate: 7.3
+    },
+    // 2. India Post Payments Bank (IPPB) Accounts
+    {
+      schemeCode: 'IPPB_REG',
+      name: 'Regular Savings Account',
+      description: 'Digital-first payments account focusing on day-to-day transactions and doorstep banking.',
+      eligibilityCriteria: { minAge: 10, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Mobile users, rural and semi-urban populations',
+      benefits: ['Instant onboarding via Aadhaar & PAN KYC', 'Direct utility and merchant payment integration', 'Accidental insurance and sweep options'],
+      interestRate: 2.0
+    },
+    {
+      schemeCode: 'IPPB_BAS',
+      name: 'Basic Savings Account',
+      description: 'Zero-minimum balance digital account with limits on monthly cash withdrawals.',
+      eligibilityCriteria: { minAge: 10, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Low-income earners, DBT subsidy recipients',
+      benefits: ['No minimum balance required', 'Primary link for DBT subsidy sweeps', 'Free cash withdrawals up to four times per month'],
+      interestRate: 2.0
+    },
+    {
+      schemeCode: 'IPPB_DIGI',
+      name: 'DigiSmart Savings Account',
+      description: 'App-based mobile transaction account offering merchant cashbacks and discounts.',
+      eligibilityCriteria: { minAge: 18, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Tech-savvy youth, online shoppers',
+      benefits: ['Onboarding via IPPB Mobile App', 'Attractive merchant discounts and virtual debit cards', 'Instant sweep options'],
+      interestRate: 2.0
+    },
+    {
+      schemeCode: 'IPPB_PREM',
+      name: 'Premium Savings Account',
+      description: 'Value-added transactional account offering premium cashbacks and zero fee services.',
+      eligibilityCriteria: { minAge: 10, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Regular digital banking users',
+      benefits: ['Cashbacks on merchant transactions', 'Free virtual debit cards', 'No charges on sweep operations or doorstep deposits'],
+      interestRate: 2.5
+    },
+    {
+      schemeCode: 'IPPB_AAR',
+      name: 'Premium Aarogya Savings Account',
+      description: 'Transactional account that bundles banking services with online healthcare benefits.',
+      eligibilityCriteria: { minAge: 10, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Health-conscious families, seniors',
+      benefits: ['Bundled telehealth online doctor consultations', 'Discounts on diagnostics and pharmacy purchases', 'Inbuilt accidental insurance cover'],
+      interestRate: 2.5
+    },
+    {
+      schemeCode: 'IPPB_SHG',
+      name: 'SHG Savings Account',
+      description: 'Group savings account designed for Self-Help Groups to manage collective finance.',
+      eligibilityCriteria: { minAge: 18, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Registered Self-Help Groups (SHGs) and rural entrepreneurs',
+      benefits: ['Supports group micro-finance and joint savings', 'Direct linkage to government agricultural credit', 'Easy disbursement rules'],
+      interestRate: 2.0
+    },
+    {
+      schemeCode: 'IPPB_CURR',
+      name: 'Current Account',
+      description: 'Transactional account tailored for small merchants and self-employed entities.',
+      eligibilityCriteria: { minAge: 18, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Small merchants, retail store owners, self-employed traders',
+      benefits: ['Unlimited cash transactions and daily deposits', 'Merchant QR payment integrations', 'Nomination and doorstep support options'],
+      interestRate: 0.0
+    },
+    // 3. Third-Party Government Schemes (Facilitated via IPPB)
+    {
+      schemeCode: 'PMJJBY',
+      name: 'Pradhan Mantri Jeevan Jyoti Bima Yojana (PMJJBY)',
+      description: 'Term life insurance policy offering security for active earning members of households.',
+      eligibilityCriteria: { minAge: 18, maxAge: 50, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Working adults aged 18 to 50 years',
+      benefits: ['₹2 Lakh term life insurance cover', 'Extremely low premium of ₹436 per year', 'Auto-debit setup from linked savings accounts'],
+      interestRate: 0.0
+    },
+    {
+      schemeCode: 'PMSBY',
+      name: 'Pradhan Mantri Suraksha Bima Yojana (PMSBY)',
+      description: 'Extremely affordable accident and disability insurance cover.',
+      eligibilityCriteria: { minAge: 18, maxAge: 70, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Adults aged 18 to 70 years',
+      benefits: ['₹2 Lakh cover for accidental death or total disability', '₹1 Lakh cover for partial disability', 'Ultra low premium of only ₹20 per year'],
+      interestRate: 0.0
+    },
+    {
+      schemeCode: 'APY',
+      name: 'Atal Pension Yojana (APY)',
+      description: 'Guaranteed pension scheme targeting workers in the unorganized sector.',
+      eligibilityCriteria: { minAge: 18, maxAge: 40, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Unorganized sector workers aged 18 to 40 years',
+      benefits: ['Guaranteed lifetime monthly pension of ₹1000 - ₹5000', 'Spouse pension transfer on death', 'Co-contribution option from government'],
+      interestRate: 0.0
+    }
   ];
   await Scheme.insertMany(schemesList);
 
   console.log('Seeding postoffices...');
   const postOfficesData = [
     {
-      postOfficeCode: 'PO-SATHY-01', state: 'Tamil Nadu', district: 'Erode', headPostOffice: 'Erode HPO', postOffice: 'Sathyamangalam PO', pincode: '638401',
+      postOfficeCode: 'PO-SATHY-01', state: 'Tamil Nadu', district: 'Erode', headPostOffice: 'Erode HPO', postOffice: 'Very Long Branch Office Name Example', pincode: '638401',
       villages: [
-        { villageCode: 'VIL-SATHY-101', name: 'Arasur' },
+        { villageCode: 'VIL-SATHY-101', name: 'A.Sembulichampalayam' },
         { villageCode: 'VIL-SATHY-102', name: 'Ayyampalayam' },
         { villageCode: 'VIL-SATHY-103', name: 'Bannari' },
         { villageCode: 'VIL-SATHY-104', name: 'Rajan Nagar' },

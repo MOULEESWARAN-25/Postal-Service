@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import ApexCharts from 'apexcharts';
 import useDashboardStore from '@/store/dashboardStore';
 import ErrorBoundary from "@/components/ErrorBoundary";
+import { APEX_CHART_THEME } from "@/components/ui/chart-custom";
 
 export default function IncomeDistribution() {
   const chartRef = useRef(null);
@@ -28,56 +29,48 @@ export default function IncomeDistribution() {
 
       // Chart options
       const options = {
+        ...APEX_CHART_THEME,
         series: updatedData.map((value) => parseFloat(value)),
-        colors: ["#C8102E", "#1A2B4A", "#94A3B8"],
         chart: {
+          ...APEX_CHART_THEME.chart,
           height: 250,
           width: "100%",
           type: "donut",
         },
         stroke: {
-          colors: ["transparent"],
-          lineCap: "",
+          colors: ["var(--color-surface)"],
+          width: 2,
         },
         plotOptions: {
           pie: {
             donut: {
-              size: "55%",
+              size: "65%",
               labels: {
                 show: true,
                 name: {
                   show: true,
-                  fontSize: "12px",
-                  fontFamily: "Poppins, sans-serif",
-                  offsetY: 20,
+                  fontSize: "11px",
+                  fontFamily: "Inter, sans-serif",
+                  offsetY: 15,
                 },
                 total: {
                   showAlways: false,
                   show: true,
-                  label: "Income",
-                  fontSize: "28px",
-                  fontFamily: "Poppins, sans-serif",
+                  label: "Income Tiers",
+                  fontSize: "14px",
+                  fontFamily: "Inter, sans-serif",
+                  fontWeight: "bold",
                 },
                 value: {
                   show: false,
-                  fontFamily: "Poppins, sans-serif",
                 },
               },
             },
           },
         },
-        grid: {
-          padding: {
-            top: -2,
-          },
-        },
         labels: ["Low", "Middle", "High"], // Income groups
         dataLabels: {
           enabled: false,
-        },
-        legend: {
-          position: "bottom",
-          fontFamily: "Poppins, sans-serif",
         },
       };
 

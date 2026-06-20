@@ -35,6 +35,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from "recharts";
+import { ChartTooltip, ChartLegend } from "@/components/ui/chart-custom";
 
 export default function CampaignAnalytics() {
   const [feedbackList, setFeedbackList] = useState([]);
@@ -46,7 +47,7 @@ export default function CampaignAnalytics() {
   const [form, setForm] = useState({
     campaignId: "",
     village: "Arasur",
-    scheme: "Sukanya Samriddhi Yojana (SSA)",
+    scheme: "Sukanya Samriddhi Account (SSA)",
     attendees: "",
     newEnrollments: "",
     feedbackScore: "5",
@@ -55,14 +56,27 @@ export default function CampaignAnalytics() {
 
   const villages = ["Arasur", "Bannari", "Bhavani Village A", "Bhavani Village B", "Komarapalayam", "Thingalur Village", "Thoppampalayam"];
   const schemes = [
-    "Post Office Savings Account (POSA)",
-    "Recurring Deposit Scheme (RD)",
+    "Post Office Savings Account (SB)",
+    "National Savings Recurring Deposit (RD)",
+    "National Savings Time Deposit (TD)",
+    "Monthly Income Scheme (MIS)",
     "Public Provident Fund (PPF)",
-    "Sukanya Samriddhi Yojana (SSA)",
-    "Senior Citizen Savings Scheme (SCSS)",
-    "Kisan Credit Card (KCC)",
-    "Atal Pension Yojana (APY)",
-    "Mahila Samman Savings Certificate"
+    "Senior Citizens Savings Scheme (SCSS)",
+    "Sukanya Samriddhi Account (SSA)",
+    "National Savings Certificate (NSC)",
+    "Kisan Vikas Patra (KVP)",
+    "Mahila Samman Savings Certificate (MSSC)",
+    "PM CARES for Children Scheme",
+    "Regular Savings Account (IPPB)",
+    "Basic Savings Account (IPPB)",
+    "DigiSmart Savings Account (IPPB)",
+    "Premium Savings Account (IPPB)",
+    "Premium Aarogya Savings Account (IPPB)",
+    "SHG Savings Account (IPPB)",
+    "Current Account (IPPB)",
+    "PMJJBY (Third-Party Insurance)",
+    "PMSBY (Third-Party Insurance)",
+    "Atal Pension Yojana (APY)"
   ];
 
   const fetchFeedback = async () => {
@@ -112,7 +126,7 @@ export default function CampaignAnalytics() {
         setForm({
           campaignId: "",
           village: "Arasur",
-          scheme: "Sukanya Samriddhi Yojana (SSA)",
+          scheme: "Sukanya Samriddhi Account (SSA)",
           attendees: "",
           newEnrollments: "",
           feedbackScore: "5",
@@ -158,7 +172,7 @@ export default function CampaignAnalytics() {
     return {
       bestVillage,
       bestConv: bestConv.toFixed(1),
-      bestScheme: "Sukanya Samriddhi Yojana (SSA)",
+      bestScheme: "Sukanya Samriddhi Account (SSA)",
       bestSchemeAdoption: "32.1%"
     };
   };
@@ -197,7 +211,7 @@ export default function CampaignAnalytics() {
     {
       accessorKey: "newEnrollments",
       header: () => <div className="text-center">Enrollments</div>,
-      cell: ({ row }) => <div className="text-center font-bold text-emerald-600">{row.getValue("newEnrollments")}</div>
+      cell: ({ row }) => <div className="text-center font-bold text-primary">{row.getValue("newEnrollments")}</div>
     },
     {
       id: "conversion",
@@ -208,7 +222,7 @@ export default function CampaignAnalytics() {
         const conv = attendees > 0 ? ((enrollments / attendees) * 100).toFixed(1) : 0;
         return (
           <div className="text-center">
-            <Badge variant="outline" className="border-emerald-500/30 bg-emerald-500/10 text-emerald-600">
+            <Badge variant="outline" className="border-primary/20 bg-primary/10 text-primary">
               {conv}%
             </Badge>
           </div>
@@ -270,21 +284,19 @@ export default function CampaignAnalytics() {
                 Strategy Audit and campaign logs detailing Reach, Conversion efficiency, and public feedback.
               </p>
             </div>
-            <Badge className="bg-emerald-600 text-white py-1.5 px-3 rounded-full text-xs font-bold">
-              Is our strategy working?
+            <Badge className="bg-secondary text-secondary-foreground py-1.5 px-3 rounded-full text-xs font-bold">
+              Strategy Audit
             </Badge>
           </div>
 
           {/* DSS Heading strategy-badge Alert */}
-          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 flex items-center justify-between text-emerald-700">
-            <div className="flex items-center gap-3">
-              <span className="text-xl select-none">🟢</span>
-              <div>
-                <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-950">Strategy Audit Status</h4>
-                <p className="text-xs font-semibold mt-0.5 text-emerald-900">
-                  Campaign strategy is <strong className="text-emerald-950 font-bold">highly effective</strong>. Overall conversion efficiency is at <strong className="text-emerald-950 font-bold">{conversionRate || 23.4}%</strong>, exceeding the national target baseline.
-                </p>
-              </div>
+          <div className="bg-secondary/5 border border-border rounded-xl p-4 flex items-center gap-3">
+            <span className="text-xl select-none shrink-0">📊</span>
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-foreground">Strategy Audit Status</h4>
+              <p className="text-xs font-semibold mt-0.5 text-muted-foreground">
+                Campaign strategy is <strong className="text-foreground font-bold">highly effective</strong>. Overall conversion efficiency is at <strong className="text-primary font-bold">{conversionRate || 23.4}%</strong>, exceeding the national target baseline.
+              </p>
             </div>
           </div>
 
@@ -316,7 +328,7 @@ export default function CampaignAnalytics() {
 
             <Card className="border border-border bg-card shadow-sm rounded-xl">
               <CardContent className="p-5 flex items-center space-x-4">
-                <div className="p-2.5 bg-emerald-500/10 text-emerald-600 rounded-lg shrink-0">
+                <div className="p-2.5 bg-primary/10 text-primary rounded-lg shrink-0">
                   <CheckCircle2 size={18} />
                 </div>
                 <div>
@@ -328,7 +340,7 @@ export default function CampaignAnalytics() {
 
             <Card className="border border-border bg-card shadow-sm rounded-xl">
               <CardContent className="p-5 flex items-center space-x-4">
-                <div className="p-2.5 bg-amber-500/10 text-amber-600 rounded-lg shrink-0">
+                <div className="p-2.5 bg-secondary/10 text-secondary rounded-lg shrink-0">
                   <Star size={18} />
                 </div>
                 <div>
@@ -367,10 +379,8 @@ export default function CampaignAnalytics() {
                           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.6} />
                           <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} fontWeight="bold" />
                           <YAxis stroke="#94a3b8" fontSize={10} fontWeight="bold" />
-                          <RechartsTooltip 
-                            contentStyle={{ backgroundColor: "var(--card)", border: "1px solid var(--border)", borderRadius: "12px", fontSize: "11px", color: "var(--foreground)" }}
-                          />
-                          <Legend wrapperStyle={{ fontSize: "11px", fontWeight: "bold", paddingTop: "10px" }} />
+                          <RechartsTooltip content={<ChartTooltip />} />
+                          <Legend content={<ChartLegend />} />
                           <Area type="monotone" name="Reach (Attendees)" dataKey="reach" stroke="#1A2B4A" fillOpacity={1} fill="url(#colorReach)" strokeWidth={2} />
                           <Area type="monotone" name="Enrollments" dataKey="enrollments" stroke="#C8102E" fillOpacity={1} fill="url(#colorEnrollments)" strokeWidth={2} />
                         </AreaChart>
@@ -400,8 +410,8 @@ export default function CampaignAnalytics() {
                     <h4 className="text-base font-extrabold text-foreground mt-1">
                       {leaderboard.bestVillage}
                     </h4>
-                    <p className="text-xs text-emerald-600 font-semibold mt-1">
-                      &bull; Conversion rate: {leaderboard.bestConv}%
+                    <p className="text-xs text-muted-foreground font-semibold mt-1">
+                      &bull; Conversion rate: <strong className="text-primary">{leaderboard.bestConv}%</strong>
                     </p>
                   </div>
                   <div className="pt-3">
@@ -409,8 +419,8 @@ export default function CampaignAnalytics() {
                     <h4 className="text-sm font-bold text-foreground mt-1">
                       {leaderboard.bestScheme}
                     </h4>
-                    <p className="text-xs text-emerald-600 font-semibold mt-1">
-                      &bull; Estimated Adoption: {leaderboard.bestSchemeAdoption}
+                    <p className="text-xs text-muted-foreground font-semibold mt-1">
+                      &bull; Estimated Adoption: <strong className="text-primary">{leaderboard.bestSchemeAdoption}</strong>
                     </p>
                   </div>
                 </CardContent>

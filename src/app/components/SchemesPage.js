@@ -18,18 +18,21 @@ import {
 } from "@/components/ui/breadcrumb";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
+import useDashboardStore from "@/store/dashboardStore";
+
 export default function SchemesPage() {
+  const { village } = useDashboardStore();
   const [responseData, setResponseData] = useState(" ");
   const [selectedScheme, setSelectedScheme] = useState(null);
   const [type, setType] = useState("Urban");
   const [isTableExpanded, setIsTableExpanded] = useState(true);
 
-  const data = { village: "bhavani" };
+  const activeVillage = village || "bhavani";
 
   useEffect(() => {
     const sendData = async () => {
       try {
-        const response = await axios.post("/api/schemeTime", data);
+        const response = await axios.post("/api/schemeTime", { village: activeVillage });
         console.log("Response from server:", response.data);
         setResponseData(response.data);
       } catch (error) {
@@ -38,7 +41,7 @@ export default function SchemesPage() {
     };
 
     sendData();
-  }, []);
+  }, [activeVillage]);
 
   const [selectedSchemeName, setSelectedSchemeName] = useState({
     id: 1,
@@ -54,197 +57,193 @@ export default function SchemesPage() {
   const schemes = [
     {
       id: 1,
-      name: "Post Office Savings Account",
+      name: "Post Office Savings Account (SB)",
       targetAudience: "General public, rural/semi-urban areas",
-      purpose: "Encourage savings with easy access to banking",
+      purpose: "Encourage basic savings with easy liquidity and banking access.",
       successRate: 65,
       urbanAvailability: ["January to March", "September to December"],
-      ruralAvailability: responseData?.result?.harvesting
-        ? ["April to June", ...responseData.result.harvesting]
-        : ["April to June"],
+      ruralAvailability: responseData?.result?.harvesting ? ["April to June", ...responseData.result.harvesting] : ["April to June"],
     },
     {
       id: 2,
-      name: "Recurring Deposit (RD)",
-      targetAudience: "Middle/lower-income groups",
-      purpose:
-        "Help save small amounts monthly and get a lump sum at maturity.",
+      name: "National Savings Recurring Deposit (RD)",
+      targetAudience: "Middle/lower-income groups, daily/monthly wage earners",
+      purpose: "Help save small amounts monthly and receive a lump sum at maturity.",
       successRate: 72,
-      urbanAvailability: [
-        "January to March",
-        "April to June",
-        "September to December",
-      ],
-      ruralAvailability: responseData?.result?.harvesting
-        ? ["April to June", ...responseData.result.harvesting]
-        : ["April to June"],
+      urbanAvailability: ["January to March", "April to June", "September to December"],
+      ruralAvailability: responseData?.result?.harvesting ? ["April to June", ...responseData.result.harvesting] : ["April to June"],
     },
     {
       id: 3,
-      name: "Time Deposit (TD)",
-      targetAudience: "Salaried individuals, pensioners",
-      purpose: "Offer fixed-income returns for short to long-term investments",
+      name: "National Savings Time Deposit (TD)",
+      targetAudience: "Salaried individuals, pensioners, risk-averse investors",
+      purpose: "Offer fixed-income returns with multiple tenure options (1 to 5 years).",
       successRate: 58,
-      urbanAvailability: [
-        "January to March",
-        "April to June",
-        "September to December",
-      ],
-      ruralAvailability: responseData?.result?.harvesting
-        ? ["April to June", ...responseData.result.harvesting]
-        : ["April to June"],
+      urbanAvailability: ["January to March", "April to June", "September to December"],
+      ruralAvailability: responseData?.result?.harvesting ? ["April to June", ...responseData.result.harvesting] : ["April to June"],
     },
     {
       id: 4,
-      name: "Public Provident Fund (PPF)",
-      targetAudience: "Salaried/self-employed individuals, taxpayers",
-      purpose: "Promote long-term savings with tax benefits.",
-      successRate: 79,
-      urbanAvailability: [
-        "January to March",
-        "April to June",
-        "September to December",
-      ],
-      ruralAvailability: responseData?.result?.harvesting
-        ? ["April to June", ...responseData.result.harvesting]
-        : ["April to June"],
+      name: "Monthly Income Scheme (MIS)",
+      targetAudience: "Retirees, senior citizens seeking regular monthly cash flows",
+      purpose: "Offer guaranteed monthly interest payouts on capital deposits.",
+      successRate: 70,
+      urbanAvailability: ["January to March", "April to June", "September to December"],
+      ruralAvailability: responseData?.result?.harvesting ? ["October to December", ...responseData.result.harvesting] : ["October to December"],
     },
     {
       id: 5,
-      name: "National Savings Certificate (NSC)",
-      targetAudience: "Small-scale investors, taxpayers",
-      purpose: "Provide guaranteed returns with tax-saving benefits",
-      successRate: 60,
-      urbanAvailability: [
-        "January to March",
-        "April to June",
-        "July to August",
-        "September to December",
-      ],
-      ruralAvailability: responseData?.result?.harvesting
-        ? [...responseData.result.harvesting]
-        : ["None"],
+      name: "Public Provident Fund (PPF)",
+      targetAudience: "Salaried/self-employed individuals, taxpayers seeking long-term corpus",
+      purpose: "Promote long-term compounding wealth creation with EEE tax benefits.",
+      successRate: 79,
+      urbanAvailability: ["January to March", "April to June", "September to December"],
+      ruralAvailability: responseData?.result?.harvesting ? ["April to June", ...responseData.result.harvesting] : ["April to June"],
     },
     {
       id: 6,
-      name: "Kisan Vikas Patra (KVP)",
-      targetAudience: "Rural/semi-urban populations, farmers",
-      purpose: "Offer secure investment doubling deposits in a fixed period",
-      successRate: 68,
-      urbanAvailability: [
-        "January to March",
-        "April to June",
-        "July to August",
-        "September to December",
-      ],
-      ruralAvailability: responseData?.result?.harvesting
-        ? ["September to December", ...responseData.result.harvesting]
-        : ["September to December"],
+      name: "Senior Citizens Savings Scheme (SCSS)",
+      targetAudience: "Retirees and senior citizens aged 60+",
+      purpose: "Secure post-retirement funds with high interest yield and regular payouts.",
+      successRate: 82,
+      urbanAvailability: ["January to March", "April to June", "July to August", "September to December"],
+      ruralAvailability: responseData?.result?.harvesting ? ["October to February", ...responseData.result.harvesting] : ["October to February"],
     },
     {
       id: 7,
-      name: "Sukanya Samriddhi Yojana (SSY)",
-      targetAudience: "Parents of girl children",
-      purpose:
-        "Secure girl children's future (education and marriage expenses)",
-      successRate: 77,
+      name: "Sukanya Samriddhi Account (SSA)",
+      targetAudience: "Parents/guardians of girl children under 10 years of age",
+      purpose: "Secure funds for the education and marriage expenses of girl children.",
+      successRate: 85,
       urbanAvailability: ["January to March", "April to June"],
-      ruralAvailability: responseData?.result?.harvesting
-        ? ["October to December", ...responseData.result.harvesting]
-        : ["October to December"],
+      ruralAvailability: responseData?.result?.harvesting ? ["October to December", ...responseData.result.harvesting] : ["October to December"],
     },
     {
       id: 8,
-      name: "Senior Citizen Savings Scheme (SCSS)",
-      targetAudience: "Senior citizens aged 60+",
-      purpose: "Provide regular income and secure investments post-retirement",
-      successRate: 73,
-      urbanAvailability: [
-        "January to March",
-        "April to June",
-        "July to August",
-        "September to December",
-      ],
-      ruralAvailability: responseData?.result?.harvesting
-        ? ["October to February", ...responseData.result.harvesting]
-        : ["October to February"],
+      name: "National Savings Certificate (NSC)",
+      targetAudience: "Small-scale investors, middle-class taxpayers",
+      purpose: "Provide secure, guaranteed returns over a fixed 5-year tenure with Section 80C deductions.",
+      successRate: 60,
+      urbanAvailability: ["January to March", "April to June", "July to August", "September to December"],
+      ruralAvailability: responseData?.result?.harvesting ? [...responseData.result.harvesting] : ["None"],
     },
     {
       id: 9,
-      name: "Atal Pension Yojana (APY)",
-      targetAudience: "Workers in unorganized sectors",
-      purpose: "Ensure pension and social security after retirement",
-      successRate: 70,
-      urbanAvailability: [
-        "January to March",
-        "April to June",
-        "September to December",
-      ],
-      ruralAvailability: responseData?.result?.harvesting
-        ? [
-            "October to December",
-            "April to June",
-            ...responseData.result.harvesting,
-          ]
-        : ["October to December", "April to June"],
+      name: "Kisan Vikas Patra (KVP)",
+      targetAudience: "Farmers, rural populations, long-term investors",
+      purpose: "Double the principal deposit over a fixed tenure with sovereign security.",
+      successRate: 68,
+      urbanAvailability: ["January to March", "April to June", "July to August", "September to December"],
+      ruralAvailability: responseData?.result?.harvesting ? ["September to December", ...responseData.result.harvesting] : ["September to December"],
     },
     {
       id: 10,
-      name: "Postal Life Insurance (PLI)",
-      targetAudience: "Government employees, salaried individuals",
-      purpose: "Provide low-cost life insurance with high returns",
-      successRate: 64,
-      urbanAvailability: [
-        "January to March",
-        "April to June",
-        "September to November",
-      ],
-      ruralAvailability: ["None"],
+      name: "Mahila Samman Savings Certificate (MSSC)",
+      targetAudience: "Women of all ages, parents of minor girls",
+      purpose: "Encourage financial savings and independence for women with fixed high-yield 2-year terms.",
+      successRate: 78,
+      urbanAvailability: ["January to March", "April to June", "September to October"],
+      ruralAvailability: responseData?.result?.harvesting ? ["October to December", ...responseData.result.harvesting] : ["October to December"],
     },
     {
       id: 11,
-      name: "Rural Postal Life Insurance (RPLI)",
-      targetAudience: "Rural populations, farmers, small businesses",
-      purpose: "Extend affordable life insurance to rural areas",
-      successRate: 62,
-      urbanAvailability: [
-        "January to March",
-        "April to June",
-        "September to December",
-      ],
-      ruralAvailability: responseData?.result?.harvesting
-        ? ["September", "April to June", ...responseData.result.harvesting]
-        : ["September", "April to June"],
+      name: "PM CARES for Children Scheme",
+      targetAudience: "Minors orphaned during the COVID-19 pandemic",
+      purpose: "Provide comprehensive rehabilitation, educational support, and financial corpus.",
+      successRate: 90,
+      urbanAvailability: ["Ongoing"],
+      ruralAvailability: ["Ongoing"],
     },
     {
       id: 12,
-      name: "Mahila Samman Savings Certificate",
-      targetAudience: "Women in rural areas",
-      purpose: "Empower women through savings and financial independence",
-      successRate: 78,
-      urbanAvailability: [
-        "January to March",
-        "April to June",
-        "September to October",
-      ],
-      ruralAvailability: responseData?.result?.harvesting
-        ? ["October to December", ...responseData.result.harvesting]
-        : ["October to December"],
+      name: "Regular Savings Account (IPPB)",
+      targetAudience: "Tech-savvy individuals, rural citizens needing digital banking",
+      purpose: "Provide digital-first doorstep banking, transaction facility, and utility links.",
+      successRate: 64,
+      urbanAvailability: ["Ongoing"],
+      ruralAvailability: ["Ongoing"],
     },
     {
       id: 13,
-      name: "Kisan Credit Card (KCC)",
-      targetAudience: "Farmers, agricultural workers",
-      purpose:
-        "Provide short-term loans for agriculture, animal husbandry, and allied activities",
-      successRate: 63,
-      urbanAvailability: responseData?.result?.sowing
-        ? [...responseData.result.sowing]
-        : ["none"],
-      ruralAvailability: responseData?.result?.sowing
-        ? [...responseData.result.sowing]
-        : ["none"],
+      name: "Basic Savings Account (IPPB)",
+      targetAudience: "Low-income segments, DBT subsidy beneficiaries",
+      purpose: "Offer zero-minimum balance accounts for secure payment receipt and DBT sweeps.",
+      successRate: 62,
+      urbanAvailability: ["Ongoing"],
+      ruralAvailability: ["Ongoing"],
     },
+    {
+      id: 14,
+      name: "DigiSmart Savings Account (IPPB)",
+      targetAudience: "Mobile-first young adults (18+)",
+      purpose: "Quick app-based self-onboarding with cashbacks and virtual debit cards.",
+      successRate: 70,
+      urbanAvailability: ["Ongoing"],
+      ruralAvailability: ["Ongoing"],
+    },
+    {
+      id: 15,
+      name: "Premium Savings Account (IPPB)",
+      targetAudience: "Frequent transactors seeking premium services",
+      purpose: "Doorstep banking benefits, zero sweep fees, and custom cashback structures.",
+      successRate: 66,
+      urbanAvailability: ["Ongoing"],
+      ruralAvailability: ["Ongoing"],
+    },
+    {
+      id: 16,
+      name: "Premium Aarogya Savings Account (IPPB)",
+      targetAudience: "Families and health-conscious individuals",
+      purpose: "Combine regular digital transaction banking with telehealth consultations and wellness discounts.",
+      successRate: 68,
+      urbanAvailability: ["Ongoing"],
+      ruralAvailability: ["Ongoing"],
+    },
+    {
+      id: 17,
+      name: "SHG Savings Account (IPPB)",
+      targetAudience: "Registered Self-Help Groups (SHGs) and rural micro-entrepreneurs",
+      purpose: "Facilitate micro-enterprise transactions, group deposits, and credit link management.",
+      successRate: 74,
+      urbanAvailability: ["Ongoing"],
+      ruralAvailability: ["Ongoing"],
+    },
+    {
+      id: 18,
+      name: "Current Account (IPPB)",
+      targetAudience: "Small merchants, traders, self-employed business owners",
+      purpose: "Assist business owners with unlimited transactions and merchant payment solutions.",
+      successRate: 63,
+      urbanAvailability: ["Ongoing"],
+      ruralAvailability: ["Ongoing"],
+    },
+    {
+      id: 19,
+      name: "PMJJBY (Third-Party Insurance)",
+      targetAudience: "Earning adults aged 18 to 50",
+      purpose: "Provide affordable ₹2 Lakh term life insurance cover for low-income families.",
+      successRate: 71,
+      urbanAvailability: ["Ongoing"],
+      ruralAvailability: ["Ongoing"],
+    },
+    {
+      id: 20,
+      name: "PMSBY (Third-Party Insurance)",
+      targetAudience: "Individuals aged 18 to 70",
+      purpose: "High-value accidental death and disability insurance cover at a minimal premium of ₹20/year.",
+      successRate: 75,
+      urbanAvailability: ["Ongoing"],
+      ruralAvailability: ["Ongoing"],
+    },
+    {
+      id: 21,
+      name: "Atal Pension Yojana (APY)",
+      targetAudience: "Workers in unorganized sectors aged 18 to 40",
+      purpose: "Ensure pension and social security after retirement.",
+      successRate: 73,
+      urbanAvailability: ["January to March", "April to June", "September to December"],
+      ruralAvailability: responseData?.result?.harvesting ? ["October to December", "April to June", ...responseData.result.harvesting] : ["October to December", "April to June"],
+    }
   ];
 
   // Handle radio button selection

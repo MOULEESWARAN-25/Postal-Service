@@ -3,6 +3,11 @@ export const dynamic = 'force-dynamic';
 import connectToDatabase from "@/lib/mongoose";
 import Village from "@/models/Village";
 
+function escapeRegExp(string) {
+  if (!string) return "";
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 // Deduplicate results by tru field (Total/Rural/Urban)
 const dedupeByTru = (arr) =>
   Array.from(new Map(arr.map((v) => [v.tru, v])).values());
@@ -46,9 +51,9 @@ export async function POST(req) {
     // Village level (most specific) — fallback chain: village → district → INDIA
     if (village) {
       results = await findWithFallback([
-        { name: new RegExp(`^${village}$`, "i"), district: new RegExp(`^${District}$`, "i") },
-        { name: new RegExp(`\\b${village}\\b`, "i") },
-        { name: new RegExp(`^${District}$`, "i") },
+        { name: new RegExp(`^${escapeRegExp(village)}$`, "i"), district: new RegExp(`^${escapeRegExp(District)}$`, "i") },
+        { name: new RegExp(`\\b${escapeRegExp(village)}\\b`, "i") },
+        { name: new RegExp(`^${escapeRegExp(District)}$`, "i") },
         { name: /^INDIA$/i },
       ]);
     }
@@ -59,12 +64,12 @@ export async function POST(req) {
       results = await findWithFallback([
         {
           $or: [
-            { name: new RegExp(`\\b${spName}\\b`, "i") },
-            { subDistrict: new RegExp(`\\b${spName}\\b`, "i") },
+            { name: new RegExp(`\\b${escapeRegExp(spName)}\\b`, "i") },
+            { subDistrict: new RegExp(`\\b${escapeRegExp(spName)}\\b`, "i") },
           ],
-          district: new RegExp(`\\b${District}\\b`, "i"),
+          district: new RegExp(`\\b${escapeRegExp(District)}\\b`, "i"),
         },
-        { name: new RegExp(`^${District}$`, "i") },
+        { name: new RegExp(`^${escapeRegExp(District)}$`, "i") },
         { name: /^INDIA$/i },
       ]);
     }
@@ -75,12 +80,12 @@ export async function POST(req) {
       results = await findWithFallback([
         {
           $or: [
-            { name: new RegExp(`\\b${spName}\\b`, "i") },
-            { subDistrict: new RegExp(`\\b${spName}\\b`, "i") },
+            { name: new RegExp(`\\b${escapeRegExp(spName)}\\b`, "i") },
+            { subDistrict: new RegExp(`\\b${escapeRegExp(spName)}\\b`, "i") },
           ],
-          district: new RegExp(`\\b${District}\\b`, "i"),
+          district: new RegExp(`\\b${escapeRegExp(District)}\\b`, "i"),
         },
-        { name: new RegExp(`^${District}$`, "i") },
+        { name: new RegExp(`^${escapeRegExp(District)}$`, "i") },
         { name: /^INDIA$/i },
       ]);
     }
@@ -88,7 +93,7 @@ export async function POST(req) {
     // District level
     else if (District) {
       results = await findWithFallback([
-        { name: new RegExp(`^${District}$`, "i") },
+        { name: new RegExp(`^${escapeRegExp(District)}$`, "i") },
         { name: /^INDIA$/i },
       ]);
     }
@@ -96,7 +101,7 @@ export async function POST(req) {
     // State level
     else if (State) {
       results = await findWithFallback([
-        { name: new RegExp(`^${State}$`, "i") },
+        { name: new RegExp(`^${escapeRegExp(State)}$`, "i") },
         { name: /^INDIA$/i },
       ]);
     }
@@ -104,7 +109,7 @@ export async function POST(req) {
     // Name level (e.g. INDIA)
     else if (name) {
       results = await findWithFallback([
-        { name: new RegExp(`^${name}$`, "i") },
+        { name: new RegExp(`^${escapeRegExp(name)}$`, "i") },
         { name: /^INDIA$/i },
       ]);
     }

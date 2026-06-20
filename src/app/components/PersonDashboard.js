@@ -79,6 +79,19 @@ export default function PersonDashboard() {
         const data = await res.json();
         if (data.success) {
           setRecommendations(data.recommendations || []);
+          
+          // Log dynamic beneficiary analysis audit action
+          fetch("/api/audit-logs", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              actionType: "RUN_BENEFICIARY_ANALYSIS",
+              location: user.Address || user.address || `${user.area || ""}, ${user.location || ""}`,
+              recommendation: data.recommendations && data.recommendations.length > 0 ? data.recommendations[0].name : "None",
+              opportunityIndex: data.recommendations && data.recommendations.length > 0 ? data.recommendations[0].score : 0,
+              userActionTime: new Date().toISOString()
+            })
+          }).catch(err => console.warn("Failed to write audit log:", err));
         }
       } catch (err) {
         console.warn("Error fetching dynamic fit scores:", err);

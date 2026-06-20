@@ -44,7 +44,7 @@ export default function PostOfficeChatbot() {
     "What are the benefits of the Post Office Savings Scheme?",
     "How can I open a Senior Citizens Savings Scheme account?",
     "How do I invest in the National Savings Certificate (NSC)?",
-    "How can I enroll in the Sukanya Samriddhi Yojana (SSA)?"
+    "How can I enroll in the Sukanya Samriddhi Account (SSA)?"
   ];
 
   const scrollToBottom = () => {
@@ -146,8 +146,8 @@ export default function PostOfficeChatbot() {
                 <CardContent className="space-y-4 flex-1 flex flex-col justify-between pt-4 px-4 pb-4">
                   <div className="space-y-3 max-h-[400px] overflow-y-auto pr-1 flex-1">
                     {[
-                      { title: "Sukanya Samriddhi Yojana (SSA)", desc: "For girl children under 10 years. Currently offers 8.2% interest. Exemption under 80C." },
-                      { title: "Senior Citizen Savings Scheme (SCSS)", desc: "For citizens aged 60+. Offers 8.2% interest. Quarterly interest payouts." },
+                      { title: "Sukanya Samriddhi Account (SSA)", desc: "For girl children under 10 years. Currently offers 8.2% interest. Exemption under 80C." },
+                      { title: "Senior Citizens Savings Scheme (SCSS)", desc: "For citizens aged 60+. Offers 8.2% interest. Quarterly interest payouts." },
                       { title: "National Savings Certificate (NSC)", desc: "5-year maturity scheme. 7.7% interest rate compounded annually. 80C tax benefits." },
                       { title: "Kisan Vikas Patra (KVP)", desc: "Doubles investment in 115 months. 7.5% interest rate compounded annually." },
                     ].map(({ title, desc }) => (

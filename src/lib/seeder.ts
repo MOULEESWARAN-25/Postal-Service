@@ -78,59 +78,197 @@ const seedData = async () => {
 
   console.log('2. Seeding Schemes...');
   const schemesData = [
+    // 1. Traditional POSB Schemes
     {
-      schemeCode: 'POSA',
-      name: 'Post Office Savings Account',
-      description: 'A basic savings account offering safe returns and liquidity.',
+      schemeCode: 'SB',
+      name: 'Post Office Savings Account (SB)',
+      description: 'A basic savings account offering safe returns, liquidity, and a gateway to government benefits.',
       eligibilityCriteria: { minAge: 10, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
       targetAudience: 'General public, rural and semi-urban populations',
-      benefits: ['Low minimum balance of ₹500', 'Tax-free interest up to ₹10,000 per year', 'Safe government backing'],
+      benefits: ['Low minimum balance of ₹500', 'Tax-free interest up to ₹10,000 per year', 'Safe government backing', 'Mandatory nomination support'],
       interestRate: 4.0
     },
     {
       schemeCode: 'RD',
-      name: 'Recurring Deposit Scheme',
-      description: 'Disciplined monthly savings scheme with guaranteed returns.',
-      eligibilityCriteria: { minAge: 18, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      name: 'National Savings Recurring Deposit (RD)',
+      description: 'Disciplined monthly savings scheme with guaranteed compound returns over 5 years.',
+      eligibilityCriteria: { minAge: 10, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
       targetAudience: 'Salaried individuals, daily wage earners',
-      benefits: ['Fixed monthly deposits starting from ₹100', '5-year maturity period', 'Loan facility up to 50% of balance'],
+      benefits: ['Fixed monthly deposits starting from ₹100', '5-year maturity period', 'Loan facility up to 50% of balance after 1 year'],
       interestRate: 6.7
     },
     {
+      schemeCode: 'TD',
+      name: 'National Savings Time Deposit (TD)',
+      description: 'Fixed term deposit scheme offering secure high-yield returns for 1 to 5 year tenures.',
+      eligibilityCriteria: { minAge: 10, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Savers, salaried individuals',
+      benefits: ['Tenure options from 1 to 5 years', 'Section 80C tax benefits for 5-year deposits', 'Quarterly compounding payouts'],
+      interestRate: 7.5
+    },
+    {
+      schemeCode: 'MIS',
+      name: 'Monthly Income Scheme (MIS)',
+      description: 'Provides a secure monthly interest payout on lump-sum capital investments.',
+      eligibilityCriteria: { minAge: 10, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Retirees, senior citizens seeking regular payouts',
+      benefits: ['Monthly interest payout to linked savings account', 'Sovereign capital protection', 'Maximum deposit limit of ₹9 Lakh for single accounts'],
+      interestRate: 7.4
+    },
+    {
       schemeCode: 'PPF',
-      name: 'Public Provident Fund',
-      description: 'Long-term tax saving and wealth accumulation scheme.',
+      name: 'Public Provident Fund (PPF)',
+      description: 'Long-term tax-exempt wealth accumulation and retirement savings asset.',
       eligibilityCriteria: { minAge: 18, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
       targetAudience: 'Taxpayers, self-employed professionals',
-      benefits: ['Section 80C tax deduction', 'Completely tax-free interest and maturity', '15-year tenure lock-in'],
+      benefits: ['EEE tax status (exempt on contribution, interest, and maturity)', 'Section 80C deduction benefits', 'Sovereign protection with a 15-year tenure'],
       interestRate: 7.1
     },
     {
-      schemeCode: 'SSA',
-      name: 'Sukanya Samriddhi Yojana',
-      description: 'Savings scheme targeted exclusively for the welfare of the girl child.',
-      eligibilityCriteria: { minAge: 0, maxAge: 10, allowedGenders: ['Female'] },
-      targetAudience: 'Parents of girl children under 10',
-      benefits: ['Highest interest rate among POSB schemes', 'Tax deduction under Section 80C', 'Matures on girl child reaching 21 years'],
-      interestRate: 8.2
-    },
-    {
       schemeCode: 'SCSS',
-      name: 'Senior Citizen Savings Scheme',
-      description: 'Regular income scheme for seniors with sovereign security.',
+      name: 'Senior Citizens Savings Scheme (SCSS)',
+      description: 'Regular high-yield income scheme for retired senior citizens.',
       eligibilityCriteria: { minAge: 60, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
-      targetAudience: 'Retirees and senior citizens',
-      benefits: ['Quarterly interest payout', 'Section 80C tax deduction', 'Maturity period of 5 years'],
+      targetAudience: 'Retirees aged 60+ (or retired civilian employees aged 55-60)',
+      benefits: ['Attractive quarterly interest yield', 'Sovereign capital security', 'Section 80C tax deduction benefits'],
       interestRate: 8.2
     },
     {
-      schemeCode: 'KCC',
-      name: 'Kisan Credit Card',
-      description: 'Short-term credit for farmers to meet cultivation and maintenance needs.',
-      eligibilityCriteria: { minAge: 18, maxAge: 75, allowedGenders: ['Male', 'Female', 'Other'], maxLandAcres: 50 },
-      targetAudience: 'Farmers and agricultural landowners',
-      benefits: ['Low-interest crop loans', 'Flexible repayment based on harvest cycle', 'Inbuilt crop insurance protection'],
-      interestRate: 7.0
+      schemeCode: 'SSA',
+      name: 'Sukanya Samriddhi Account (SSA)',
+      description: 'Dedicated high-yield savings scheme for the education and marriage of a girl child.',
+      eligibilityCriteria: { minAge: 0, maxAge: 10, allowedGenders: ['Female'] },
+      targetAudience: 'Parents/guardians of girl children under 10 years',
+      benefits: ['Highest interest rate among POSB schemes', 'Tax exemptions under Section 80C', 'Matures on girl child reaching 21 years of age'],
+      interestRate: 8.2
+    },
+    {
+      schemeCode: 'NSC',
+      name: 'National Savings Certificate (NSC)',
+      description: 'Low-risk 5-year fixed return certificate popular for tax saving.',
+      eligibilityCriteria: { minAge: 10, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Middle-class savers, taxpayers',
+      benefits: ['Guaranteed 5-year returns', 'Section 80C tax deduction', 'Collateral capability to secure bank credit'],
+      interestRate: 7.7
+    },
+    {
+      schemeCode: 'KVP',
+      name: 'Kisan Vikas Patra (KVP)',
+      description: 'Sovereign certificate scheme that doubles the principal investment over a fixed period.',
+      eligibilityCriteria: { minAge: 10, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Farmers, rural populations, risk-averse investors',
+      benefits: ['Doubles capital investment deterministically', 'Zero market risk', 'Easy transferability and nomination facilities'],
+      interestRate: 7.5
+    },
+    {
+      schemeCode: 'MSSC',
+      name: 'Mahila Samman Savings Certificate (MSSC)',
+      description: 'Short-term savings scheme empowering women with high fixed interest.',
+      eligibilityCriteria: { minAge: 0, maxAge: 100, allowedGenders: ['Female'] },
+      targetAudience: 'Women of all ages, guardians of minor girls',
+      benefits: ['High fixed interest rate of 7.5%', '2-year short tenure limit', 'Flexible partial withdrawal option (up to 40%)'],
+      interestRate: 7.5
+    },
+    {
+      schemeCode: 'PMCARES',
+      name: 'PM CARES for Children Scheme',
+      description: 'Comprehensive welfare and financial scheme for children orphaned by the COVID-19 pandemic.',
+      eligibilityCriteria: { minAge: 0, maxAge: 18, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Minors orphaned during the COVID-19 pandemic',
+      benefits: ['Comprehensive educational stipend support', 'Free health insurance under PM-JAY', 'Lump sum corpus and monthly payout at age 23'],
+      interestRate: 7.3
+    },
+    // 2. India Post Payments Bank (IPPB) Accounts
+    {
+      schemeCode: 'IPPB_REG',
+      name: 'Regular Savings Account',
+      description: 'Digital-first payments account focusing on day-to-day transactions and doorstep banking.',
+      eligibilityCriteria: { minAge: 10, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Mobile users, rural and semi-urban populations',
+      benefits: ['Instant onboarding via Aadhaar & PAN KYC', 'Direct utility and merchant payment integration', 'Accidental insurance and sweep options'],
+      interestRate: 2.0
+    },
+    {
+      schemeCode: 'IPPB_BAS',
+      name: 'Basic Savings Account',
+      description: 'Zero-minimum balance digital account with limits on monthly cash withdrawals.',
+      eligibilityCriteria: { minAge: 10, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Low-income earners, DBT subsidy recipients',
+      benefits: ['No minimum balance required', 'Primary link for DBT subsidy sweeps', 'Free cash withdrawals up to four times per month'],
+      interestRate: 2.0
+    },
+    {
+      schemeCode: 'IPPB_DIGI',
+      name: 'DigiSmart Savings Account',
+      description: 'App-based mobile transaction account offering merchant cashbacks and discounts.',
+      eligibilityCriteria: { minAge: 18, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Tech-savvy youth, online shoppers',
+      benefits: ['Onboarding via IPPB Mobile App', 'Attractive merchant discounts and virtual debit cards', 'Instant sweep options'],
+      interestRate: 2.0
+    },
+    {
+      schemeCode: 'IPPB_PREM',
+      name: 'Premium Savings Account',
+      description: 'Value-added transactional account offering premium cashbacks and zero fee services.',
+      eligibilityCriteria: { minAge: 10, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Regular digital banking users',
+      benefits: ['Cashbacks on merchant transactions', 'Free virtual debit cards', 'No charges on sweep operations or doorstep deposits'],
+      interestRate: 2.5
+    },
+    {
+      schemeCode: 'IPPB_AAR',
+      name: 'Premium Aarogya Savings Account',
+      description: 'Transactional account that bundles banking services with online healthcare benefits.',
+      eligibilityCriteria: { minAge: 10, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Health-conscious families, seniors',
+      benefits: ['Bundled telehealth online doctor consultations', 'Discounts on diagnostics and pharmacy purchases', 'Inbuilt accidental insurance cover'],
+      interestRate: 2.5
+    },
+    {
+      schemeCode: 'IPPB_SHG',
+      name: 'SHG Savings Account',
+      description: 'Group savings account designed for Self-Help Groups to manage collective finance.',
+      eligibilityCriteria: { minAge: 18, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Registered Self-Help Groups (SHGs) and rural entrepreneurs',
+      benefits: ['Supports group micro-finance and joint savings', 'Direct linkage to government agricultural credit', 'Easy disbursement rules'],
+      interestRate: 2.0
+    },
+    {
+      schemeCode: 'IPPB_CURR',
+      name: 'Current Account',
+      description: 'Transactional account tailored for small merchants and self-employed entities.',
+      eligibilityCriteria: { minAge: 18, maxAge: 100, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Small merchants, retail store owners, self-employed traders',
+      benefits: ['Unlimited cash transactions and daily deposits', 'Merchant QR payment integrations', 'Nomination and doorstep support options'],
+      interestRate: 0.0
+    },
+    // 3. Third-Party Government Schemes (Facilitated via IPPB)
+    {
+      schemeCode: 'PMJJBY',
+      name: 'Pradhan Mantri Jeevan Jyoti Bima Yojana (PMJJBY)',
+      description: 'Term life insurance policy offering security for active earning members of households.',
+      eligibilityCriteria: { minAge: 18, maxAge: 50, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Working adults aged 18 to 50 years',
+      benefits: ['₹2 Lakh term life insurance cover', 'Extremely low premium of ₹436 per year', 'Auto-debit setup from linked savings accounts'],
+      interestRate: 0.0
+    },
+    {
+      schemeCode: 'PMSBY',
+      name: 'Pradhan Mantri Suraksha Bima Yojana (PMSBY)',
+      description: 'Extremely affordable accident and disability insurance cover.',
+      eligibilityCriteria: { minAge: 18, maxAge: 70, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Adults aged 18 to 70 years',
+      benefits: ['₹2 Lakh cover for accidental death or total disability', '₹1 Lakh cover for partial disability', 'Ultra low premium of only ₹20 per year'],
+      interestRate: 0.0
+    },
+    {
+      schemeCode: 'APY',
+      name: 'Atal Pension Yojana (APY)',
+      description: 'Guaranteed pension scheme targeting workers in the unorganized sector.',
+      eligibilityCriteria: { minAge: 18, maxAge: 40, allowedGenders: ['Male', 'Female', 'Other'] },
+      targetAudience: 'Unorganized sector workers aged 18 to 40 years',
+      benefits: ['Guaranteed lifetime monthly pension of ₹1000 - ₹5000', 'Spouse pension transfer on death', 'Co-contribution option from government'],
+      interestRate: 0.0
     }
   ];
   await Scheme.insertMany(schemesData);
@@ -150,16 +288,16 @@ const seedData = async () => {
       description: 'New financial year start. Seniors reinvesting retirement benefits.'
     },
     {
-      schemeCode: 'KCC',
+      schemeCode: 'KVP',
       type: 'farming',
       timeRange: 'June-July',
-      description: 'Kharif crop sowing season. Farmers require credit for seed and fertilizer purchases.'
+      description: 'Kharif crop sowing season. Farmers invest post-harvest income into secure capital doubling certificates.'
     },
     {
-      schemeCode: 'KCC',
+      schemeCode: 'KVP',
       type: 'farming',
       timeRange: 'October-November',
-      description: 'Rabi crop sowing season. High demand for agricultural credit.'
+      description: 'Rabi crop sowing season. High demand for agricultural savings opportunities.'
     },
     {
       schemeCode: 'SSA',
@@ -168,7 +306,7 @@ const seedData = async () => {
       description: 'School admission period. Parents planning girl children education expenses.'
     },
     {
-      schemeCode: 'POSA',
+      schemeCode: 'SB',
       type: 'festive',
       timeRange: 'October-November',
       description: 'Diwali festival season. High public gatherings and household cash movement.'
@@ -277,9 +415,9 @@ const seedData = async () => {
       phoneNumber: '9876543210',
       recommendations: {
         topSchemes: [
-          { schemeCode: 'SCSS', name: 'Senior Citizen Savings Scheme', confidence: 0.95, reason: 'Age is 60+ (retiree / senior)' },
-          { schemeCode: 'KCC', name: 'Kisan Credit Card', confidence: 0.88, reason: 'Owns 4.5 acres of agricultural land' },
-          { schemeCode: 'POSA', name: 'Post Office Savings Account', confidence: 0.80, reason: 'General safe savings account' }
+          { schemeCode: 'SCSS', name: 'Senior Citizens Savings Scheme (SCSS)', confidence: 0.95, reason: 'Age is 60+ (retiree / senior)' },
+          { schemeCode: 'KVP', name: 'Kisan Vikas Patra (KVP)', confidence: 0.88, reason: 'Owns 4.5 acres of agricultural land' },
+          { schemeCode: 'SB', name: 'Post Office Savings Account (SB)', confidence: 0.80, reason: 'General safe savings account' }
         ],
         generatedAt: new Date()
       }
@@ -302,9 +440,9 @@ const seedData = async () => {
       phoneNumber: '9944332211',
       recommendations: {
         topSchemes: [
-          { schemeCode: 'SSA', name: 'Sukanya Samriddhi Yojana', confidence: 0.99, reason: 'Has 2 girl children under the age of 10' },
-          { schemeCode: 'PPF', name: 'Public Provident Fund', confidence: 0.85, reason: 'Stable salaried income with tax saving needs' },
-          { schemeCode: 'RD', name: 'Recurring Deposit Scheme', confidence: 0.78, reason: 'High digital usage, steady monthly savings candidate' }
+          { schemeCode: 'SSA', name: 'Sukanya Samriddhi Account (SSA)', confidence: 0.99, reason: 'Has 2 girl children under the age of 10' },
+          { schemeCode: 'PPF', name: 'Public Provident Fund (PPF)', confidence: 0.85, reason: 'Stable salaried income with tax saving needs' },
+          { schemeCode: 'RD', name: 'National Savings Recurring Deposit (RD)', confidence: 0.78, reason: 'High digital usage, steady monthly savings candidate' }
         ],
         generatedAt: new Date()
       }
@@ -330,7 +468,7 @@ const seedData = async () => {
     {
       regionCode: 'PO-BHV-01',
       regionType: 'postoffice' as const,
-      schemeCode: 'KCC',
+      schemeCode: 'KVP',
       activeEnrollments: 180,
       targetEnrollments: 250,
       successRate: 72.0,
@@ -350,7 +488,7 @@ const seedData = async () => {
       date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), // 3 days from now
       location: 'Bhavani Kooduthurai Temple Grounds',
       eventType: 'Festival' as const,
-      description: 'Major gathering of local residents for ritual bath. Perfect time to promote general savings and APY.',
+      description: 'Major gathering of local residents for ritual bath. Perfect time to promote general savings (SB) and APY.',
       villageCode: 'VIL-BHV-201',
       postOfficeCode: 'PO-BHV-01',
       district: 'Erode',
@@ -361,7 +499,7 @@ const seedData = async () => {
       date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000), // 5 days from now
       location: 'Sathy Agricultural Market Committee',
       eventType: 'Community Event' as const,
-      description: 'Weekly meeting of cotton and sugarcane cultivators. Ideal for KCC campaign setup.',
+      description: 'Weekly meeting of cotton and sugarcane cultivators. Ideal for KVP savings promotion.',
       villageCode: 'VIL-SATHY-101',
       postOfficeCode: 'PO-SATHY-01',
       district: 'Erode',
