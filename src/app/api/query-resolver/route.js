@@ -361,7 +361,7 @@ export async function POST(req) {
     // 2. Intent-Driven Data Retrieval & Context Budgeting
     if (classification.intent === "VILLAGE_ANALYSIS" || (classification.intent === "RECOMMENDATION_EXPLANATION" && classification.village)) {
       const villageName = classification.village || classification.villages?.[0];
-      
+
       const demRecord = await db.collection('demographic_tamilnadu').findOne({
         name: new RegExp('^' + villageName + '$', 'i')
       });
@@ -410,9 +410,9 @@ export async function POST(req) {
           estimatedEligibleCitizens: topRec.expectedImpact || 0,
           keyDrivers: topRec.keyDrivers?.join("; ") || "N/A"
         };
-        
+
         retrievalQuality = "HIGH";
-        
+
         if (classification.intent === "VILLAGE_ANALYSIS") {
           formattedPrompt = PROMPTS.VILLAGE_ANALYSIS
             .replace(/{villageName}/g, retrievedContext.villageName)
@@ -463,7 +463,7 @@ export async function POST(req) {
     } else if (classification.intent === "BENEFICIARY_GUIDANCE") {
       const bName = classification.beneficiary;
       const aadhaarNum = Number(classification.aadhaar);
-      
+
       let citizen = null;
       if (aadhaarNum) {
         citizen = await db.collection('personal_info').findOne({ aadhaar_id: aadhaarNum });
@@ -526,8 +526,8 @@ export async function POST(req) {
         const genders = sc.eligibilityCriteria?.allowedGenders?.join(", ") || "All";
         const targetAudience = sc.targetAudience || "N/A";
         const interestRate = sc.interestRate || "N/A";
-        const benefitsList = sc.benefits && sc.benefits.length > 0 
-          ? sc.benefits.map(b => `- ${b}`).join("\n") 
+        const benefitsList = sc.benefits && sc.benefits.length > 0
+          ? sc.benefits.map(b => `- ${b}`).join("\n")
           : "- Sovereign safety and attractive returns.";
 
         const steps = [
@@ -615,7 +615,7 @@ ${steps}`;
     // 2.5 Response Caching Lookup (Stable query categories only)
     let cacheKey = "";
     const shouldCache = ["VILLAGE_ANALYSIS", "RECOMMENDATION_EXPLANATION", "GENERAL_POSTAL_QUERY"].includes(classification.intent) &&
-                        (classification.intent !== "RECOMMENDATION_EXPLANATION" || classification.village);
+      (classification.intent !== "RECOMMENDATION_EXPLANATION" || classification.village);
 
     if (!bypassGemini && shouldCache) {
       if (classification.intent === "GENERAL_POSTAL_QUERY") {
@@ -628,13 +628,13 @@ ${steps}`;
         const expectedImpact = retrievedContext.estimatedEligibleCitizens || 0;
         const engineVersion = "v1.4";
         const lastUpdated = retrievedContext.lastUpdated || "Census 2011 PCA";
-        
+
         const cacheInput = `${classification.intent}:${village}:${scheme}:${opportunityIndex}:${expectedImpact}:${engineVersion}:${lastUpdated}`;
         cacheKey = crypto.createHash('sha256').update(cacheInput).digest('hex');
       }
 
       const cachedRecord = await db.collection('ai_response_cache').findOne({ cacheKey });
-      
+
       if (cachedRecord) {
         const ageMs = new Date() - new Date(cachedRecord.createdAt);
         let ttlMs = 24 * 60 * 60 * 1000; // default 24h
@@ -648,7 +648,7 @@ ${steps}`;
 
         if (ageMs <= ttlMs) {
           console.log(`Cache HIT for intent ${classification.intent} (key: ${cacheKey})`);
-          
+
           const provenance = {
             ...cachedRecord.provenance,
             cached: true
@@ -704,7 +704,7 @@ ${steps}`;
         }
       } catch (llmError) {
         console.warn("Gemini call failed, generating fallback response locally:", llmError);
-        
+
         // Local fallback generation based on classified intent
         if (classification.intent === "VILLAGE_ANALYSIS") {
           text = `## 📊 Demographic Overview

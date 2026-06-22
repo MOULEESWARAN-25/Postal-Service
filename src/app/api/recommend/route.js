@@ -419,7 +419,7 @@ Return your answer as a JSON object strictly matching this format (no markdown b
       const driverStr0 = topRecommendations[0]?.drivers?.join(' ') || '';
       const driverStr1 = topRecommendations[1]?.drivers?.join(' ') || '';
       const driverStr2 = topRecommendations[2]?.drivers?.join(' ') || '';
-      
+
       explanations = {
         explanation1: `${topRecommendations[0].name} is recommended for age ${age} and income of ₹${monthlyIncome}/month. ${driverStr0}`,
         explanation2: `${topRecommendations[1].name} is suitable for a ${occupation} profile. ${driverStr1}`,
@@ -436,7 +436,7 @@ Return your answer as a JSON object strictly matching this format (no markdown b
     if (aadhaarId) {
       const aadhaarNum = Number(aadhaarId);
       const existing = await PersonalInfo.findOne({ aadhaar_id: aadhaarNum });
-      
+
       if (!existing) {
         console.log(`Aadhaar ${aadhaarId} not found, auto-creating citizen record...`);
         const newRecord = new PersonalInfo({
