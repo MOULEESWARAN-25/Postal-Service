@@ -1,112 +1,93 @@
-# AI-Driven Identification and Targeted Financial Service Promotion
+# India Post Decision Support System (DSS) — AI-Enabled Financial Service Promotion
 
-A comprehensive, AI-powered platform developed to enhance **financial and insurance service delivery** for the Department of Posts. It helps in identifying the **right financial needs** based on **demographic** and **economic cycles** and enables **targeted service promotion**, boosting customer satisfaction and operational efficiency.
-
----
-
-## **Key Features**:
-
-### **1. Demographics Dashboard and Administration Dashboard:**
-- Detailed population breakdown at **state**, **district**, **sub-post office**, **branch post office**, and **village** levels.
-- Visual and data-driven analysis to tailor financial service promotions based on local demographic realities.
-
-### **2. Scheme Timeline:**
-- Month-by-month recommendation of the **most relevant financial schemes** to promote based on regional demographics and economic activity cycles.
-- Full-year planning to optimize resource allocation and timing.
-
-### **3. Public Information Table:**
-- Comprehensive profiles of individuals linked with:
-  - Personal financial information.
-  - Top 3 financial services they are eligible for.
-  - Status of enrollment (Enrolled/Not Enrolled).
-
-### **4. Individual Financial Dashboard:**
-- A detailed, single-person dashboard showcasing their financial history, eligibility, and engagement with postal financial products.
-
-### **5. Event Calendar Integration:**
-- **Automated web scraping** using **Selenium** and **BeautifulSoup** to fetch local events monthly.
-- Integration with **Google Calendar** to assist in efficient planning of financial promotion Melas.
-- Ensures events are well-timed and match local activities and seasonal needs.
-
-### **6. Mela Feedback Collection:**
-- Digital feedback forms to collect participant experiences after financial promotion Melas.
-- Data-driven improvements in event planning and execution.
-
-### **7. Task Assignment, Scheduling, and Gamification:**
-- Financial service promotion targets set for each **Sub-Post Office** and **Branch Post Office**.
-- Points, badges, and ranks awarded for completing financial service promotion tasks.
-- **Gamified Leaderboard** showcasing task completions.
-- Geo-tagged photographs uploaded as proof of service promotions.
-- Motivates the service force to achieve better outreach performance.
-
-### **8. Post-Mela Statistics:**
-- Detailed post-event analytics for every branch, measuring effectiveness and reach.
-- Insights for refining future strategies.
-
-### **9. Chatbot Assistance:**
-- Smart chatbot to assist field workers and customers by answering queries about financial products, eligibility, and procedures.
-
-### **10. Farmer Risk Analysis:**
-- AI-driven analysis of **agricultural cycles**, **crop patterns**, and **risk profiles**.
-- Tailors insurance and savings product offerings based on farming seasons and risk levels.
+A modern, data-driven planning and decision-support platform designed to boost financial inclusion and optimize target scheme promotions at micro-local levels (State, District, Sub-Post Office, Branch Post Office, and Village) for the Department of Posts.
 
 ---
 
-## **How It Works**:
+## 🌟 Key Capabilities
 
-1. **Data Collection:**
-   - Gather demographic, economic, and farming cycle data at the micro-local level.
-   - Fetch real-time event information through automated web scraping.
+### 1. Regional Demographic Intelligence
+*   **Micro-Local Mapping:** Detailed population distributions, household density, gender balance, and workforce classification down to the village level.
+*   **Census-Grounded Metrics:** Visualization of literacy rates, agricultural vs. salaried workforce distribution, and youth/senior cohorts.
+*   **Dynamic Visualizations:** Interactive charts (Recharts & ApexCharts) for comparing demographic splits and analyzing local trends.
 
-2. **Segmentation and Targeting:**
-   - Analyze population demographics to recommend the most suitable financial products by area and season.
-   - Display scheme recommendations on the timeline and dashboards.
+### 2. Deterministic Suitability Recommender
+*   **Opportunity Index Scoring:** Computes a suitability score (0-100) for each village based on local demographic characteristics.
+*   **Diversified Scheme Support:** Supports traditional Post Office Savings Bank (POSB) products (e.g., SB, RD, TD, MIS, PPF, SCSS, SSA, NSC, KVP, MSSC), India Post Payments Bank (IPPB) accounts, and third-party social security schemes (PMJJBY, PMSBY, APY).
+*   **Evidence-Backed Reasoning:** Traces recommendations to specific local drivers (e.g., high female literacy gap recommending Sukanya Samriddhi Account).
 
-3. **Task Assignment and Gamification:**
-   - Assign promotional targets to sub-post and branch offices.
-   - Track completion through a leaderboard with gamification elements for motivation.
+### 3. Campaign & Event Calendar
+*   **Outreach Coordinator:** Plan and track financial promotion events (Melas) directly on an interactive calendar.
+*   **Agricultural Alignment:** Matches campaign timelines with agricultural cycles (sowing and harvesting timelines of Rice, Turmeric, Banana, Cotton, Maize, etc.) to target periods of high rural cash liquidity.
 
-4. **Event Planning and Calendar Integration:**
-   - Automatically suggest and schedule Melas aligned with local events and agricultural seasons.
+### 4. Beneficiary Directory & Profile Dashboards
+*   **Unified Directory:** Central list of local citizens with demographic metadata, income tier, occupation, and current account status.
+*   **Top 3 Eligible Schemes:** Identifies individual eligibility rankings to maximize successful conversions.
+*   **Individual Trackers:** In-depth user profile dashboards with pending enrollment trackers and days-left-to-enroll alerts.
 
-5. **Feedback and Analytics:**
-   - Collect post-event feedback to continuously refine strategies.
-   - Analyze post-mela performance using detailed branch-level statistics.
+### 5. Branch Office Targets & Gamification
+*   **Target Milestone Tracker:** Monitor set targets and achievements for Sub-Post Offices (SPOs) and Branch Post Offices (BPOs).
+*   **Gamified Leaderboard:** Incentivizes field workers with points, rank achievements, and performance badges (e.g., *Target Master*, *Mela Champion*).
 
-6. **Chatbot and Farmer Risk Profiling:**
-   - Provide instant support via chatbot.
-   - Analyze farmer risk to match the best financial/insurance products to their needs.
+### 6. Grounded Gemini AI Chatbot
+*   **Smart Query Resolver:** Natural language assistance powered by Gemini 2.0 Flash to help postmasters draft outreach messages, build campaign plans, or check scheme guidelines.
+*   **Metrics Grounding Layer:** Includes an automated validation script that scans model outputs to prevent hallucinated interest rates, incorrect codes, or ungrounded statistics.
 
 ---
 
-## **Tech Stack**:
+## 🛠️ Tech Stack
 
-### **Frontend:**
-- **Next.js**: Framework for a fast, SEO-friendly, and scalable frontend experience.
-- **Chart.js / Recharts**: For demographic and financial data visualizations.
+*   **Frontend Framework:** Next.js (App Router, React 18, TypeScript)
+*   **Styling:** TailwindCSS, DaisyUI, Framer Motion
+*   **State Management:** Zustand
+*   **Database & ORM:** MongoDB, Mongoose
+*   **AI Integration:** Vercel AI SDK (`@ai-sdk/google`) utilizing Gemini 2.0 Flash
 
-### **Backend:**
-- **Node.js** & **Express.js**: API development, user management, task assignment system, and feedback collection.
+---
 
-### **Web Scraping and Automation:**
-- **Selenium** + **BeautifulSoup**: For automatic gathering of local event information.
+## 🚀 Getting Started
 
-### **Database:**
-- **MongoDB**: Storage of user demographic data, financial product information, task tracking, and feedback.
+### 📋 Prerequisites
+*   [Node.js](https://nodejs.org/) (v18 or higher recommended)
+*   [MongoDB](https://www.mongodb.com/) (Local instance or MongoDB Atlas URI)
 
-### **Calendar Integration:**
-- **Google Calendar API**: Seamless event creation and tracking.
+### ⚙️ Setup & Configuration
 
-### **AI and Analysis:**
-- **Custom Machine Learning Models**: 
-  - Farmer risk analysis.
-  - Scheme recommendation engine.
-  - Chatbot functionality.
+1.  **Clone the repository & install dependencies:**
+    ```bash
+    git clone https://github.com/MOULEESWARAN-25/Postal-Service.git
+    npm install
+    ```
 
-—
+2.  **Environment Variables:**
+    Create a `.env.local` file in the root directory and add the following keys:
+    ```env
+    # MongoDB connection string
+    MONGODB_URI=your_mongodb_connection_uri
 
-## **Author**
+    # Secret key for JWT auth
+    JWT_SECRET=your_jwt_secret_key
 
-- **Mouleeswaran**  
-- [GitHub Repository](https://github.com/MOULEESWARAN-25/Postal-Service.git)
+    # Gemini API Credentials
+    GEMINI_API_KEY=your_gemini_api_key
+    NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_api_key
+    ```
 
+3.  **Seed the Database:**
+    Populate your database collections with demographic records, schemes, agricultural timings, and mock beneficiary data:
+    ```bash
+    node seed-all.js
+    ```
+
+4.  **Run the Development Server:**
+    ```bash
+    npm run dev
+    ```
+    Open [http://localhost:3000](http://localhost:3000) in your browser to explore the platform.
+
+---
+
+## 👤 Author
+
+*   **Mouleeswaran**
+*   [GitHub Repository](https://github.com/MOULEESWARAN-25/Postal-Service.git)
