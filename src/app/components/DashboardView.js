@@ -21,6 +21,7 @@ const IncomeDistribution = dynamic(() => import("./Charts/IncomeDistribution"), 
 import useDashboardStore from "@/store/dashboardStore";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useTranslation } from "@/lib/translations";
 import { cn } from "@/lib/utils";
 import { calculateVillageRecommendations } from "@/lib/recommendationEngine";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
@@ -33,6 +34,7 @@ import DSSMethodologyModal from "./DSSMethodologyModal";
 
 function DashboardView() {
   const router = useRouter();
+  const { t } = useTranslation();
 
   const {
     demographicData,
@@ -514,17 +516,17 @@ function DashboardView() {
                   className="px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-widest"
                   style={{ background: "rgba(200, 16, 46, 0.25)", color: "#F87171", border: "1px solid rgba(200,16,46,0.3)" }}
                 >
-                  DSS Portal
+                  {t("dssPortal")}
                 </div>
               </div>
               <h1
                 className="text-2xl font-extrabold text-white"
                 style={{ letterSpacing: "-0.03em" }}
               >
-                {regionTitle} Intelligence
+                {regionTitle} {t("intelligence")}
               </h1>
               <p className="text-xs font-medium mt-1.5" style={{ color: "rgba(148,163,184,0.85)" }}>
-                Decision Support System analyzing regional Census data, opportunities, and campaigns.
+                {t("dssDescription")}
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -536,10 +538,10 @@ function DashboardView() {
                   color: "rgba(226,232,240,0.9)",
                 }}
               >
-                <div className="text-xs text-slate-400 uppercase tracking-wider mb-0.5">Status</div>
+                <div className="text-xs text-slate-400 uppercase tracking-wider mb-0.5">{t("status")}</div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-                  Live • High Readiness
+                  {t("liveReady")}
                 </div>
               </div>
             </div>
@@ -586,14 +588,14 @@ function DashboardView() {
                             className="text-xs font-bold uppercase tracking-wider flex items-center gap-2"
                             style={{ color: "#C8102E" }}
                           >
-                            Strategic Action Center
+                            {t("strategicActionCenter")}
                             <button
                               type="button"
                               onClick={() => setIsMethodologyOpen(true)}
                               className="text-[10px] lowercase font-normal underline hover:opacity-80 transition cursor-pointer border-none bg-transparent"
                               style={{ color: "#C8102E" }}
                             >
-                              (methodology ⓘ)
+                              ({t("methodology")} ⓘ)
                             </button>
                           </span>
                         </div>
@@ -624,16 +626,16 @@ function DashboardView() {
                       </div>
 
                       <h3 className="text-lg font-extrabold leading-tight mb-2" style={{ color: "#1A2B4A", letterSpacing: "-0.02em" }}>
-                        Promote {currentRec.recommendedScheme} in {currentRec.village || regionTitle}
+                        {t("promote")} {currentRec.recommendedScheme} {t("in")} {currentRec.village || regionTitle}
                       </h3>
 
                       <div className="flex flex-wrap gap-x-4 gap-y-1 mb-4">
                         <span className="text-xs font-semibold" style={{ color: "#64748B" }}>
-                          Eligible: <strong style={{ color: "#1E293B" }}>{currentRec.estimatedEligibleCitizens}</strong>
+                          {t("eligible")}: <strong style={{ color: "#1E293B" }}>{currentRec.estimatedEligibleCitizens}</strong>
                         </span>
                         <span className="text-xs" style={{ color: "#CBD5E1" }}>•</span>
                         <span className="text-xs font-semibold" style={{ color: "#64748B" }}>
-                          Window: <strong style={{ color: "#1E293B" }}>{currentRec.campaignWindow}</strong>
+                          {t("window")}: <strong style={{ color: "#1E293B" }}>{currentRec.campaignWindow}</strong>
                         </span>
                       </div>
 
@@ -643,181 +645,181 @@ function DashboardView() {
                         style={{ background: "#F8FAFF", border: "1px solid #EEF1F8" }}
                       >
                         <h4 className="text-xs font-bold uppercase tracking-wider" style={{ color: "#94A3B8" }}>
-                          Supporting Evidence
+                          {t("supportingEvidence")}
                         </h4>
                         <ul className="space-y-1.5 mb-3">
                           {currentRec.keyDrivers?.map((driver, idx) => (
                             <li key={idx} className="flex items-start gap-2">
                               <div
-                                className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
-                                style={{ background: "#C8102E" }}
-                              />
-                              <span className="text-xs font-medium" style={{ color: "#374151" }}>{driver}</span>
-                            </li>
-                          ))}
-                        </ul>
-
-                        {/* DSS Metadata Panel */}
-                        <div className="grid grid-cols-2 gap-2 pt-3 border-t border-dashed border-border/80 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
-                          <div>
-                            <span>Evidence:</span> <span className="text-foreground normal-case font-bold">{currentRec.evidence}</span>
+                                  className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
+                                  style={{ background: "#C8102E" }}
+                                />
+                                <span className="text-xs font-medium" style={{ color: "#374151" }}>{driver}</span>
+                              </li>
+                            ))}
+                          </ul>
+  
+                          {/* DSS Metadata Panel */}
+                          <div className="grid grid-cols-2 gap-2 pt-3 border-t border-dashed border-border/80 text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
+                            <div>
+                              <span>Evidence:</span> <span className="text-foreground normal-case font-bold">{currentRec.evidence}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span>Gap Ratio:</span>
+                              <Tooltip>
+                                <TooltipTrigger className="cursor-help hover:opacity-80" aria-label="Gap ratio explanation">
+                                  <HelpCircle size={10} className="text-muted-foreground/60" />
+                                </TooltipTrigger>
+                                <TooltipContent className="bg-slate-900 text-white border-0 text-xs p-2.5 max-w-xs shadow-md z-[100]">
+                                  <p className="font-bold mb-1">Gap Ratio ⓘ</p>
+                                  <p className="text-[10px] text-slate-300">
+                                    Refers to estimated target market penetration gap. Lower gap indicates high potential saturation.
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                              <span className="text-foreground normal-case font-bold">{currentRec.gap}</span>
+                            </div>
+                            <div>
+                              <span>Source:</span> <span className="text-foreground normal-case font-bold">{currentRec.source}</span>
+                            </div>
+                            <div>
+                              {currentRec.lastUpdated === "Census 2011 PCA" ? (
+                                <><span>Dataset Version:</span> <span className="text-foreground normal-case font-bold">Census 2011 PCA</span></>
+                              ) : (
+                                <><span>Last Updated:</span> <span className="text-foreground normal-case font-bold">{currentRec.lastUpdated}</span></>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex items-center gap-1">
-                            <span>Gap Ratio:</span>
-                            <Tooltip>
-                              <TooltipTrigger className="cursor-help hover:opacity-80" aria-label="Gap ratio explanation">
-                                <HelpCircle size={10} className="text-muted-foreground/60" />
-                              </TooltipTrigger>
-                              <TooltipContent className="bg-slate-900 text-white border-0 text-xs p-2.5 max-w-xs shadow-md z-[100]">
-                                <p className="font-bold mb-1">Gap Ratio ⓘ</p>
-                                <p className="text-[10px] text-slate-300">
-                                  Refers to estimated target market penetration gap. Lower gap indicates high potential saturation.
-                                </p>
-                              </TooltipContent>
-                            </Tooltip>
-                            <span className="text-foreground normal-case font-bold">{currentRec.gap}</span>
-                          </div>
-                          <div>
-                            <span>Source:</span> <span className="text-foreground normal-case font-bold">{currentRec.source}</span>
-                          </div>
-                          <div>
-                            {currentRec.lastUpdated === "Census 2011 PCA" ? (
-                              <><span>Dataset Version:</span> <span className="text-foreground normal-case font-bold">Census 2011 PCA</span></>
-                            ) : (
-                              <><span>Last Updated:</span> <span className="text-foreground normal-case font-bold">{currentRec.lastUpdated}</span></>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Collapsible Evidence Details (Drawer/Panel) */}
-                        <div className="pt-3 border-t border-dashed border-border/80">
-                          <button
-                            type="button"
-                            onClick={() => setIsEvidenceOpen(!isEvidenceOpen)}
-                            className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer bg-transparent border-none p-0 uppercase tracking-wider"
-                          >
-                            <span>{isEvidenceOpen ? "Hide Calculation Evidence ▲" : `Why ${currentRec.recommendedScheme}? (View Evidence) ▼`}</span>
-                          </button>
-
-                          {isEvidenceOpen && (() => {
-                            const evidence = getRecommendationEvidence(currentRec.recommendedScheme, demographicData);
-                            if (!evidence) return null;
-                            return (
-                              <div className="mt-2.5 p-3 bg-white rounded-lg border border-slate-100 space-y-2 text-[11px] text-slate-700 font-semibold normal-case">
-                                <div className="space-y-1">
-                                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Demographic Inputs</span>
-                                  <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-                                    {evidence.factors.map((f, idx) => (
-                                      <div key={idx} className="flex justify-between border-b border-dashed border-slate-100 pb-0.5">
-                                        <span className="text-slate-500">{f.label}:</span>
-                                        <span className="font-bold text-slate-900">{f.value}</span>
-                                      </div>
-                                    ))}
+  
+                          {/* Collapsible Evidence Details (Drawer/Panel) */}
+                          <div className="pt-3 border-t border-dashed border-border/80">
+                            <button
+                              type="button"
+                              onClick={() => setIsEvidenceOpen(!isEvidenceOpen)}
+                              className="text-[11px] font-bold text-primary hover:underline flex items-center gap-1 cursor-pointer bg-transparent border-none p-0 uppercase tracking-wider"
+                            >
+                              <span>{isEvidenceOpen ? `${t("hideEvidence")} ▲` : `${t("whyScheme", { scheme: currentRec.recommendedScheme })} (${t("viewEvidence")}) ▼`}</span>
+                            </button>
+  
+                            {isEvidenceOpen && (() => {
+                              const evidence = getRecommendationEvidence(currentRec.recommendedScheme, demographicData);
+                              if (!evidence) return null;
+                              return (
+                                <div className="mt-2.5 p-3 bg-white rounded-lg border border-slate-100 space-y-2 text-[11px] text-slate-700 font-semibold normal-case">
+                                  <div className="space-y-1">
+                                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Demographic Inputs</span>
+                                    <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                                      {evidence.factors.map((f, idx) => (
+                                        <div key={idx} className="flex justify-between border-b border-dashed border-slate-100 pb-0.5">
+                                          <span className="text-slate-500">{f.label}:</span>
+                                          <span className="font-bold text-slate-900">{f.value}</span>
+                                        </div>
+                                      ))}
+                                    </div>
                                   </div>
-                                </div>
-                                </div>
-                            );
-                          })()}
+                                  </div>
+                              );
+                            })()}
+                          </div>
+  
                         </div>
-
+                      </div>
+  
+                      <div className="flex gap-2 flex-wrap mt-5">
+                        <button
+                          onClick={handleLaunchCampaign}
+                          className="flex items-center gap-1.5 h-9 px-4 rounded-lg text-xs font-bold text-white transition-all duration-150"
+                          style={{
+                            background: "linear-gradient(135deg, #C8102E 0%, #A00D24 100%)",
+                            boxShadow: "0 2px 8px rgba(200,16,46,0.25)",
+                          }}
+                        >
+                          <ChevronRight size={13} />
+                          {t("launchCampaign")}
+                        </button>
+                        <button
+                          onClick={() => triggerChatbot(`Provide an operational outreach plan for promoting ${currentRec.recommendedScheme} in ${currentRec.village || regionTitle}.`)}
+                          className="h-9 px-4 rounded-lg text-xs font-bold transition-all duration-150"
+                          style={{
+                            background: "transparent",
+                            border: "1px solid #E8EDF5",
+                            color: "#1E293B",
+                          }}
+                          onMouseEnter={(e) => { e.currentTarget.style.background = "#F8FAFF"; }}
+                          onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                        >
+                          {t("askAssistant")}
+                        </button>
                       </div>
                     </div>
-
-                    <div className="flex gap-2 flex-wrap mt-5">
-                      <button
-                        onClick={handleLaunchCampaign}
-                        className="flex items-center gap-1.5 h-9 px-4 rounded-lg text-xs font-bold text-white transition-all duration-150"
-                        style={{
-                          background: "linear-gradient(135deg, #C8102E 0%, #A00D24 100%)",
-                          boxShadow: "0 2px 8px rgba(200,16,46,0.25)",
-                        }}
-                      >
-                        <ChevronRight size={13} />
-                        Launch Campaign
-                      </button>
-                      <button
-                        onClick={() => triggerChatbot(`Provide an operational outreach plan for promoting ${currentRec.recommendedScheme} in ${currentRec.village || regionTitle}.`)}
-                        className="h-9 px-4 rounded-lg text-xs font-bold transition-all duration-150"
-                        style={{
-                          background: "transparent",
-                          border: "1px solid #E8EDF5",
-                          color: "#1E293B",
-                        }}
-                        onMouseEnter={(e) => { e.currentTarget.style.background = "#F8FAFF"; }}
-                        onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
-                      >
-                        Ask Assistant
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    className="flex-grow relative rounded-xl overflow-hidden flex flex-col justify-between"
-                    style={{
-                      background: "#fff",
-                      border: "1px solid #E8EDF5",
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-                      padding: "1.5rem",
-                    }}
-                  >
-                    {/* Top accent gradient bar */}
+                  ) : (
                     <div
-                      className="absolute top-0 left-0 right-0 h-[3px]"
-                      style={{ background: "linear-gradient(90deg, #1A2B4A 0%, #2A3F66 100%)" }}
-                    />
-                    <div>
-                      <div className="flex items-center gap-1.5 mb-4">
-                        <div className="p-1.5 rounded-lg" style={{ background: "rgba(26,43,74,0.08)" }}>
-                          <Sparkles size={12} style={{ color: "#1A2B4A" }} />
-                        </div>
-                        <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "#64748B" }}>
-                          National Intelligence Overview
-                        </span>
-                      </div>
-                      <h3 className="text-lg font-extrabold leading-tight mb-2" style={{ color: "#1A2B4A", letterSpacing: "-0.02em" }}>
-                        Welcome to Regional Intelligence
-                      </h3>
-                      <p className="text-xs font-semibold mt-2 leading-relaxed" style={{ color: "#64748B" }}>
-                        Select a State, District, or Village to generate region-specific campaign recommendations, eligibility insights, and demographic intelligence.
-                      </p>
-
+                      className="flex-grow relative rounded-xl overflow-hidden flex flex-col justify-between"
+                      style={{
+                        background: "#fff",
+                        border: "1px solid #E8EDF5",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+                        padding: "1.5rem",
+                      }}
+                    >
+                      {/* Top accent gradient bar */}
                       <div
-                        className="rounded-xl p-3 space-y-2 mt-4"
-                        style={{ background: "#F8FAFF", border: "1px solid #EEF1F8" }}
-                      >
-                        <h4 className="text-xs font-bold uppercase tracking-wider" style={{ color: "#94A3B8" }}>Available Capabilities</h4>
-                        <ul className="space-y-2">
-                          <li className="flex items-start gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "#1A2B4A" }} />
-                            <span className="text-xs font-medium" style={{ color: "#374151" }}>Identify optimal schemes tailored to local literacy and workforce demographics.</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "#1A2B4A" }} />
-                            <span className="text-xs font-medium" style={{ color: "#374151" }}>Target agricultural harvest seasons to maximize POSA savings enrollments.</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "#1A2B4A" }} />
-                            <span className="text-xs font-medium" style={{ color: "#374151" }}>Evaluate suitability ratios and run direct outreach campaign calendars.</span>
-                          </li>
-                        </ul>
+                        className="absolute top-0 left-0 right-0 h-[3px]"
+                        style={{ background: "linear-gradient(90deg, #1A2B4A 0%, #2A3F66 100%)" }}
+                      />
+                      <div>
+                        <div className="flex items-center gap-1.5 mb-4">
+                          <div className="p-1.5 rounded-lg" style={{ background: "rgba(26,43,74,0.08)" }}>
+                            <Sparkles size={12} style={{ color: "#1A2B4A" }} />
+                          </div>
+                          <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "#64748B" }}>
+                            {t("nationalIntelligenceOverview")}
+                          </span>
+                        </div>
+                        <h3 className="text-lg font-extrabold leading-tight mb-2" style={{ color: "#1A2B4A", letterSpacing: "-0.02em" }}>
+                          {t("welcomeTitle")}
+                        </h3>
+                        <p className="text-xs font-semibold mt-2 leading-relaxed" style={{ color: "#64748B" }}>
+                          {t("welcomeDesc")}
+                        </p>
+  
+                        <div
+                          className="rounded-xl p-3 space-y-2 mt-4"
+                          style={{ background: "#F8FAFF", border: "1px solid #EEF1F8" }}
+                        >
+                          <h4 className="text-xs font-bold uppercase tracking-wider" style={{ color: "#94A3B8" }}>{t("availableCapabilities")}</h4>
+                          <ul className="space-y-2">
+                            <li className="flex items-start gap-2">
+                              <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "#1A2B4A" }} />
+                              <span className="text-xs font-medium" style={{ color: "#374151" }}>{t("cap1")}</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "#1A2B4A" }} />
+                              <span className="text-xs font-medium" style={{ color: "#374151" }}>{t("cap2")}</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <div className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "#1A2B4A" }} />
+                              <span className="text-xs font-medium" style={{ color: "#374151" }}>{t("cap3")}</span>
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+  
+                      <div className="flex gap-2 flex-wrap mt-5">
+                        <button
+                          onClick={handleExploreClick}
+                          className="flex items-center gap-1.5 h-9 px-4 rounded-lg text-xs font-bold text-white transition-all duration-150"
+                          style={{
+                            background: "linear-gradient(135deg, #1A2B4A 0%, #2A3F66 100%)",
+                            boxShadow: "0 2px 8px rgba(26,43,74,0.25)",
+                          }}
+                        >
+                          <ChevronRight size={13} />
+                          {t("chooseAnalysisRegion")}
+                        </button>
                       </div>
                     </div>
-
-                    <div className="flex gap-2 flex-wrap mt-5">
-                      <button
-                        onClick={handleExploreClick}
-                        className="flex items-center gap-1.5 h-9 px-4 rounded-lg text-xs font-bold text-white transition-all duration-150"
-                        style={{
-                          background: "linear-gradient(135deg, #1A2B4A 0%, #2A3F66 100%)",
-                          boxShadow: "0 2px 8px rgba(26,43,74,0.25)",
-                        }}
-                      >
-                        <ChevronRight size={13} />
-                        Select Location
-                      </button>
-                    </div>
-                  </div>
-                )}
+                  )}
               </div>
 
               {/* Column span 1: Supporting Metrics (KPIs grid) */}
@@ -840,7 +842,7 @@ function DashboardView() {
                       onMouseEnter={(e) => (e.currentTarget.style.opacity = "1")}
                     />
                     <div className="flex items-start justify-between">
-                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Population</span>
+                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{t("population")}</span>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "rgba(26,43,74,0.08)" }}>
                         <Users className="h-3.5 w-3.5" style={{ color: "#1A2B4A" }} />
                       </div>
@@ -867,7 +869,7 @@ function DashboardView() {
                     onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 1px 4px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.03)"; e.currentTarget.style.transform = "translateY(0)"; }}
                   >
                     <div className="flex items-start justify-between">
-                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Workforce</span>
+                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{t("workforce")}</span>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "rgba(26,43,74,0.08)" }}>
                         <TrendingUp className="h-3.5 w-3.5" style={{ color: "#1A2B4A" }} />
                       </div>
@@ -895,7 +897,7 @@ function DashboardView() {
                   >
                     <div className="flex items-start justify-between">
                       <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                        Literacy
+                        {t("literacy")}
                         <Tooltip>
                           <TooltipTrigger className="cursor-help hover:opacity-80" aria-label="Literacy rate explanation">
                             <HelpCircle size={12} className="text-muted-foreground/60" />
@@ -934,7 +936,7 @@ function DashboardView() {
                     onMouseLeave={(e) => { e.currentTarget.style.boxShadow = "0 1px 4px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.03)"; e.currentTarget.style.transform = "translateY(0)"; }}
                   >
                     <div className="flex items-start justify-between">
-                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">POs Network</span>
+                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{t("posNetwork")}</span>
                       <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "rgba(26,43,74,0.08)" }}>
                         <MapPin className="h-3.5 w-3.5" style={{ color: "#1A2B4A" }} />
                       </div>
@@ -965,7 +967,7 @@ function DashboardView() {
                       <Users className="h-4 w-4" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">Demographics Visualizer & Insights</h3>
+                      <h3 className="text-sm font-bold text-foreground uppercase tracking-wider">{t("demographicsInsights")}</h3>
                       <p className="text-xs text-muted-foreground font-semibold mt-0.5">
                         Detailed breakdowns, literacy gaps, and worker classifications.
                       </p>
@@ -975,7 +977,7 @@ function DashboardView() {
                   {/* Census segment selector */}
                   {totalDemographicData && Array.isArray(totalDemographicData) && (
                     <div className="flex items-center gap-1.5 bg-muted p-1 rounded-lg border border-border shrink-0">
-                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-2 hidden md:inline">Segment:</span>
+                      <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider px-2 hidden md:inline">{t("segment")}:</span>
                       {totalDemographicData.map((item, index) => {
                         const isSelected = selectedData === item || (index === 0 && selectedData === null);
                         return (
@@ -1235,12 +1237,12 @@ function DashboardView() {
                 <div className="flex items-center gap-2 mb-4">
                   <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
                   <h4 className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(148,163,184,0.8)" }}>
-                    Live DSS Status
+                    {t("liveDssStatus")}
                   </h4>
                 </div>
                 <div className="space-y-3">
                   <div>
-                    <span className="text-xs font-bold uppercase tracking-wider block" style={{ color: "rgba(100,116,139,0.8)" }}>Active Enrollments</span>
+                    <span className="text-xs font-bold uppercase tracking-wider block" style={{ color: "rgba(100,116,139,0.8)" }}>{t("activeEnrollments")}</span>
                     <h4 className="text-xl font-extrabold text-white mt-0.5" style={{ letterSpacing: "-0.02em" }}>
                       {loading ? <Skeleton className="h-5 w-16" /> : `${liveEnrollmentCount}`}
                     </h4>
@@ -1251,9 +1253,9 @@ function DashboardView() {
                     style={{ background: "rgba(255,255,255,0.06)" }}
                   />
                   <div>
-                    <span className="text-xs font-bold uppercase tracking-wider block" style={{ color: "rgba(100,116,139,0.8)" }}>Top Scheme</span>
+                    <span className="text-xs font-bold uppercase tracking-wider block" style={{ color: "rgba(100,116,139,0.8)" }}>{t("topScheme")}</span>
                     <h4 className="text-xs font-bold mt-0.5" style={{ color: "#F87171" }}>
-                      {isLocationSelected && currentRec ? currentRec.recommendedScheme : "Select location"}
+                      {isLocationSelected && currentRec ? currentRec.recommendedScheme : t("chooseAnalysisRegion")}
                     </h4>
                   </div>
                   <div
@@ -1261,7 +1263,7 @@ function DashboardView() {
                     style={{ background: "rgba(255,255,255,0.06)" }}
                   />
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(100,116,139,0.8)" }}>Readiness</span>
+                    <span className="text-xs font-bold uppercase tracking-wider" style={{ color: "rgba(100,116,139,0.8)" }}>{t("readiness")}</span>
                     <span
                       className="text-xs font-bold px-2 py-0.5 rounded-full"
                       style={{
@@ -1288,16 +1290,16 @@ function DashboardView() {
               }}
             >
               <h4 className="text-xs font-bold uppercase tracking-wider pb-3 mb-3" style={{ color: "#94A3B8", borderBottom: "1px solid #EEF1F8" }}>
-                Quick Navigation
+                {t("quickNavigation")}
               </h4>
               <div className="grid grid-cols-1 gap-1.5">
                 {[
-                  { label: "Compare Villages", icon: Layers, onClick: () => router.push("/compare") },
-                  { label: "Beneficiary Directory", icon: Users, onClick: () => router.push("/publicInfo") },
-                  { label: "Scheme Recommender", icon: Sparkles, onClick: () => router.push("/recommender") },
-                ].map(({ label, icon: Icon, onClick }) => (
+                  { labelKey: "compareVillages", icon: Layers, onClick: () => router.push("/compare") },
+                  { labelKey: "beneficiaryDirectory", icon: Users, onClick: () => router.push("/publicInfo") },
+                  { labelKey: "schemeRecommender", icon: Sparkles, onClick: () => router.push("/recommender") },
+                ].map(({ labelKey, icon: Icon, onClick }) => (
                   <button
-                    key={label}
+                    key={labelKey}
                     onClick={onClick}
                     className="flex items-center gap-2.5 w-full text-xs font-semibold h-9 px-3 rounded-lg text-left transition-all duration-150"
                     style={{ color: "#374151", background: "transparent", border: "1px solid transparent" }}
@@ -1313,7 +1315,7 @@ function DashboardView() {
                     <div className="w-6 h-6 rounded-md flex items-center justify-center shrink-0" style={{ background: "rgba(26,43,74,0.08)" }}>
                       <Icon size={12} style={{ color: "#1A2B4A" }} />
                     </div>
-                    {label}
+                    {t(labelKey)}
                   </button>
                 ))}
               </div>
@@ -1334,10 +1336,10 @@ function DashboardView() {
                 style={{ background: "linear-gradient(135deg, #1A2B4A 0%, #2A3F66 100%)" }}
               >
                 <h4 className="text-xs font-bold uppercase tracking-wider text-white/70">
-                  Campaign Assistant
+                  {t("campaignAssistant")}
                 </h4>
                 <p className="text-xs font-semibold text-white mt-0.5" style={{ letterSpacing: "-0.01em" }}>
-                  Operational Assistant Scripts
+                  {t("operationalScripts")}
                 </p>
               </div>
               <div className="p-4 space-y-2">
@@ -1352,7 +1354,7 @@ function DashboardView() {
                     onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#CBD5E1"; }}
                     onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#E8EDF5"; }}
                   >
-                    📝 Get Campaign Checklist
+                    {t("triggerChecklist")}
                   </button>
                   <button
                     onClick={() => triggerChatbot(`Draft an outreach announcement script and localized SMS template for promoting ${currentRec?.recommendedScheme || "Sukanya Samriddhi Account (SSA)"} in ${regionTitle}.`)}
@@ -1361,7 +1363,7 @@ function DashboardView() {
                     onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#CBD5E1"; }}
                     onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#E8EDF5"; }}
                   >
-                    📢 Draft Outreach Scripts
+                    {t("triggerScripts")}
                   </button>
                 </div>
               </div>

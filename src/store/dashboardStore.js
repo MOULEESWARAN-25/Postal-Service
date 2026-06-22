@@ -42,6 +42,14 @@ const useDashboardStore = create((set) => ({
   setChatbotQuery: (query) => set({ chatbotQuery: query }),
   triggerChatbot: (query) => set({ chatbotOpen: true, chatbotQuery: query }),
 
+  language: "en",
+  setLanguage: (lang) => {
+    set({ language: lang });
+    if (typeof window !== "undefined") {
+      localStorage.setItem("language", lang);
+    }
+  },
+
   filterDemographicData: (freshData) =>
     set((state) => {
       const source = freshData || state.totalDemographicData;

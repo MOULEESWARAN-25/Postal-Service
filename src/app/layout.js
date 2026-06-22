@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import ClientHeader from "./clientHeader";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import AuthGuard from "@/components/AuthGuard";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -33,13 +34,15 @@ export default function RootLayout({ children }) {
       </head>
       <body className={inter.className}>
         <TooltipProvider>
-          <div className="flex flex-col min-h-screen" style={{ background: "#F6F8FC" }}>
-            <ClientHeader />
-            <div className="flex-1">
-              {children}
+          <AuthGuard>
+            <div className="flex flex-col min-h-screen" style={{ background: "#F6F8FC" }}>
+              <ClientHeader />
+              <div className="flex-1">
+                {children}
+              </div>
             </div>
-          </div>
-          <Toaster />
+            <Toaster />
+          </AuthGuard>
         </TooltipProvider>
       </body>
     </html>

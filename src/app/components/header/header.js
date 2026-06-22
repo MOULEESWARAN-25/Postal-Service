@@ -15,7 +15,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import useDashboardStore from "@/store/dashboardStore";
@@ -32,19 +32,23 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
+import { useTranslation } from "@/lib/translations";
 
 const NAV_LINKS = [
-  { href: "/",            label: "Dashboard",       icon: BarChart2 },
-  { href: "/compare",     label: "Compare Regions", icon: Globe },
-  { href: "/publicInfo",  label: "Beneficiaries",   icon: Users },
-  { href: "/calender",    label: "Campaigns",       icon: CalendarDays },
-  { href: "/recommender", label: "Recommender",     icon: Sparkles },
-  { href: "/analytics",   label: "Analytics",       icon: TrendingUp },
-  { href: "/query-resolver", label: "Assistant",    icon: MessageSquare },
+  { href: "/",            labelKey: "dashboard",       icon: BarChart2 },
+  { href: "/compare",     labelKey: "compareRegions",  icon: Globe },
+  { href: "/publicInfo",  labelKey: "beneficiaries",   icon: Users },
+  { href: "/calender",    labelKey: "campaigns",       icon: CalendarDays },
+  { href: "/recommender", labelKey: "recommender",     icon: Sparkles },
+  { href: "/analytics",   labelKey: "analytics",       icon: TrendingUp },
+  { href: "/query-resolver", labelKey: "assistant",    icon: MessageSquare },
 ];
 
 const Header = () => {
   const pathname = usePathname();
+  const router = useRouter();
+  const { t, language } = useTranslation();
 
   const {
     activeTab,
@@ -59,7 +63,15 @@ const Header = () => {
     subpostoffice,
     postoffice,
     setSchemePerformanceVisible,
+    setLanguage,
   } = useDashboardStore();
+
+  useEffect(() => {
+    const savedLang = localStorage.getItem("language");
+    if (savedLang && (savedLang === "en" || savedLang === "hi")) {
+      setLanguage(savedLang);
+    }
+  }, [setLanguage]);
 
   const [searchOpen, setSearchOpen] = useState(false);
 
@@ -138,7 +150,7 @@ const Header = () => {
   const tabInactive = `text-foreground hover:bg-slate-50`;
 
   // Get active location title for navigation pill display
-  const activeLocationTitle = village || (typeof postoffice === "object" ? postoffice?.name : postoffice) || subpostoffice?.name || District || State?.name || "India (National)";
+  const activeLocationTitle = village || (typeof postoffice === "object" ? postoffice?.name : postoffice) || subpostoffice?.name || District || State?.name || t("indiaNational");
 
   return (
     <header className="sticky top-0 z-50 h-16 border-b border-border bg-white flex items-center justify-between px-8">
@@ -146,8 +158,8 @@ const Header = () => {
       <div className="flex items-center space-x-2.5 w-[240px] shrink-0 justify-start">
         <img src="/postoffice.png" alt="India Post" className="h-8" />
         <div className="leading-none">
-          <p className="text-sm font-extrabold text-primary tracking-tight">Postal Service</p>
-          <p className="text-xs font-bold text-secondary uppercase tracking-wider mt-0.5">DSS Portal</p>
+          <p className="text-sm font-extrabold text-primary tracking-tight">{t("postalService")}</p>
+          <p className="text-xs font-bold text-secondary uppercase tracking-wider mt-0.5">{t("dssPortal")}</p>
         </div>
       </div>
 
@@ -156,7 +168,7 @@ const Header = () => {
         <div className="flex items-center gap-2 bg-slate-50 p-1 rounded-full border border-border">
           {/* Navigation Links inside capsule */}
           <nav className="hidden lg:flex items-center gap-1 pl-2">
-            {NAV_LINKS.map(({ href, label }) => {
+            {NAV_LINKS.map(({ href, labelKey }) => {
               const active = pathname === href || (href !== "/" && pathname?.startsWith(href));
               return (
                 <Link
@@ -166,7 +178,7 @@ const Header = () => {
                     active ? "text-primary bg-white shadow-sm" : "text-muted-foreground"
                   }`}
                 >
-                  {label}
+                  {t(labelKey)}
                 </Link>
               );
             })}
@@ -187,10 +199,10 @@ const Header = () => {
               } />
               <SheetContent side="left" className="w-[280px] bg-white">
                 <SheetHeader className="border-b pb-4 mb-4">
-                  <SheetTitle className="text-left text-base font-extrabold text-primary">Navigation</SheetTitle>
+                  <SheetTitle className="text-left text-base font-extrabold text-primary">{t("dashboard")}</SheetTitle>
                 </SheetHeader>
                 <div className="flex flex-col gap-1">
-                  {NAV_LINKS.map(({ href, label, icon: Icon }) => {
+                  {NAV_LINKS.map(({ href, labelKey, icon: Icon }) => {
                     const active = pathname === href || (href !== "/" && pathname?.startsWith(href));
                     return (
                       <Link
@@ -201,7 +213,7 @@ const Header = () => {
                         }`}
                       >
                         <Icon size={14} />
-                        <span>{label}</span>
+                        <span>{t(labelKey)}</span>
                       </Link>
                     );
                   })}
@@ -217,7 +229,7 @@ const Header = () => {
             ref={searchButtonRef}
             onClick={() => setSearchOpen(!searchOpen)}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-full bg-white border border-border text-foreground hover:bg-slate-50 shadow-sm shrink-0 mr-0.5 transition"
-            title="Choose Analysis Region"
+            title={t("chooseAnalysisRegion")}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -256,8 +268,8 @@ const Header = () => {
               >
                 <Map className="w-4 h-4 shrink-0 text-muted-foreground" />
                 <div className="flex flex-col truncate text-left">
-                  <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">State</span>
-                  <p className="text-xs text-primary font-bold truncate">{State?.name || "Select State"}</p>
+                  <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">{t("state")}</span>
+                  <p className="text-xs text-primary font-bold truncate">{State?.name || t("selectState")}</p>
                 </div>
                 {activeTab === "state" && <RegionSearch />}
               </div>
@@ -272,8 +284,8 @@ const Header = () => {
               >
                 <LandPlot className="w-4 h-4 shrink-0 text-muted-foreground" />
                 <div className="flex flex-col truncate text-left">
-                  <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">District</span>
-                  <p className="text-xs text-primary font-bold truncate">{District || "Select"}</p>
+                  <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">{t("district")}</span>
+                  <p className="text-xs text-primary font-bold truncate">{District || t("selectDistrict")}</p>
                 </div>
                 {activeTab === "district" && <DistrictSearch />}
               </div>
@@ -288,8 +300,8 @@ const Header = () => {
               >
                 <MapPinned className="w-4 h-4 shrink-0 text-muted-foreground" />
                 <div className="flex flex-col truncate text-left">
-                  <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Sub PO</span>
-                  <p className="text-xs text-primary font-bold truncate">{subpostoffice?.name || "Select"}</p>
+                  <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">{t("subPo")}</span>
+                  <p className="text-xs text-primary font-bold truncate">{subpostoffice?.name || t("selectSubPo")}</p>
                 </div>
                 {activeTab === "subpostoffice" && <SubPostOfficeSearch />}
               </div>
@@ -304,9 +316,9 @@ const Header = () => {
               >
                 <Signpost className="w-4 h-4 shrink-0 text-muted-foreground" />
                 <div className="flex flex-col truncate text-left">
-                  <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Post Office</span>
+                  <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">{t("postOffice")}</span>
                   <p className="text-xs text-primary font-bold truncate">
-                    {typeof postoffice === "object" ? (postoffice?.name || "Select") : (postoffice || "Select")}
+                    {typeof postoffice === "object" ? (postoffice?.name || t("selectPostOffice")) : (postoffice || t("selectPostOffice"))}
                   </p>
                 </div>
                 {activeTab === "postoffice" && <SearchPostOffice />}
@@ -322,8 +334,8 @@ const Header = () => {
               >
                 <MapPinHouse className="w-4 h-4 shrink-0 text-muted-foreground" />
                 <div className="flex flex-col truncate text-left">
-                  <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Village</span>
-                  <p className="text-xs text-primary font-bold truncate">{village || "Select"}</p>
+                  <span className="text-xs text-muted-foreground uppercase font-bold tracking-wider">{t("village")}</span>
+                  <p className="text-xs text-primary font-bold truncate">{village || t("selectVillage")}</p>
                 </div>
                 {activeTab === "village" && <VillageSearch />}
               </div>
@@ -333,7 +345,7 @@ const Header = () => {
                 <Button
                   onClick={handleClick}
                   className="flex items-center justify-center w-10 h-10 text-white rounded-full bg-primary hover:bg-primary/95 shrink-0 shadow-sm"
-                  title="Analyse"
+                  title={t("analyse")}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                     strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
@@ -362,10 +374,16 @@ const Header = () => {
             </Button>
           } />
           <DropdownMenuContent align="end" className="w-32 bg-white border border-border z-50">
-            <DropdownMenuItem className="font-bold text-secondary cursor-pointer">
+            <DropdownMenuItem 
+              className={`${language === "en" ? "font-bold text-secondary" : "text-muted-foreground"} cursor-pointer`}
+              onClick={() => setLanguage("en")}
+            >
               English
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-muted-foreground cursor-pointer">
+            <DropdownMenuItem 
+              className={`${language === "hi" ? "font-bold text-secondary" : "text-muted-foreground"} cursor-pointer`}
+              onClick={() => setLanguage("hi")}
+            >
               हिन्दी
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -385,17 +403,24 @@ const Header = () => {
           } />
           <DropdownMenuContent align="end" className="w-48 bg-white border border-border z-50">
             <DropdownMenuItem asChild>
-              <Link href="/profile" className="text-foreground w-full cursor-pointer">
-                Profile
+              <Link href="/personalDetails" className="text-foreground w-full cursor-pointer">
+                {t("profile")}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/register" className="text-foreground w-full cursor-pointer">
-                Create User
+                {t("createUser")}
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-destructive font-bold cursor-pointer">
-              Logout
+            <DropdownMenuItem 
+              className="text-destructive font-bold cursor-pointer"
+              onClick={() => {
+                localStorage.removeItem("token");
+                toast.success("Successfully logged out");
+                router.push("/login");
+              }}
+            >
+              {t("logout")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
