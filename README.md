@@ -145,24 +145,6 @@ To understand how the decision support system operates in practice, consider the
 
 ---
 
-## Screenshots
-
-*Note: The following links reference visual mockups located within the public assets folder of this repository.*
-
-### Analytics Dashboard Overview
-Provides a visual breakdown of regional demographics, district maps, and the village prioritization list.
-[Dashboard UI Mockup](file:///c:/GitProjects/Postal-Service/public/placeholder-state.png)
-
-### Village Detail and Crop Sync
-Illustrates the localized census dashboard, recommended scheme drivers, and crop harvest alignments.
-[Village Detail View](file:///c:/GitProjects/Postal-Service/public/states/tamilnadu.png)
-
-### Beneficiary Eligibility Profile
-Displays individual citizen demographic variables, credit scores, and qualifying enrollment options.
-[Beneficiary Profile View](file:///c:/GitProjects/Postal-Service/public/postoffice.png)
-
----
-
 ## Features
 
 ### Business Features
@@ -513,16 +495,3 @@ Many queries target standard village demographic analyses or general scheme rule
 This project demonstrates the design of a production-oriented decision-support system that combines deterministic algorithms, explainable AI, retrieval-based knowledge, secure software engineering practices, and modern full-stack development. While developed as a Smart India Hackathon prototype, its architecture is designed to support future integration with real operational datasets and services. It highlights a developer's ability to balance technical innovation with strict safety validation and cost optimization parameters, laying a solid foundation for future scaling.
 
 ---
-
-## Acknowledgements
-
-*   **Smart India Hackathon (SIH):** For providing the problem statement and platform to design this decision support system.
-*   **Department of Posts (India Post):** For detailing the operational challenges and scheme rules that guided our recommendation engine.
-*   **Census of India:** For publishing the demographic PCA datasets that form the core data layer of this application.
-
----
-
-## Contributors
-
-*   **Mouleeswaran** - Full Stack Application Developer & AI Integration Lead
-*   [GitHub Project Repository](https://github.com/MOULEESWARAN-25/Postal-Service.git)
